@@ -47,9 +47,8 @@ func evalExpr(expr ast.Expr) (string, error) {
 }
 
 func execCmd(name string, args []string) error {
-	switch name {
-	case "echo":
-		return echo(args)
+	if fn, ok := builtins[name]; ok {
+		return fn(args)
 	}
 	cmd := exec.Command(name, args...)
 	cmd.Stdin = os.Stdin
