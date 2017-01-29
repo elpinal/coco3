@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
+
+	"github.com/elpinal/coco3/eval"
+	"github.com/elpinal/coco3/parser"
 )
 
 var prompt = "Σ> "
@@ -86,11 +88,11 @@ LOOP:
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(string(cl.buf))
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	err = cmd.Run()
+	f, err := parser.ParseSrc([]byte(string(cl.buf)))
 	if err != nil {
+		return err
+	}
+	if err := eval.Eval(f.Lines); err != nil {
 		return err
 	}
 	return nil
