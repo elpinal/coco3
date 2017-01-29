@@ -1,0 +1,87 @@
+package ast
+
+import "github.com/elpinal/coco3/token"
+
+type Node interface {
+	Pos() token.Pos // position of first character belonging to the node
+	End() token.Pos // position of first character immediately after the node
+}
+
+type Expr interface {
+	Node
+	exprNode()
+}
+
+type Stmt interface {
+	Node
+	stmtNode()
+}
+
+type (
+	// A BadExpr node is a placeholder for expressions containing
+	// syntax errors for which no correct expression nodes can be
+	// created.
+	//
+	BadExpr struct {
+		From, To token.Pos // position range of bad expression
+	}
+
+	// An Ident node represents an identifier.
+	Ident struct {
+		NamePos token.Pos // identifier position
+		Name    string    // identifier name
+	}
+)
+
+func (x *BadExpr) Pos() token.Pos { return x.From }
+func (x *Ident) Pos() token.Pos   { return x.NamePos }
+
+func (x *BadExpr) End() token.Pos { return x.To }
+func (x *Ident) End() token.Pos   { return token.Pos(int(x.NamePos) + len(x.Name)) }
+
+func (*BadExpr) exprNode() {}
+func (*Ident) exprNode()   {}
+
+func (id *Ident) String() string {
+	if id != nil {
+		return id.Name
+	}
+	return "<nil>"
+}
+
+type (
+	// A BadStmt node is a placeholder for statements containing
+	// syntax errors for which no correct statement nodes can be
+	// created.
+	//
+	BadStmt struct {
+		From, To token.Pos // position range of bad statement
+	}
+
+	ExecStmt struct {
+		Cmd  Expr
+		Args []Expr
+	}
+)
+
+func (s *BadStmt) Pos() token.Pos  { return s.From }
+func (s *ExecStmt) Pos() token.Pos { return s.Cmd.Pos() }
+
+func (s *BadStmt) End() token.Pos  { return s.To }
+func (s *ExecStmt) End() token.Pos { return s.Args[len(s.Args)-1].End() }
+
+func (*BadStmt) stmtNode()  {}
+func (*ExecStmt) stmtNode() {}
+
+type File struct {
+	Name  *Ident // package name
+	Lines []Stmt
+}
+
+func (f *File) Pos() token.Pos { return token.Pos(1) }
+func (f *File) End() token.Pos {
+	if n := len(f.Lines); n > 0 {
+		return f.Lines[n-1].End()
+	}
+	return token.Pos(1)
+}
