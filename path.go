@@ -20,8 +20,8 @@ func setPath(args ...string) {
 	s := os.Getenv("PATH")
 	paths := strings.Split(s, ":")
 	var newPaths []string
-	for _, arg := range args {
-		for _, path := range paths {
+	for _, path := range paths {
+		for _, arg := range args {
 			if path != arg {
 				newPaths = append(newPaths, path)
 			}
