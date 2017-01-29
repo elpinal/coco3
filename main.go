@@ -13,11 +13,11 @@ import (
 var prompt = "Σ> "
 
 func main() {
-	var err error
-	for err == nil {
-		err = loop()
+	for {
+		if err := loop(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
 	}
-	fmt.Fprintln(os.Stderr, err)
 }
 
 const (
