@@ -16,6 +16,7 @@ type Scanner struct {
 	offset     int  // character offset
 	rdOffset   int  // reading offset (position after current character)
 	lineOffset int  // current line offset
+	insertSemi bool // insert a semicolon before next newline
 }
 
 const bom = 0xFEFF // byte order mark, only permitted as very first character
@@ -61,6 +62,7 @@ func (s *Scanner) Init(src []byte) {
 	s.offset = 0
 	s.rdOffset = 0
 	s.lineOffset = 0
+	s.insertSemi = false
 
 	s.next()
 	if s.ch == bom {
@@ -74,7 +76,7 @@ func (s *Scanner) error(offs int, msg string) {
 
 func (s *Scanner) scanIdentifier() string {
 	offs := s.offset
-	for s.ch != ' ' && s.ch != '\t' && s.ch != -1 {
+	for s.ch != ' ' && s.ch != '\t' && s.ch != '\n' && s.ch != -1 && s.ch != ';' {
 		s.next()
 	}
 	return string(s.src[offs:s.offset])
@@ -91,13 +93,26 @@ func (s *Scanner) Scan() (pos token.Pos, tok token.Token, lit string) {
 
 	pos = token.Pos(s.offset)
 
+	//insertSemi := false
 	switch ch := s.ch; ch {
 	default:
 		lit = s.scanIdentifier()
 		tok = token.IDENT
 	case -1:
 		s.next() // always make progress
+		if s.insertSemi {
+			s.insertSemi = false // EOF consumed
+			return pos, token.SEMICOLON, "\n"
+		}
 		tok = token.EOF
+	case '\n':
+		s.next()             // always make progress
+		s.insertSemi = false // newline consumed
+		return pos, token.SEMICOLON, "\n"
+	case ';':
+		s.next()
+		tok = token.SEMICOLON
+		lit = ";"
 	}
 
 	return

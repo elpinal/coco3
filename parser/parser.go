@@ -37,8 +37,34 @@ func (p *parser) next() {
 	p.next0()
 }
 
-func (p *parser) error(msg string) {
+func (p *parser) error(pos token.Pos, msg string) {
 	log.Println("parser.error:", msg)
+}
+
+func (p *parser) errorExpected(pos token.Pos, msg string) {
+	msg = "expected " + msg
+	if pos == p.pos {
+		// the error happened at the current position;
+		// make the error message more specific
+		if p.tok == token.SEMICOLON && p.lit == "\n" {
+			msg += ", found newline"
+		} else {
+			msg += ", found '" + p.tok.String() + "'"
+			if p.tok.IsLiteral() {
+				msg += " " + p.lit
+			}
+		}
+	}
+	p.error(pos, msg)
+}
+
+func (p *parser) expect(tok token.Token) token.Pos {
+	pos := p.pos
+	if p.tok != tok {
+		p.errorExpected(pos, "'"+tok.String()+"'")
+	}
+	p.next() // make progress
+	return pos
 }
 
 func (p *parser) parseIdent() *ast.Ident {
@@ -48,7 +74,7 @@ func (p *parser) parseIdent() *ast.Ident {
 		name = p.lit
 		p.next()
 	} else {
-		log.Println("expect: token.IDENT") // use expect() error handling
+		p.expect(token.IDENT) // use expect() error handling
 	}
 	return &ast.Ident{NamePos: pos, Name: name}
 }
@@ -56,9 +82,10 @@ func (p *parser) parseIdent() *ast.Ident {
 func (p *parser) parseLine() ast.Stmt {
 	cmd := p.parseIdent()
 	var args []ast.Expr
-	for p.tok != token.EOF {
+	for p.tok != token.SEMICOLON && p.tok != token.EOF {
 		args = append(args, p.parseIdent())
 	}
+	p.next()
 	return &ast.ExecStmt{Cmd: cmd, Args: args}
 }
 

@@ -14,6 +14,10 @@ const (
 	literal_beg
 	IDENT // main
 	literal_end
+
+	operator_beg
+	SEMICOLON // ;
+	operator_end
 )
 
 var tokens = [...]string{
@@ -22,6 +26,8 @@ var tokens = [...]string{
 	EOF: "EOF",
 
 	IDENT: "IDENT",
+
+	SEMICOLON: ";",
 }
 
 func (tok Token) String() string {
@@ -36,3 +42,5 @@ func (tok Token) String() string {
 }
 
 func (tok Token) IsLiteral() bool { return literal_beg < tok && tok < literal_end }
+
+func (tok Token) IsOperator() bool { return operator_beg < tok && tok < operator_end }
