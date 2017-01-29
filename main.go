@@ -10,7 +10,7 @@ import (
 	"github.com/mattn/go-runewidth"
 )
 
-var prompt = "Σ> "
+var prompt = "; "
 
 func main() {
 	for {
