@@ -7,6 +7,7 @@ import (
 
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/parser"
+	"github.com/mattn/go-runewidth"
 )
 
 var prompt = "Σ> "
@@ -108,7 +109,7 @@ func (cl *commandline) refresh() {
 	cl.w.WriteString("\r\033[J")
 	cl.w.WriteString(prompt)
 	cl.w.WriteString(string(cl.buf))
-	cl.w.WriteString(fmt.Sprintf("\033[%vG", len(prompt)+cl.index+1))
+	cl.w.WriteString(fmt.Sprintf("\033[%vG", len(prompt)+runewidth.StringWidth(string(cl.buf[:cl.index]))+1))
 	cl.w.Flush()
 }
 
