@@ -50,6 +50,10 @@ func execCmd(name string, args []string) error {
 	if fn, ok := builtins[name]; ok {
 		return fn(args)
 	}
+	if x, ok := aliases[name]; ok {
+		name = x.cmd
+		args = append(x.args, args...)
+	}
 	cmd := exec.Command(name, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
