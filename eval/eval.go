@@ -33,14 +33,7 @@ func eval(stmt ast.Stmt) error {
 			}
 			args = append(args, s)
 		}
-		cmd := exec.Command(cmdStr, args...)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return err
-		}
-		return nil
+		return execCmd(cmdStr, args)
 	}
 	return errors.New("unexpected type")
 }
@@ -51,4 +44,16 @@ func evalExpr(expr ast.Expr) (string, error) {
 		return x.Name, nil
 	}
 	return "", errors.New("unexpected type")
+}
+
+func execCmd(name string, args []string) error {
+	switch name {
+	case "echo":
+		return echo(args)
+	}
+	cmd := exec.Command(name, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
