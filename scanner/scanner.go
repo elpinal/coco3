@@ -76,7 +76,7 @@ func (s *Scanner) error(offs int, msg string) {
 
 func (s *Scanner) scanIdentifier() string {
 	offs := s.offset
-	for s.ch != ' ' && s.ch != '\t' && s.ch != '\n' && s.ch != -1 && s.ch != ';' {
+	for s.ch != ' ' && s.ch != '\t' && s.ch != '\n' && s.ch != -1 && s.ch != ';' && s.ch != '(' && s.ch != ')' {
 		s.next()
 	}
 	return string(s.src[offs:s.offset])
@@ -109,6 +109,12 @@ func (s *Scanner) Scan() (pos token.Pos, tok token.Token, lit string) {
 		s.next()             // always make progress
 		s.insertSemi = false // newline consumed
 		return pos, token.SEMICOLON, "\n"
+	case '(':
+		s.next()
+		tok = token.LPAREN
+	case ')':
+		s.next()
+		tok = token.RPAREN
 	case ';':
 		s.next()
 		tok = token.SEMICOLON

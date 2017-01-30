@@ -31,16 +31,25 @@ type (
 		NamePos token.Pos // identifier position
 		Name    string    // identifier name
 	}
+
+	ParenExpr struct {
+		Lparen token.Pos // position of "("
+		Exprs  []Expr    // parenthesized expressions
+		Rparen token.Pos // position of ")"
+	}
 )
 
 func (x *BadExpr) Pos() token.Pos { return x.From }
 func (x *Ident) Pos() token.Pos   { return x.NamePos }
+func (x *ParenExpr) Pos() token.Pos      { return x.Lparen }
 
 func (x *BadExpr) End() token.Pos { return x.To }
 func (x *Ident) End() token.Pos   { return token.Pos(int(x.NamePos) + len(x.Name)) }
+func (x *ParenExpr) End() token.Pos      { return x.Rparen + 1 }
 
 func (*BadExpr) exprNode() {}
 func (*Ident) exprNode()   {}
+func (*ParenExpr) exprNode()      {}
 
 func (id *Ident) String() string {
 	if id != nil {

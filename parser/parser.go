@@ -79,11 +79,35 @@ func (p *parser) parseIdent() *ast.Ident {
 	return &ast.Ident{NamePos: pos, Name: name}
 }
 
+func (p *parser) parseList() *ast.ParenExpr {
+	pos := p.pos
+	var list []ast.Expr
+	p.next()
+	for p.tok != token.RPAREN && p.tok != token.EOF {
+		expr := p.parseExpr()
+		list = append(list, expr)
+	}
+	p.next()
+	return &ast.ParenExpr{Lparen: pos, Exprs: list, Rparen: p.pos-1}
+}
+
+func (p *parser) parseExpr() ast.Expr {
+	switch p.tok {
+	case token.LPAREN:
+		return p.parseList()
+	case token.IDENT:
+		return p.parseIdent()
+	}
+	p.error(p.pos, "unexpected error")
+	p.next()
+	return nil
+}
+
 func (p *parser) parseLine() ast.Stmt {
-	cmd := p.parseIdent()
+	cmd := p.parseExpr()
 	var args []ast.Expr
 	for p.tok != token.SEMICOLON && p.tok != token.EOF {
-		args = append(args, p.parseIdent())
+		args = append(args, p.parseExpr())
 	}
 	p.next()
 	return &ast.ExecStmt{Cmd: cmd, Args: args}

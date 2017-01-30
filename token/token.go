@@ -16,6 +16,9 @@ const (
 	literal_end
 
 	operator_beg
+	LPAREN // (
+	RPAREN // )
+
 	SEMICOLON // ;
 	operator_end
 )

@@ -23,29 +23,42 @@ func Eval(stmts []ast.Stmt) error {
 func eval(stmt ast.Stmt) error {
 	switch x := stmt.(type) {
 	case *ast.ExecStmt:
-		cmdStr, err := evalExpr(x.Cmd)
+		list, err := evalExpr(x.Cmd)
 		if err != nil {
 			return err
 		}
-		args := make([]string, 0, len(x.Args))
+		cmdStr := list[0]
+		list = list[1:]
+		args := make([]string, len(list), len(x.Args)+len(list))
+		copy(args, list)
 		for _, arg := range x.Args {
 			s, err := evalExpr(arg)
 			if err != nil {
 				return err
 			}
-			args = append(args, s)
+			args = append(args, s...)
 		}
 		return execCmd(cmdStr, args)
 	}
-	return errors.New("unexpected type")
+	return errors.New("eval: unexpected type")
 }
 
-func evalExpr(expr ast.Expr) (string, error) {
+func evalExpr(expr ast.Expr) ([]string, error) {
 	switch x := expr.(type) {
 	case *ast.Ident:
-		return x.Name, nil
+		return []string{x.Name}, nil
+	case *ast.ParenExpr:
+		var list []string
+		for _, e := range x.Exprs {
+			s, err := evalExpr(e)
+			if err != nil {
+				return nil, err
+			}
+			list = append(list, s...)
+		}
+		return list, nil
 	}
-	return "", errors.New("unexpected type")
+	return nil, errors.New("evalExpr: unexpected type")
 }
 
 func execCmd(name string, args []string) error {
