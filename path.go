@@ -21,12 +21,20 @@ func setPath(args ...string) {
 	paths := strings.Split(s, ":")
 	var newPaths []string
 	for _, path := range paths {
-		for _, arg := range args {
-			if path != arg {
-				newPaths = append(newPaths, path)
-			}
+		if contains(args, path) {
+			continue
 		}
+		newPaths = append(newPaths, path)
 	}
 	newPaths = append(args, newPaths...)
 	os.Setenv("PATH", strings.Join(newPaths, ":"))
+}
+
+func contains(x []string, s string) bool {
+	for i := range x {
+		if x[i] == s {
+			return true
+		}
+	}
+	return false
 }
