@@ -66,15 +66,11 @@ func execCmd(name string, args []string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	fn := func() error {
-		return cmd.Run()
-	}
-
 	defer cancel()
 	select {
-	case <-c:
-		return ctx.Err()
-	case err := <-wait(fn):
+	case s := <-c:
+		return errors.New(s.String())
+	case err := <-wait(cmd.Run):
 		return err
 	}
 	return nil
