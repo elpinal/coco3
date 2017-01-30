@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 
@@ -13,6 +14,18 @@ import (
 var prompt = "; "
 
 func main() {
+	var command = flag.String("c", "", "take first argument as a command to execute")
+	flag.Parse()
+	if *command != "" {
+		f, err := parser.ParseSrc([]byte(*command))
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		if err := eval.Eval(f.Lines); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		return
+	}
 	for {
 		if err := loop(); err != nil {
 			fmt.Fprintln(os.Stderr, err)
