@@ -87,8 +87,7 @@ LOOP:
 		case CharBackspace:
 			cl.deleteChar()
 		default:
-			cl.buf = append(cl.buf, ch)
-			cl.index++
+			cl.appendChar(ch)
 		}
 		cl.refresh()
 	}
@@ -133,6 +132,22 @@ func (cl *commandline) moveBackward() {
 func (cl *commandline) moveForward() {
 	if cl.index == len(cl.buf) {
 		return
+	}
+	cl.index++
+}
+
+func (cl *commandline) appendChar(ch rune) {
+	switch cl.index {
+	case 0:
+		cl.buf = append([]rune{ch}, cl.buf...)
+	case len(cl.buf):
+		cl.buf = append(cl.buf, ch)
+	default:
+		buf := make([]rune, cl.index, len(cl.buf)+1)
+		copy(buf, cl.buf[:cl.index])
+		buf = append(buf, ch)
+		buf = append(buf, cl.buf[cl.index:]...)
+		cl.buf = buf
 	}
 	cl.index++
 }
