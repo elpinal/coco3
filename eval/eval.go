@@ -1,9 +1,11 @@
 package eval
 
 import (
+	"context"
 	"errors"
 	"os"
 	"os/exec"
+	"os/signal"
 
 	"github.com/elpinal/coco3/ast"
 )
@@ -54,9 +56,32 @@ func execCmd(name string, args []string) error {
 		name = x.cmd
 		args = append(x.args, args...)
 	}
-	cmd := exec.Command(name, args...)
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+
+	fn := func() error {
+		return cmd.Run()
+	}
+
+	defer cancel()
+	select {
+	case <-c:
+		return ctx.Err()
+	case err := <-wait(fn):
+		return err
+	}
+	return nil
+}
+
+func wait(fn func() error) <-chan error {
+	c := make(chan error, 1)
+	c <- fn()
+	return c
 }
