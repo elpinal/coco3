@@ -17,11 +17,7 @@ func main() {
 	var command = flag.String("c", "", "take first argument as a command to execute")
 	flag.Parse()
 	if *command != "" {
-		f, err := parser.ParseSrc([]byte(*command))
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		if err := eval.Eval(f.Lines); err != nil {
+		if err := execute([]byte(*command)); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 		return
@@ -102,14 +98,15 @@ LOOP:
 	if err != nil {
 		return err
 	}
-	f, err := parser.ParseSrc([]byte(string(cl.buf)))
+	return execute([]byte(string(cl.buf)))
+}
+
+func execute(b []byte) error {
+	f, err := parser.ParseSrc(b)
 	if err != nil {
 		return err
 	}
-	if err := eval.Eval(f.Lines); err != nil {
-		return err
-	}
-	return nil
+	return eval.Eval(f.Lines)
 }
 
 type commandline struct {
