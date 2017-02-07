@@ -3,6 +3,7 @@ package eval
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -40,7 +41,7 @@ func eval(stmt ast.Stmt) error {
 		}
 		return execCmd(cmdStr, args)
 	}
-	return errors.New("eval: unexpected type")
+	return fmt.Errorf("eval: unexpected type: %T", stmt)
 }
 
 func evalExpr(expr ast.Expr) ([]string, error) {
@@ -57,8 +58,10 @@ func evalExpr(expr ast.Expr) ([]string, error) {
 			list = append(list, s...)
 		}
 		return list, nil
+	case nil:
+		return nil, nil
 	}
-	return nil, errors.New("evalExpr: unexpected type")
+	return nil, fmt.Errorf("evalExpr: unexpected type: %T", expr)
 }
 
 func execCmd(name string, args []string) error {
