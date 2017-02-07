@@ -28,6 +28,9 @@ func eval(stmt ast.Stmt) error {
 		if err != nil {
 			return err
 		}
+		if len(list) == 0 {
+			return nil
+		}
 		cmdStr := list[0]
 		list = list[1:]
 		args := make([]string, len(list), len(x.Args)+len(list))
