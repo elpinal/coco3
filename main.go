@@ -13,6 +13,11 @@ import (
 
 var prompt = "; "
 
+type history struct {
+	lines [][]rune
+	i     int
+}
+
 func main() {
 	var command = flag.String("c", "", "take first argument as a command to execute")
 	flag.Parse()
@@ -22,8 +27,9 @@ func main() {
 		}
 		return
 	}
+	var hist history
 	for {
-		if err := loop(); err != nil {
+		if err := loop(&hist); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
@@ -61,11 +67,17 @@ const (
 	CharBackspace = 127
 )
 
-func loop() error {
+func loop(hist *history) error {
 	fmt.Print(prompt)
 	rd := NewReader(os.Stdin)
+	lines := make([][]rune, len(hist.lines))
+	copy(lines, hist.lines)
 	cl := &commandline{
 		w: bufio.NewWriter(os.Stdout),
+		hist: history{
+			lines: lines,
+			i:     hist.i,
+		},
 	}
 	state, err := enterRowMode()
 	if err != nil {
@@ -86,6 +98,10 @@ LOOP:
 			cl.moveForward()
 		case CharBackspace:
 			cl.deleteChar()
+		case CharCtrlP:
+			cl.prevHistory()
+		case CharCtrlN:
+			cl.nextHistory()
 		default:
 			cl.appendChar(ch)
 		}
@@ -97,6 +113,8 @@ LOOP:
 	if err != nil {
 		return err
 	}
+	hist.lines = append(hist.lines, cl.buf)
+	hist.i++
 	return execute([]byte(string(cl.buf)))
 }
 
@@ -112,6 +130,8 @@ type commandline struct {
 	w     *bufio.Writer
 	buf   []rune
 	index int
+
+	hist history
 }
 
 func (cl *commandline) refresh() {
@@ -164,4 +184,28 @@ func (cl *commandline) deleteChar() {
 		cl.buf = append(cl.buf[:cl.index-1], cl.buf[cl.index:]...)
 	}
 	cl.index--
+}
+
+func (cl *commandline) prevHistory() {
+	if cl.hist.i == 0 {
+		return
+	}
+	if cl.hist.i == len(cl.hist.lines) {
+		cl.hist.lines = append(cl.hist.lines, cl.buf)
+	} else {
+		cl.hist.lines[cl.hist.i] = cl.buf
+	}
+	cl.hist.i--
+	cl.buf = cl.hist.lines[cl.hist.i]
+	cl.index = len(cl.buf)
+}
+
+func (cl *commandline) nextHistory() {
+	if cl.hist.i >= len(cl.hist.lines)-1 {
+		return
+	}
+	cl.hist.lines[cl.hist.i] = cl.buf
+	cl.hist.i++
+	cl.buf = cl.hist.lines[cl.hist.i]
+	cl.index = len(cl.buf)
 }
