@@ -95,7 +95,7 @@ func (p *parser) parseList() *ast.ParenExpr {
 		list = append(list, expr)
 	}
 	p.next()
-	return &ast.ParenExpr{Lparen: pos, Exprs: list, Rparen: p.pos-1}
+	return &ast.ParenExpr{Lparen: pos, Exprs: list, Rparen: p.pos - 1}
 }
 
 func (p *parser) parseExpr() ast.Expr {
