@@ -68,9 +68,8 @@ const (
 )
 
 func loop(hist *history) error {
-	fmt.Print("\n")
 	fmt.Print("\r\033[J")
-	fmt.Print("\033[B")
+	fmt.Print("\n")
 	fmt.Print("-- INSERT --")
 	fmt.Print("\033[A")
 	fmt.Print("\r")
