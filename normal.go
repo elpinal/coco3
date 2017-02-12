@@ -64,8 +64,7 @@ func (cl *commandline) nextHistory() {
 }
 
 func iskeyword(ch rune) bool {
-	if 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '0' <= ch && ch <= '9' ||
-		ch == '_' || 192 <= ch && ch <= 255 {
+	if 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '0' <= ch && ch <= '9' || ch == '_' || 192 <= ch && ch <= 255 {
 		return true
 	}
 	return false
