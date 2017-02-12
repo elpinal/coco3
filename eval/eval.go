@@ -105,7 +105,7 @@ func (e *evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 
 func (e *evaluator) execCmd(name string, args []string) error {
 	if fn, ok := builtins[name]; ok {
-		return fn(args)
+		return fn(e, args)
 	}
 	if x, ok := aliases[name]; ok {
 		name = x.cmd

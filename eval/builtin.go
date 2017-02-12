@@ -2,17 +2,18 @@ package eval
 
 import (
 	"errors"
+	"io"
 	"os"
 	"strconv"
 )
 
-var builtins = map[string]func([]string) error{
+var builtins = map[string]func(*evaluator, []string) error{
 	"cd":   cd,
 	"echo": echo,
 	"exit": exit,
 }
 
-func cd(args []string) error {
+func cd(_ *evaluator, args []string) error {
 	var dir string
 	switch len(args) {
 	case 0:
@@ -25,35 +26,35 @@ func cd(args []string) error {
 	return os.Chdir(dir)
 }
 
-func echo(args []string) error {
+func echo(e *evaluator, args []string) error {
 	if len(args) == 0 {
-		_, err := os.Stdout.Write([]byte{'\n'})
+		_, err := e.out.Write([]byte{'\n'})
 		return err
 	}
-	_, err := os.Stdout.WriteString(args[0])
+	_, err := io.WriteString(e.out, args[0])
 	if err != nil {
 		return err
 	}
 	if len(args) == 1 {
-		_, err := os.Stdout.Write([]byte{'\n'})
+		_, err := e.out.Write([]byte{'\n'})
 		return err
 	}
 	args = args[1:]
 	for _, arg := range args {
-		_, err := os.Stdout.Write([]byte{' '})
+		_, err := e.out.Write([]byte{' '})
 		if err != nil {
 			return err
 		}
-		_, err = os.Stdout.WriteString(arg)
+		_, err = io.WriteString(e.out, arg)
 		if err != nil {
 			return err
 		}
 	}
-	_, err = os.Stdout.Write([]byte{'\n'})
+	_, err = e.out.Write([]byte{'\n'})
 	return err
 }
 
-func exit(args []string) error {
+func exit(_ *evaluator, args []string) error {
 	var code int
 	switch len(args) {
 	case 0:
