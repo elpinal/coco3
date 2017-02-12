@@ -78,6 +78,7 @@ func loop(hist *history) error {
 			lines: lines,
 			i:     hist.i,
 		},
+		mode: insertMode,
 	}
 	state, err := enterRowMode()
 	if err != nil {
@@ -89,21 +90,44 @@ LOOP:
 		if err != nil {
 			return err
 		}
-		switch ch {
-		case CharCtrlM:
-			break LOOP
-		case CharCtrlB:
-			cl.moveBackward()
-		case CharCtrlF:
-			cl.moveForward()
-		case CharBackspace:
-			cl.deleteChar()
-		case CharCtrlP:
-			cl.prevHistory()
-		case CharCtrlN:
-			cl.nextHistory()
-		default:
-			cl.appendChar(ch)
+		switch cl.mode {
+		case normalMode:
+			switch ch {
+			case CharCtrlM:
+				break LOOP
+			case '0':
+				cl.index = 0
+			case '$':
+				cl.index = len(cl.buf)-1
+			case 'a':
+				cl.moveForward()
+				cl.mode = insertMode
+			case 'i':
+				cl.mode = insertMode
+			case 'h':
+				cl.moveBackward()
+			case 'l':
+				cl.moveForward()
+			case 'x':
+				cl.deleteUnder()
+			case 'k':
+				cl.prevHistory()
+			case 'j':
+				cl.nextHistory()
+			default:
+			}
+		case insertMode:
+			switch ch {
+			case CharCtrlM:
+				break LOOP
+			case CharEscape:
+				cl.moveBackward()
+				cl.mode = normalMode
+			case CharBackspace:
+				cl.deleteChar()
+			default:
+				cl.appendChar(ch)
+			}
 		}
 		cl.refresh()
 	}
@@ -132,6 +156,8 @@ type commandline struct {
 	index int
 
 	hist history
+
+	mode mode
 }
 
 func (cl *commandline) refresh() {
@@ -184,6 +210,18 @@ func (cl *commandline) deleteChar() {
 		cl.buf = append(cl.buf[:cl.index-1], cl.buf[cl.index:]...)
 	}
 	cl.index--
+}
+
+func (cl *commandline) deleteUnder() {
+	switch cl.index {
+	case 0:
+		cl.buf = cl.buf[1:]
+	case len(cl.buf)-1:
+		cl.buf = cl.buf[:cl.index]
+		cl.index--
+	default:
+		cl.buf = append(cl.buf[:cl.index], cl.buf[cl.index+1:]...)
+	}
 }
 
 func (cl *commandline) prevHistory() {
