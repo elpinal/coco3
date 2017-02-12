@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"log"
-
 	"github.com/elpinal/coco3/ast"
 	"github.com/elpinal/coco3/scanner"
 	"github.com/elpinal/coco3/token"
@@ -10,6 +8,8 @@ import (
 
 // The parser structure holds the parser's internal state.
 type parser struct {
+	file    *token.File
+	errors  scanner.ErrorList
 	scanner scanner.Scanner
 
 	// Next token
@@ -19,8 +19,10 @@ type parser struct {
 
 }
 
-func (p *parser) init(src []byte) {
-	p.scanner.Init(src)
+func (p *parser) init(fset *token.FileSet, filename string, src []byte) {
+	p.file = fset.AddFile(filename, -1, len(src))
+	eh := func(pos token.Position, msg string) { p.errors.Add(pos, msg) }
+	p.scanner.Init(p.file, src, eh)
 
 	p.next()
 }
@@ -38,7 +40,8 @@ func (p *parser) next() {
 }
 
 func (p *parser) error(pos token.Pos, msg string) {
-	log.Println("parser.error:", msg)
+	epos := p.file.Position(pos)
+	p.errors.Add(epos, msg)
 }
 
 func (p *parser) errorExpected(pos token.Pos, msg string) {
@@ -67,11 +70,36 @@ func (p *parser) expect(tok token.Token) token.Pos {
 	return pos
 }
 
+func (p *parser) checkExpr(x ast.Expr) ast.Expr {
+	switch x.(type) {
+	case *ast.BadExpr:
+	case *ast.Ident:
+	case *ast.ParenExpr:
+		panic("unreachable")
+	case *ast.UnaryExpr:
+	default:
+		// all other nodes are not proper expressions
+		p.errorExpected(x.Pos(), "expression")
+		x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
+	}
+	return x
+}
+
+func (p *parser) safePos(pos token.Pos) (res token.Pos) {
+	defer func() {
+		if recover() != nil {
+			res = token.Pos(p.file.Base() + p.file.Size()) // EOF position
+		}
+	}()
+	_ = p.file.Offset(pos) // trigger a panic if position is out-of-range
+	return pos
+}
+
 func (p *parser) parseUnary() ast.Expr {
 	pos, op := p.pos, p.tok
 	p.next()
 	x := p.parseExpr()
-	return &ast.UnaryExpr{OpPos: pos, Op: op, X: x}
+	return &ast.UnaryExpr{OpPos: pos, Op: op, X: p.checkExpr(x)}
 }
 
 func (p *parser) parseIdent() *ast.Ident {
@@ -107,9 +135,10 @@ func (p *parser) parseExpr() ast.Expr {
 	case token.REDIRIN, token.REDIROUT:
 		return p.parseUnary()
 	}
-	p.error(p.pos, "unexpected error")
+	pos := p.pos
+	p.errorExpected(pos, "expression")
 	p.next()
-	return nil
+	return &ast.BadExpr{From: pos, To: p.pos}
 }
 
 func (p *parser) parseLine() ast.Stmt {

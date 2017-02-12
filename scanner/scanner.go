@@ -1,15 +1,21 @@
 package scanner
 
 import (
-	"log"
+	"fmt"
+	"path/filepath"
 	"unicode/utf8"
 
 	"github.com/elpinal/coco3/token"
 )
 
+type ErrorHandler func(pos token.Position, msg string)
+
 type Scanner struct {
 	// immutable state
-	src []byte // source
+	file *token.File  // source file handle
+	dir  string       // directory portion of file.Name()
+	src  []byte       // source
+	err  ErrorHandler // error reporting; or nil
 
 	// scanning state
 	ch         rune // current character
@@ -17,6 +23,9 @@ type Scanner struct {
 	rdOffset   int  // reading offset (position after current character)
 	lineOffset int  // current line offset
 	insertSemi bool // insert a semicolon before next newline
+
+	// public state - ok to modify
+	ErrorCount int // number of errors encountered
 }
 
 const bom = 0xFEFF // byte order mark, only permitted as very first character
@@ -54,15 +63,22 @@ func (s *Scanner) next() {
 	}
 }
 
-func (s *Scanner) Init(src []byte) {
+func (s *Scanner) Init(file *token.File, src []byte, err ErrorHandler) {
 	// Explicitly initialize all fields since a scanner may be reused.
+	if file.Size() != len(src) {
+		panic(fmt.Sprintf("file size (%d) does not match src len (%d)", file.Size(), len(src)))
+	}
+	s.file = file
+	s.dir, _ = filepath.Split(file.Name())
 	s.src = src
+	s.err = err
 
 	s.ch = ' '
 	s.offset = 0
 	s.rdOffset = 0
 	s.lineOffset = 0
 	s.insertSemi = false
+	s.ErrorCount = 0
 
 	s.next()
 	if s.ch == bom {
@@ -71,7 +87,10 @@ func (s *Scanner) Init(src []byte) {
 }
 
 func (s *Scanner) error(offs int, msg string) {
-	log.Println("Scanner.error:", offs, msg)
+	if s.err != nil {
+		s.err(s.file.Position(s.file.Pos(offs)), msg)
+	}
+	s.ErrorCount++
 }
 
 func (s *Scanner) scanIdentifier() string {
