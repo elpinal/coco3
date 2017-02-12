@@ -68,7 +68,14 @@ const (
 )
 
 func loop(hist *history) error {
+	fmt.Print("\n")
+	fmt.Print("\r\033[J")
+	fmt.Print("\033[B")
+	fmt.Print("-- INSERT --")
+	fmt.Print("\033[A")
+	fmt.Print("\r")
 	fmt.Print(prompt)
+
 	rd := NewReader(os.Stdin)
 	lines := make([][]rune, len(hist.lines))
 	copy(lines, hist.lines)
@@ -134,6 +141,7 @@ LOOP:
 		cl.refresh()
 	}
 	cl.w.WriteByte('\n')
+	cl.w.WriteString("\r\033[K")
 	cl.w.Flush()
 	err = exitRowMode(state)
 	if err != nil {
@@ -163,7 +171,16 @@ type commandline struct {
 }
 
 func (cl *commandline) refresh() {
-	cl.w.WriteString("\r\033[J")
+	if cl.mode == insertMode {
+		cl.w.WriteString("\033[B")
+		cl.w.WriteString("\r\033[K")
+		cl.w.WriteString("-- INSERT --")
+		cl.w.WriteString("\033[A")
+		cl.w.WriteString("\r\033[K")
+	} else {
+		cl.w.WriteString("\r\033[J")
+	}
+
 	cl.w.WriteString(prompt)
 	cl.w.WriteString(string(cl.buf))
 	cl.w.WriteString(fmt.Sprintf("\033[%vG", len(prompt)+runewidth.StringWidth(string(cl.buf[:cl.index]))+1))
