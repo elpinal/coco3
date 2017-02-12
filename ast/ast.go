@@ -80,13 +80,12 @@ type (
 	}
 
 	ExecStmt struct {
-		Cmd  Expr
 		Args []Expr
 	}
 )
 
 func (s *BadStmt) Pos() token.Pos  { return s.From }
-func (s *ExecStmt) Pos() token.Pos { return s.Cmd.Pos() }
+func (s *ExecStmt) Pos() token.Pos { return s.Args[0].Pos() }
 
 func (s *BadStmt) End() token.Pos  { return s.To }
 func (s *ExecStmt) End() token.Pos { return s.Args[len(s.Args)-1].End() }

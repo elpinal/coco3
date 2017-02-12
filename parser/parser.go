@@ -113,13 +113,12 @@ func (p *parser) parseExpr() ast.Expr {
 }
 
 func (p *parser) parseLine() ast.Stmt {
-	cmd := p.parseExpr()
 	var args []ast.Expr
 	for p.tok != token.SEMICOLON && p.tok != token.EOF {
 		args = append(args, p.parseExpr())
 	}
 	p.next()
-	return &ast.ExecStmt{Cmd: cmd, Args: args}
+	return &ast.ExecStmt{Args: args}
 }
 
 // ----------------------------------------------------------------------------

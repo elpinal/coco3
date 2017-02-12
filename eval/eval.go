@@ -39,17 +39,7 @@ func eval(stmt ast.Stmt) error {
 			out: os.Stdout,
 			err: os.Stderr,
 		}
-		list, err := e.evalExpr(x.Cmd)
-		if err != nil {
-			return err
-		}
-		if len(list) == 0 {
-			return nil
-		}
-		cmdStr := list[0]
-		list = list[1:]
-		args := make([]string, len(list), len(x.Args)+len(list))
-		copy(args, list)
+		args := make([]string, 0, len(x.Args))
 		for _, arg := range x.Args {
 			s, err := e.evalExpr(arg)
 			if err != nil {
@@ -57,7 +47,10 @@ func eval(stmt ast.Stmt) error {
 			}
 			args = append(args, s...)
 		}
-		return e.execCmd(cmdStr, args)
+		if len(args) == 0 {
+			return nil
+		}
+		return e.execCmd(args[0], args[1:])
 	}
 	return fmt.Errorf("eval: unexpected type: %T", stmt)
 }
