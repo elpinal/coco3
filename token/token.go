@@ -30,6 +30,9 @@ var tokens = [...]string{
 
 	IDENT: "IDENT",
 
+	LPAREN: "(",
+	RPAREN: ")",
+
 	SEMICOLON: ";",
 }
 
