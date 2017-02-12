@@ -19,6 +19,9 @@ const (
 	LPAREN // (
 	RPAREN // )
 
+	REDIRIN  // <
+	REDIROUT // >
+
 	SEMICOLON // ;
 	operator_end
 )
@@ -32,6 +35,9 @@ var tokens = [...]string{
 
 	LPAREN: "(",
 	RPAREN: ")",
+
+	REDIRIN:  "<",
+	REDIROUT: ">",
 
 	SEMICOLON: ";",
 }

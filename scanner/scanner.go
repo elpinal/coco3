@@ -115,6 +115,12 @@ func (s *Scanner) Scan() (pos token.Pos, tok token.Token, lit string) {
 	case ')':
 		s.next()
 		tok = token.RPAREN
+	case '<':
+		s.next()
+		tok = token.REDIRIN
+	case '>':
+		s.next()
+		tok = token.REDIROUT
 	case ';':
 		s.next()
 		tok = token.SEMICOLON

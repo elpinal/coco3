@@ -37,19 +37,31 @@ type (
 		Exprs  []Expr    // parenthesized expressions
 		Rparen token.Pos // position of ")"
 	}
+
+	// A UnaryExpr node represents a unary expression.
+	// Unary "*" expressions are represented via StarExpr nodes.
+	//
+	UnaryExpr struct {
+		OpPos token.Pos   // position of Op
+		Op    token.Token // operator
+		X     Expr        // operand
+	}
 )
 
 func (x *BadExpr) Pos() token.Pos { return x.From }
 func (x *Ident) Pos() token.Pos   { return x.NamePos }
 func (x *ParenExpr) Pos() token.Pos      { return x.Lparen }
+func (x *UnaryExpr) Pos() token.Pos      { return x.OpPos }
 
 func (x *BadExpr) End() token.Pos { return x.To }
 func (x *Ident) End() token.Pos   { return token.Pos(int(x.NamePos) + len(x.Name)) }
 func (x *ParenExpr) End() token.Pos      { return x.Rparen + 1 }
+func (x *UnaryExpr) End() token.Pos      { return x.X.End() }
 
 func (*BadExpr) exprNode() {}
 func (*Ident) exprNode()   {}
 func (*ParenExpr) exprNode()      {}
+func (*UnaryExpr) exprNode()      {}
 
 func (id *Ident) String() string {
 	if id != nil {

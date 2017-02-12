@@ -67,6 +67,13 @@ func (p *parser) expect(tok token.Token) token.Pos {
 	return pos
 }
 
+func (p *parser) parseUnary() ast.Expr {
+	pos, op := p.pos, p.tok
+	p.next()
+	x := p.parseExpr()
+	return &ast.UnaryExpr{OpPos: pos, Op: op, X: x}
+}
+
 func (p *parser) parseIdent() *ast.Ident {
 	pos := p.pos
 	name := "_"
@@ -97,6 +104,8 @@ func (p *parser) parseExpr() ast.Expr {
 		return p.parseList()
 	case token.IDENT:
 		return p.parseIdent()
+	case token.REDIRIN, token.REDIROUT:
+		return p.parseUnary()
 	}
 	p.error(p.pos, "unexpected error")
 	p.next()

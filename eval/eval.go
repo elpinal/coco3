@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
 
 	"github.com/elpinal/coco3/ast"
+	"github.com/elpinal/coco3/token"
 )
 
 func Eval(stmts []ast.Stmt) error {
@@ -21,10 +23,23 @@ func Eval(stmts []ast.Stmt) error {
 	return nil
 }
 
+type evaluator struct {
+	in  io.Reader
+	out io.Writer
+	err io.Writer
+
+	closeAfterStart []io.Closer
+}
+
 func eval(stmt ast.Stmt) error {
 	switch x := stmt.(type) {
 	case *ast.ExecStmt:
-		list, err := evalExpr(x.Cmd)
+		e := &evaluator{
+			in:  os.Stdin,
+			out: os.Stdout,
+			err: os.Stderr,
+		}
+		list, err := e.evalExpr(x.Cmd)
 		if err != nil {
 			return err
 		}
@@ -36,38 +51,66 @@ func eval(stmt ast.Stmt) error {
 		args := make([]string, len(list), len(x.Args)+len(list))
 		copy(args, list)
 		for _, arg := range x.Args {
-			s, err := evalExpr(arg)
+			s, err := e.evalExpr(arg)
 			if err != nil {
 				return err
 			}
 			args = append(args, s...)
 		}
-		return execCmd(cmdStr, args)
+		return e.execCmd(cmdStr, args)
 	}
 	return fmt.Errorf("eval: unexpected type: %T", stmt)
 }
 
-func evalExpr(expr ast.Expr) ([]string, error) {
+func (e *evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	switch x := expr.(type) {
 	case *ast.Ident:
 		return []string{x.Name}, nil
 	case *ast.ParenExpr:
 		var list []string
-		for _, e := range x.Exprs {
-			s, err := evalExpr(e)
+		for _, expr := range x.Exprs {
+			s, err := e.evalExpr(expr)
 			if err != nil {
 				return nil, err
 			}
 			list = append(list, s...)
 		}
 		return list, nil
+	case *ast.UnaryExpr:
+		s, err := e.evalExpr(x.X)
+		if err != nil {
+			return nil, err
+		}
+		if len(s) == 0 {
+			return nil, fmt.Errorf("cannot redirect")
+		}
+		if len(s) > 1 {
+			return nil, fmt.Errorf("cannot redirect to multi-word filename")
+		}
+		switch x.Op {
+		case token.REDIRIN:
+			f, err := os.Open(s[0])
+			if err != nil {
+				return nil, err
+			}
+			e.in = f
+			e.closeAfterStart = append(e.closeAfterStart, f)
+		case token.REDIROUT:
+			f, err := os.Create(s[0])
+			if err != nil {
+				return nil, err
+			}
+			e.out = f
+			e.closeAfterStart = append(e.closeAfterStart, f)
+		}
+		return nil, nil
 	case nil:
 		return nil, nil
 	}
 	return nil, fmt.Errorf("evalExpr: unexpected type: %T", expr)
 }
 
-func execCmd(name string, args []string) error {
+func (e *evaluator) execCmd(name string, args []string) error {
 	if fn, ok := builtins[name]; ok {
 		return fn(args)
 	}
@@ -81,10 +124,15 @@ func execCmd(name string, args []string) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cmd := exec.CommandContext(ctx, name, args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdin = e.in
+	cmd.Stdout = e.out
+	cmd.Stderr = e.err
 
+	defer func() {
+		for _, closer := range e.closeAfterStart {
+			closer.Close()
+		}
+	}()
 	defer cancel()
 	select {
 	case s := <-c:
