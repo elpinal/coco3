@@ -129,6 +129,111 @@ func (cl *commandline) wordForward() {
 	cl.index = len(cl.buf) - 1
 }
 
+func (cl *commandline) wordBackward() {
+	switch cl.index {
+	case 0:
+		return
+	case 1:
+		cl.index = 0
+		return
+	}
+	n := -1
+	switch ch1 := cl.buf[cl.index-1]; {
+	case isWhitespace(ch1):
+		for i := cl.index - 1; i >= 0; i-- {
+			if !isWhitespace(cl.buf[i]) {
+				n = i
+				break
+			}
+		}
+	case iskeyword(ch1):
+		for i := cl.index - 1; i >= 0; i-- {
+			if !iskeyword(cl.buf[i]) {
+				cl.index = i + 1
+				return
+			}
+		}
+	default:
+		for i := cl.index - 1; i >= 0; i-- {
+			switch ch := cl.buf[i]; {
+			case iskeyword(ch), isWhitespace(ch):
+				cl.index = i + 1
+				return
+			}
+		}
+	}
+
+	if n == -1 {
+		cl.index = 0
+		return
+	}
+
+	switch ch := cl.buf[n]; {
+	case iskeyword(ch):
+		for i := n - 1; i >= 0; i-- {
+			if !iskeyword(cl.buf[i]) {
+				cl.index = i + 1
+				return
+			}
+		}
+	default:
+		for i := n - 1; i >= 0; i-- {
+			if iskeyword(cl.buf[i]) || isWhitespace(cl.buf[i]) {
+				cl.index = i + 1
+				return
+			}
+		}
+	}
+
+	cl.index = 0
+}
+
+func (cl *commandline) wordForwardNonBlank() {
+	n := -1
+	for i, ch := range cl.buf[cl.index:] {
+		n = i
+		if isWhitespace(ch) {
+			break
+		}
+	}
+	if n == -1 {
+		cl.index = len(cl.buf) - 1
+		return
+	}
+	for i, ch := range cl.buf[cl.index+n:] {
+		if !isWhitespace(ch) {
+			cl.index = cl.index + n + i
+			return
+		}
+	}
+	cl.index = len(cl.buf) - 1
+}
+
+func (cl *commandline) wordBackwardNonBlank() {
+	n := -1
+	for i := cl.index - 1; i >= 0; i-- {
+		n = i
+		if !isWhitespace(cl.buf[i]) {
+			break
+		}
+	}
+	if n == -1 {
+		cl.index = 0
+		return
+	}
+	for i := n - 1; i >= 0; i-- {
+		if isWhitespace(cl.buf[i]) {
+			break
+		}
+		n = i
+	}
+	if n == -1 {
+		cl.index = 0
+		return
+	}
+	cl.index = n
+}
+
 func (cl *commandline) deleteUnder() {
 	switch cl.index {
 	case 0:
