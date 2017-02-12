@@ -122,6 +122,8 @@ LOOP:
 				cl.prevHistory()
 			case 'j':
 				cl.nextHistory()
+			case 'w':
+				cl.wordForward()
 			default:
 			}
 		case insertMode:

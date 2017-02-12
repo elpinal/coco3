@@ -63,6 +63,72 @@ func (cl *commandline) nextHistory() {
 	cl.index = len(cl.buf) - 1
 }
 
+func iskeyword(ch rune) bool {
+	if 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '0' <= ch && ch <= '9' ||
+		ch == '_' || 192 <= ch && ch <= 255 {
+		return true
+	}
+	return false
+}
+
+func isWhitespace(ch rune) bool {
+	if ch == ' ' || ch == '\t' {
+		return true
+	}
+	return false
+}
+
+func (cl *commandline) wordForward() {
+	if len(cl.buf[cl.index:]) <= 1 {
+		return
+	}
+	n := -1
+	switch ch1 := cl.buf[cl.index]; {
+	case isWhitespace(ch1):
+		for i, ch := range cl.buf[cl.index+1:] {
+			if !isWhitespace(ch) {
+				cl.index += i + 1
+				return
+			}
+		}
+	case iskeyword(ch1):
+		for i, ch := range cl.buf[cl.index+1:] {
+			if !iskeyword(ch) {
+				if !isWhitespace(ch) {
+					cl.index += i + 1
+					return
+				}
+				n = i + 1
+				break
+			}
+		}
+	default:
+		for i, ch := range cl.buf[cl.index+1:] {
+			switch {
+			case iskeyword(ch):
+				cl.index += i + 1
+				return
+			case isWhitespace(ch):
+				n = i + 1
+			}
+		}
+	}
+
+	if n == -1 {
+		cl.index = len(cl.buf) - 1
+		return
+	}
+
+	for i, ch := range cl.buf[cl.index+n:] {
+		if !isWhitespace(ch) {
+			cl.index = cl.index + n + i
+			return
+		}
+	}
+
+	cl.index = len(cl.buf) - 1
+}
+
 func (cl *commandline) deleteUnder() {
 	switch cl.index {
 	case 0:
