@@ -13,6 +13,7 @@ const (
 
 	literal_beg
 	IDENT // main
+	STRING // 'abc'
 	literal_end
 
 	operator_beg
@@ -32,6 +33,7 @@ var tokens = [...]string{
 	EOF: "EOF",
 
 	IDENT: "IDENT",
+	STRING: "STRING",
 
 	LPAREN: "(",
 	RPAREN: ")",

@@ -102,6 +102,12 @@ func (p *parser) parseUnary() ast.Expr {
 	return &ast.UnaryExpr{OpPos: pos, Op: op, X: p.checkExpr(x)}
 }
 
+func (p *parser) parseString() ast.Expr {
+	x := &ast.BasicLit{ValuePos: p.pos, Kind: p.tok, Value: p.lit}
+	p.next()
+	return x
+}
+
 func (p *parser) parseIdent() *ast.Ident {
 	pos := p.pos
 	name := "_"
@@ -132,6 +138,8 @@ func (p *parser) parseExpr() ast.Expr {
 		return p.parseList()
 	case token.IDENT:
 		return p.parseIdent()
+	case token.STRING:
+		return p.parseString()
 	case token.REDIRIN, token.REDIROUT:
 		return p.parseUnary()
 	}

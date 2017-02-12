@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 
 	"github.com/elpinal/coco3/ast"
 	"github.com/elpinal/coco3/token"
@@ -59,6 +60,11 @@ func (e *evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	switch x := expr.(type) {
 	case *ast.Ident:
 		return []string{x.Name}, nil
+	case *ast.BasicLit:
+		s := strings.TrimPrefix(x.Value, "'")
+		s = strings.TrimSuffix(s, "'")
+		s = strings.Replace(s, "''", "'", -1)
+		return []string{s}, nil
 	case *ast.ParenExpr:
 		var list []string
 		for _, expr := range x.Exprs {

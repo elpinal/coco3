@@ -32,6 +32,12 @@ type (
 		Name    string    // identifier name
 	}
 
+	BasicLit struct {
+		ValuePos token.Pos   // literal position
+		Kind     token.Token // token.STRING
+		Value    string      // literal string; e.g. 'foo'
+	}
+
 	ParenExpr struct {
 		Lparen token.Pos // position of "("
 		Exprs  []Expr    // parenthesized expressions
@@ -50,16 +56,19 @@ type (
 
 func (x *BadExpr) Pos() token.Pos   { return x.From }
 func (x *Ident) Pos() token.Pos     { return x.NamePos }
+func (x *BasicLit) Pos() token.Pos  { return x.ValuePos }
 func (x *ParenExpr) Pos() token.Pos { return x.Lparen }
 func (x *UnaryExpr) Pos() token.Pos { return x.OpPos }
 
 func (x *BadExpr) End() token.Pos   { return x.To }
 func (x *Ident) End() token.Pos     { return token.Pos(int(x.NamePos) + len(x.Name)) }
+func (x *BasicLit) End() token.Pos  { return token.Pos(int(x.ValuePos) + len(x.Value)) }
 func (x *ParenExpr) End() token.Pos { return x.Rparen + 1 }
 func (x *UnaryExpr) End() token.Pos { return x.X.End() }
 
 func (*BadExpr) exprNode()   {}
 func (*Ident) exprNode()     {}
+func (*BasicLit) exprNode()  {}
 func (*ParenExpr) exprNode() {}
 func (*UnaryExpr) exprNode() {}
 

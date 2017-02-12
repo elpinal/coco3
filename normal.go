@@ -8,7 +8,7 @@ func (cl *commandline) toLeft() {
 }
 
 func (cl *commandline) toRight() {
-	if cl.index == len(cl.buf)-1 {
+	if cl.index >= len(cl.buf)-1 {
 		return
 	}
 	cl.index++

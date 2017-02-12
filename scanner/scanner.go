@@ -101,6 +101,49 @@ func (s *Scanner) scanIdentifier() string {
 	return string(s.src[offs:s.offset])
 }
 
+func stripCR(b []byte) []byte {
+	c := make([]byte, len(b))
+	i := 0
+	for _, ch := range b {
+		if ch != '\r' {
+			c[i] = ch
+			i++
+		}
+	}
+	return c[:i]
+}
+
+func (s *Scanner) scanString() string {
+	// '\'' opening already consumed
+	offs := s.offset - 1
+
+	hasCR := false
+	for {
+		ch := s.ch
+		if ch < 0 {
+			s.error(offs, "string literal not terminated")
+			break
+		}
+		s.next()
+		if ch == '\'' {
+			if s.ch != '\'' {
+				break
+			}
+			s.next()
+		}
+		if ch == '\r' {
+			hasCR = true
+		}
+	}
+
+	lit := s.src[offs:s.offset]
+	if hasCR {
+		lit = stripCR(lit)
+	}
+
+	return string(lit)
+}
+
 func (s *Scanner) skipWhitespace() {
 	for s.ch == ' ' || s.ch == '\t' {
 		s.next()
@@ -128,6 +171,10 @@ func (s *Scanner) Scan() (pos token.Pos, tok token.Token, lit string) {
 		s.next()             // always make progress
 		s.insertSemi = false // newline consumed
 		return pos, token.SEMICOLON, "\n"
+	case '\'':
+		s.next()
+		tok = token.STRING
+		lit = s.scanString()
 	case '(':
 		s.next()
 		tok = token.LPAREN
