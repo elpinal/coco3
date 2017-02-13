@@ -41,3 +41,35 @@ func (e *basicEditor) insert(s []rune, at int) {
 		e.pos += len(s)
 	}
 }
+
+// delete deletes runes from the buffer [from, to].
+// Given a invalid position, delete considers the position to be at the end of the buffer.
+func (e *basicEditor) delete(from, to int) {
+	left := from
+	right := to
+	if from > to {
+		left = to
+		right = from
+	}
+	if left < 0 {
+		left = 0
+	}
+	if right > len(e.buf) {
+		right = len(e.buf)
+	}
+	switch {
+	case left == 0:
+		e.buf = e.buf[right:]
+	case right == len(e.buf):
+		e.buf = e.buf[:left]
+	default:
+		e.buf = append(e.buf[:left], e.buf[right:]...)
+	}
+	switch {
+	case e.pos < left:
+	case right < e.pos:
+		e.pos = e.pos - (right - left)
+	default:
+		e.pos = left
+	}
+}

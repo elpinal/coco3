@@ -66,3 +66,43 @@ func TestInsert(t *testing.T) {
 		}
 	}
 }
+
+func TestDelete(t *testing.T) {
+	tests := []struct {
+		initial basicEditor
+		from    int
+		to      int
+		want    basicEditor
+	}{
+		{
+			initial: basicEditor{buf: []rune(""), pos: 0},
+			from:    -1,
+			to:      1,
+			want:    basicEditor{buf: []rune(""), pos: 0},
+		},
+		{
+			initial: basicEditor{buf: []rune("AAA"), pos: 2},
+			from:    1,
+			to:      2,
+			want:    basicEditor{buf: []rune("AA"), pos: 1},
+		},
+		{
+			initial: basicEditor{buf: []rune("AAA"), pos: 1},
+			from:    2,
+			to:      0,
+			want:    basicEditor{buf: []rune("A"), pos: 0},
+		},
+		{
+			initial: basicEditor{buf: []rune("AAAABBCCaaaa"), pos: 3},
+			from:    4,
+			to:      8,
+			want:    basicEditor{buf: []rune("AAAAaaaa"), pos: 3},
+		},
+	}
+	for _, test := range tests {
+		test.initial.delete(test.from, test.to)
+		if !reflect.DeepEqual(test.initial, test.want) {
+			t.Errorf("delete(%v, %v): got %v, want %v", test.from, test.to, test.initial, test.want)
+		}
+	}
+}
