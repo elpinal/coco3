@@ -1,5 +1,7 @@
 package main
 
+// TODO: refactor
+
 import (
 	"bufio"
 	"flag"
@@ -157,6 +159,10 @@ LOOP:
 				cl.deleteChar()
 			case CharCtrlI:
 				cl.complete()
+				err := cl.completeMode(rd)
+				if err != nil {
+					return err
+				}
 			default:
 				cl.appendChar(ch)
 			}
@@ -216,6 +222,8 @@ type commandline struct {
 
 	compl     []string
 	maxLength int
+	selected  int
+	trigger   []rune
 }
 
 func (cl *commandline) construct(commands []string, width int) (omit, line int) {
@@ -226,7 +234,13 @@ func (cl *commandline) construct(commands []string, width int) (omit, line int) 
 			omit++
 			continue
 		}
+		if i == cl.selected-1 {
+			b = append(b, "\033[7m"...)
+		}
 		b = append(b, c...)
+		if i == cl.selected-1 {
+			b = append(b, "\033[0m"...)
+		}
 		b = append(b, strings.Repeat(" ", cl.maxLength+1-len(c))...)
 		if (i+1)%maxCount == 0 {
 			line++
@@ -348,6 +362,7 @@ func (cl *commandline) operate(pending rune, from, to int) {
 }
 
 func (cl *commandline) complete() {
+	cl.selected = 0
 	var maxLength int
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	var compl []string
@@ -367,4 +382,80 @@ func (cl *commandline) complete() {
 	}
 	cl.compl = compl
 	cl.maxLength = maxLength
+	cl.trigger = cl.buf[:cl.index]
+}
+
+func (cl *commandline) insert(s []rune, at int) {
+	switch at {
+	case 0:
+		cl.buf = append(s, cl.buf...)
+	case len(cl.buf):
+		cl.buf = append(cl.buf, s...)
+	default:
+		s = append(cl.buf[:at], s...)
+		cl.buf = append(s, cl.buf[at:]...)
+	}
+	if at <= cl.index {
+		cl.index += len(s)
+	}
+}
+
+func (cl *commandline) move(to int) {
+	switch {
+	case to >= len(cl.buf):
+		switch cl.mode {
+		case insertMode:
+			cl.index = len(cl.buf)
+		default:
+			cl.index = len(cl.buf) - 1
+		}
+	case to <= 0:
+		cl.index = 0
+	default:
+		cl.index = to
+	}
+}
+
+func (cl *commandline) completeMode(rd *Reader) error {
+	defer func() { cl.compl = nil }()
+	for {
+		cl.refresh()
+		ch, err := rd.Read()
+		if err != nil {
+			return err
+		}
+		switch ch {
+		case CharCtrlM:
+			return nil
+		case CharCtrlN, CharCtrlI:
+			if cl.selected != len(cl.compl) {
+				cl.selected++
+				cl.buf = []rune(cl.compl[cl.selected-1])
+				cl.index = len(cl.buf)
+			} else {
+				cl.selected = 0
+				cl.buf = cl.trigger
+				cl.index = len(cl.buf)
+			}
+		case CharCtrlP:
+			if cl.selected != 1 {
+				cl.selected--
+				cl.buf = []rune(cl.compl[cl.selected-1])
+				cl.index = len(cl.buf)
+			} else {
+				cl.selected = len(cl.compl) + 1
+				cl.buf = cl.trigger
+				cl.index = len(cl.buf)
+			}
+		case ' ':
+			cl.insert([]rune{' '}, cl.index)
+			return nil
+		case CharBackspace:
+			cl.delete(cl.index, cl.index-1)
+			return nil
+		default:
+			cl.insert([]rune{ch}, cl.index)
+			return nil
+		}
+	}
 }
