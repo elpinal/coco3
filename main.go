@@ -111,13 +111,6 @@ LOOP:
 				cl.toTheFirstNonBlank()
 			case '$':
 				cl.toTheEnd()
-			case 'a':
-				cl.moveForward()
-				cl.mode = insertMode
-			case 'i':
-				cl.mode = insertMode
-			case 'x':
-				cl.deleteUnder()
 			case 'k':
 				cl.prevHistory()
 			case 'j':
@@ -130,6 +123,13 @@ LOOP:
 				cl.wordBackward()
 			case 'B':
 				cl.wordBackwardNonBlank()
+			case 'a':
+				cl.moveForward()
+				cl.mode = insertMode
+			case 'i':
+				cl.mode = insertMode
+			case 'x':
+				cl.deleteUnder()
 			case 'c', 'd', 'y':
 				cl.mode = operatorPendingMode
 				cl.pending = ch
