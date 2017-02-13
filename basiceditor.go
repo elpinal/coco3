@@ -1,5 +1,7 @@
 package main
 
+// basicEditor represents a basic editor.
+// Valid positions are in range [0, len(e.buf)].
 type basicEditor struct {
 	pos int
 	buf []rune
@@ -7,7 +9,6 @@ type basicEditor struct {
 
 // move moves the position to the given position.
 // Given a invalid position, move sets the position at the end of the buffer.
-// Valid positions are in range [0, len(e.buf)].
 func (e *basicEditor) move(to int) {
 	switch {
 	case to >= len(e.buf):
