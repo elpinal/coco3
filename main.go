@@ -154,8 +154,10 @@ LOOP:
 	if err != nil {
 		return err
 	}
-	hist.lines = append(hist.lines, cl.buf)
-	hist.i++
+	if len(hist.lines) == 0 || string(hist.lines[hist.i-1]) != string(cl.buf) {
+		hist.lines = append(hist.lines, cl.buf)
+		hist.i++
+	}
 	return execute([]byte(string(cl.buf)))
 }
 
