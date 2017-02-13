@@ -159,9 +159,11 @@ LOOP:
 				cl.deleteChar()
 			case CharCtrlI:
 				cl.complete()
-				err := cl.completeMode(rd)
-				if err != nil {
-					return err
+				if cl.compl != nil {
+					err := cl.completeMode(rd)
+					if err != nil {
+						return err
+					}
 				}
 			default:
 				cl.appendChar(ch)
