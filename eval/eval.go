@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/signal"
 	"strings"
 
@@ -133,22 +132,14 @@ func (e *evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 }
 
 func (e *evaluator) execCmd(name string, args []string) error {
-	if fn, ok := builtins[name]; ok {
-		return fn(e, args)
-	}
-	if x, ok := aliases[name]; ok {
-		name = x.cmd
-		args = append(x.args, args...)
-	}
-
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, name, args...)
-	cmd.Stdin = e.in
-	cmd.Stdout = e.out
-	cmd.Stderr = e.err
+	cmd := CommandContext(ctx, name, args...)
+	cmd.SetStdin(e.in)
+	cmd.SetStdout(e.out)
+	cmd.SetStderr(e.err)
 
 	defer func() {
 		for _, closer := range e.closeAfterStart {
