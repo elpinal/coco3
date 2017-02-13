@@ -91,16 +91,23 @@ type (
 	ExecStmt struct {
 		Args []Expr
 	}
+
+	PipeStmt struct {
+		Args []*ExecStmt
+	}
 )
 
 func (s *BadStmt) Pos() token.Pos  { return s.From }
 func (s *ExecStmt) Pos() token.Pos { return s.Args[0].Pos() }
+func (s *PipeStmt) Pos() token.Pos { return s.Args[0].Pos() }
 
 func (s *BadStmt) End() token.Pos  { return s.To }
 func (s *ExecStmt) End() token.Pos { return s.Args[len(s.Args)-1].End() }
+func (s *PipeStmt) End() token.Pos { return s.Args[len(s.Args)-1].End() }
 
 func (*BadStmt) stmtNode()  {}
 func (*ExecStmt) stmtNode() {}
+func (*PipeStmt) stmtNode() {}
 
 type File struct {
 	Name  *Ident // package name

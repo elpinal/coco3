@@ -2,13 +2,14 @@ package eval
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/elpinal/coco3/ast"
 	"github.com/elpinal/coco3/token"
@@ -18,7 +19,7 @@ func Eval(stmts []ast.Stmt) error {
 	for _, stmt := range stmts {
 		err := eval(stmt)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Eval")
 		}
 	}
 	return nil
@@ -34,6 +35,28 @@ type evaluator struct {
 
 func eval(stmt ast.Stmt) error {
 	switch x := stmt.(type) {
+	case *ast.PipeStmt:
+		e := &evaluator{
+			in:  os.Stdin,
+			out: os.Stdout,
+			err: os.Stderr,
+		}
+		commands := make([][]string, 0, len(x.Args))
+		for _, c := range x.Args {
+			args := make([]string, 0, len(c.Args))
+			for _, arg := range c.Args {
+				s, err := e.evalExpr(arg)
+				if err != nil {
+					return err
+				}
+				args = append(args, s...)
+			}
+			if len(args) == 0 {
+				return errors.New("no command to execute")
+			}
+			commands = append(commands, args)
+		}
+		return errors.Wrap(e.execPipe(commands), "eval")
 	case *ast.ExecStmt:
 		e := &evaluator{
 			in:  os.Stdin,
@@ -146,4 +169,55 @@ func wait(fn func() error) <-chan error {
 	c := make(chan error, 1)
 	c <- fn()
 	return c
+}
+
+func (e *evaluator) execPipe(commands [][]string) error {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
+	cmds := make([]Cmd, len(commands))
+	ctx, cancel := context.WithCancel(context.Background())
+	for i, c := range commands {
+		name := c[0]
+		args := c[1:]
+		cmds[i] = CommandContext(ctx, name, args...)
+		if i > 0 {
+			pipe, err := cmds[i-1].StdoutPipe()
+			if err != nil {
+				return err
+			}
+			cmds[i].SetStdin(pipe)
+		}
+		cmds[i].SetStderr(e.err)
+	}
+	cmds[0].SetStdin(e.in)
+	cmds[len(cmds)-1].SetStdout(e.out)
+
+	for _, cmd := range cmds {
+		if err := cmd.Start(); err != nil {
+			return errors.Wrap(err, "cmd.Start")
+		}
+	}
+	f := func() error {
+		for _, cmd := range cmds {
+			if err := cmd.Wait(); err != nil {
+				return errors.Wrap(err, "cmd.Wait")
+			}
+		}
+		return nil
+	}
+
+	defer func() {
+		for _, closer := range e.closeAfterStart {
+			closer.Close()
+		}
+	}()
+	defer cancel()
+	select {
+	case s := <-c:
+		return errors.New(s.String())
+	case err := <-wait(f):
+		return err
+	}
+	return nil
 }

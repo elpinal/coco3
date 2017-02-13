@@ -149,13 +149,35 @@ func (p *parser) parseExpr() ast.Expr {
 	return &ast.BadExpr{From: pos, To: p.pos}
 }
 
-func (p *parser) parseLine() ast.Stmt {
+func (p *parser) parseExec() (bool, *ast.ExecStmt) {
 	var args []ast.Expr
-	for p.tok != token.SEMICOLON && p.tok != token.EOF {
+	for p.tok != token.SEMICOLON && p.tok != token.EOF && p.tok != token.PIPE {
 		args = append(args, p.parseExpr())
 	}
+	var hasPipe bool
+	if p.tok == token.PIPE {
+		hasPipe = true
+	}
 	p.next()
-	return &ast.ExecStmt{Args: args}
+	return hasPipe, &ast.ExecStmt{Args: args}
+}
+
+func (p *parser) parseLine() ast.Stmt {
+	var execs []*ast.ExecStmt
+	for {
+		hasPipe, stmt := p.parseExec()
+		execs = append(execs, stmt)
+		if !hasPipe {
+			break
+		}
+	}
+	switch len(execs) {
+	case 0:
+		return nil
+	case 1:
+		return execs[0]
+	}
+	return &ast.PipeStmt{Args: execs}
 }
 
 // ----------------------------------------------------------------------------

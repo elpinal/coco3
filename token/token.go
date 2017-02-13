@@ -23,6 +23,8 @@ const (
 	REDIRIN  // <
 	REDIROUT // >
 
+	PIPE // |
+
 	SEMICOLON // ;
 	operator_end
 )
@@ -40,6 +42,8 @@ var tokens = [...]string{
 
 	REDIRIN:  "<",
 	REDIROUT: ">",
+
+	PIPE: ":",
 
 	SEMICOLON: ";",
 }
