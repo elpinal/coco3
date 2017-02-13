@@ -6,7 +6,8 @@ type basicEditor struct {
 }
 
 // move moves the position.
-// Given invalid position, move sets the position at the end of the buffer.
+// Given a invalid position, move sets the position at the end of the buffer.
+// Valid positions are in range [0, len(e.buf)].
 func (e *basicEditor) move(to int) {
 	switch {
 	case to >= len(e.buf):
