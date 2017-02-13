@@ -235,6 +235,8 @@ func (cl *commandline) wordBackwardNonBlank() {
 
 func (cl *commandline) deleteUnder() {
 	switch cl.index {
+	case len(cl.buf):
+		return
 	case 0:
 		cl.buf = cl.buf[1:]
 	case len(cl.buf) - 1:
