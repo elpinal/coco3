@@ -133,6 +133,15 @@ LOOP:
 			case 'c', 'd', 'y':
 				cl.mode = operatorPendingMode
 				cl.pending = ch
+			case 'g':
+				ch1, err := rd.Read()
+				if err != nil {
+					return err
+				}
+				switch ch1 {
+				case '_':
+					cl.toTheLastNonBlank()
+				}
 			default:
 			}
 		case insertMode:

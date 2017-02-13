@@ -35,6 +35,20 @@ func (cl *commandline) toTheEnd() {
 	cl.index = len(cl.buf) - 1
 }
 
+func (cl *commandline) toTheLastNonBlank() {
+	if len(cl.buf) == 0 {
+		return
+	}
+	for i := len(cl.buf) - 1; i >= 0; i-- {
+		ch := cl.buf[i]
+		if ch != ' ' && ch != '\t' {
+			cl.index = i
+			return
+		}
+	}
+	cl.index = len(cl.buf) - 1
+}
+
 func (cl *commandline) prevHistory() {
 	if cl.hist.i == 0 {
 		return
