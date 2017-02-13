@@ -5,7 +5,7 @@ type basicEditor struct {
 	buf []rune
 }
 
-// move moves the position.
+// move moves the position to the given position.
 // Given a invalid position, move sets the position at the end of the buffer.
 // Valid positions are in range [0, len(e.buf)].
 func (e *basicEditor) move(to int) {
