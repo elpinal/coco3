@@ -22,9 +22,10 @@ func (cl *commandline) toTheFirstNonBlank() {
 	for i, ch := range cl.buf {
 		if ch != ' ' && ch != '\t' {
 			cl.index = i
+			return
 		}
 	}
-	cl.index = len(cl.buf) - 1
+	cl.index = 0
 }
 
 func (cl *commandline) toTheEnd() {
