@@ -370,7 +370,7 @@ func (cl *commandline) operate(pending rune, from, to int) {
 }
 
 func (cl *commandline) complete() {
-	cl.selected = 0
+	cl.selected = 1
 	var maxLength int
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	var compl []string
@@ -426,6 +426,8 @@ func (cl *commandline) move(to int) {
 
 func (cl *commandline) completeMode(rd *Reader) error {
 	defer func() { cl.compl = nil }()
+	cl.buf = []rune(cl.compl[cl.selected-1])
+	cl.index = len(cl.buf)
 	for {
 		cl.refresh()
 		ch, err := rd.Read()
