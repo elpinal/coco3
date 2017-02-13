@@ -18,3 +18,26 @@ func (e *basicEditor) move(to int) {
 		e.pos = to
 	}
 }
+
+// insert inserts s into the buffer at the given position.
+// Given a invalid position, insert considers the position to be at the end of the buffer.
+func (e *basicEditor) insert(s []rune, at int) {
+	switch {
+	case at < 0:
+		at = 0
+	case at > len(e.buf):
+		at = len(e.buf)
+	}
+	switch at {
+	case 0:
+		e.buf = append(s, e.buf...)
+	case len(e.buf):
+		e.buf = append(e.buf, s...)
+	default:
+		s = append(e.buf[:at], s...)
+		e.buf = append(s, e.buf[at:]...)
+	}
+	if at <= e.pos {
+		e.pos += len(s)
+	}
+}
