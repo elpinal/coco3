@@ -331,11 +331,17 @@ func (cl *commandline) delete(from, to int) {
 		left = to
 		right = from
 	}
+	if left < 0 {
+		left = 0
+	}
+	if right > len(cl.buf) {
+		right = len(cl.buf)
+	}
 	switch {
 	case left == 0:
 		cl.buf = cl.buf[right:]
 	case right == len(cl.buf):
-		cl.buf = cl.buf[left:]
+		cl.buf = cl.buf[:left]
 	default:
 		cl.buf = append(cl.buf[:left], cl.buf[right:]...)
 	}
