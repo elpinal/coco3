@@ -130,6 +130,9 @@ LOOP:
 				cl.wordBackward()
 			case 'B':
 				cl.wordBackwardNonBlank()
+			case 'c', 'd', 'y':
+				cl.mode = operatorPendingMode
+				cl.pending = ch
 			default:
 			}
 		case insertMode:
@@ -143,6 +146,25 @@ LOOP:
 				cl.deleteChar()
 			default:
 				cl.appendChar(ch)
+			}
+		case operatorPendingMode:
+			switch ch {
+			case 'h':
+				from := cl.index
+				cl.toLeft()
+				to := cl.index
+				cl.operate(cl.pending, from, to)
+			case 'l':
+				from := cl.index
+				cl.toRight()
+				to := cl.index
+				cl.operate(cl.pending, from, to)
+			case cl.pending:
+				from := 0
+				to := len(cl.buf)
+				cl.operate(cl.pending, from, to)
+			default:
+				cl.mode = normalMode
 			}
 		}
 		cl.refresh()
@@ -176,7 +198,8 @@ type commandline struct {
 
 	hist history
 
-	mode mode
+	mode    mode
+	pending rune
 }
 
 func (cl *commandline) refresh() {
@@ -238,4 +261,41 @@ func (cl *commandline) deleteChar() {
 		cl.buf = append(cl.buf[:cl.index-1], cl.buf[cl.index:]...)
 	}
 	cl.index--
+}
+
+func (cl *commandline) delete(from, to int) {
+	left := from
+	right := to
+	if from > to {
+		left = to
+		right = from
+	}
+	switch {
+	case left == 0:
+		cl.buf = cl.buf[right:]
+	case right == len(cl.buf):
+		cl.buf = cl.buf[left:]
+	default:
+		cl.buf = append(cl.buf[:left], cl.buf[right:]...)
+	}
+	switch {
+	case cl.index < left:
+	case right < cl.index:
+		cl.index = cl.index - (right - left)
+	default:
+		cl.index = left
+	}
+}
+
+func (cl *commandline) operate(pending rune, from, to int) {
+	switch pending {
+	case 'c', 'd':
+		cl.delete(from, to)
+		if pending == 'c' {
+			cl.mode = insertMode
+			return
+		}
+	case 'y':
+	}
+	cl.mode = normalMode
 }

@@ -9,4 +9,11 @@ const (
 	insertMode
 	commandlineMode
 	exMode
+
+	operatorPendingMode
+	replaceMode
+	virtualReplaceMode
+	insertNormalMode
+	insertVisualMode
+	insertSelectMode
 )
