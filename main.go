@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/parser"
@@ -153,6 +155,8 @@ LOOP:
 				cl.mode = normalMode
 			case CharBackspace:
 				cl.deleteChar()
+			case CharCtrlI:
+				cl.complete()
 			default:
 				cl.appendChar(ch)
 			}
@@ -209,9 +213,43 @@ type commandline struct {
 
 	mode    mode
 	pending rune
+
+	compl     []string
+	maxLength int
+}
+
+func (cl *commandline) construct(commands []string, width int) (omit, line int) {
+	maxCount := (width + 1) / (cl.maxLength + 1)
+	b := make([]byte, 0, 16)
+	for i, c := range commands {
+		if len(c) > width {
+			omit++
+			continue
+		}
+		b = append(b, c...)
+		b = append(b, strings.Repeat(" ", cl.maxLength+1-len(c))...)
+		if (i+1)%maxCount == 0 {
+			line++
+			b = append(b, '\n')
+			cl.w.Write(b)
+			b = b[:0]
+		}
+	}
+	cl.w.Write(b)
+	return omit, line
 }
 
 func (cl *commandline) refresh() {
+	if cl.compl != nil && len(cl.compl) < 100 {
+		width, _ := getWidth()
+		cl.w.WriteString("\n\n")
+		cl.w.WriteString("\r\033[J")
+		_, line := cl.construct(cl.compl, int(width))
+		fmt.Fprintf(cl.w, "\033[%vA", 2+line)
+	} else {
+		cl.w.WriteString("\r\033[J")
+	}
+
 	if cl.mode == insertMode {
 		cl.w.WriteString("\033[B")
 		cl.w.WriteString("\r\033[K")
@@ -307,4 +345,26 @@ func (cl *commandline) operate(pending rune, from, to int) {
 	case 'y':
 	}
 	cl.mode = normalMode
+}
+
+func (cl *commandline) complete() {
+	var maxLength int
+	paths := strings.Split(os.Getenv("PATH"), ":")
+	var compl []string
+	for _, path := range paths {
+		files, err := ioutil.ReadDir(path)
+		if err != nil {
+			return // err
+		}
+		for _, file := range files {
+			if strings.HasPrefix(file.Name(), string(cl.buf[:cl.index])) {
+				compl = append(compl, file.Name())
+				if len(file.Name()) > maxLength {
+					maxLength = len(file.Name())
+				}
+			}
+		}
+	}
+	cl.compl = compl
+	cl.maxLength = maxLength
 }
