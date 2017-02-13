@@ -29,6 +29,9 @@ func (cl *commandline) toTheFirstNonBlank() {
 }
 
 func (cl *commandline) toTheEnd() {
+	if len(cl.buf) == 0 {
+		return
+	}
 	cl.index = len(cl.buf) - 1
 }
 
