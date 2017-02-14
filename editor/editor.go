@@ -137,6 +137,6 @@ func (e *editor) wordBackwardNonBlank() {
 }
 
 func (e *editor) toUpper(from, to int) {
-	at := min(from, to)
+	at := constrain(min(from, to), 0, len(e.buf))
 	e.replace([]rune(strings.ToUpper(string(e.slice(from, to)))), at)
 }
