@@ -148,7 +148,7 @@ func TestSlice(t *testing.T) {
 	for _, test := range tests {
 		e := &basicEditor{buf: test.initial}
 		got := e.slice(test.from, test.to)
-		if !reflect.DeepEqual(got, test.want) {
+		if string(got) != string(test.want) {
 			t.Errorf("slice(%v, %v): got %v, want %v", test.from, test.to, got, test.want)
 		}
 	}
