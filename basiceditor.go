@@ -116,3 +116,14 @@ func (e *basicEditor) lastIndex(ch rune, last int) int {
 	}
 	return -1
 }
+
+// indexFunc(f, start, true) == indexFunc(func(r) bool { return !f(r) }, start, false)
+func (e *basicEditor) indexFunc(f func(rune) bool, start int, truth bool) int {
+	start = constrain(start, 0, len(e.buf))
+	for i := start; i < len(e.buf); i++ {
+		if f(e.buf[i]) == truth {
+			return i
+		}
+	}
+	return -1
+}
