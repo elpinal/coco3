@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 // basicEditor represents a basic editor.
 // Valid positions are in range [0, len(e.buf)].
 type basicEditor struct {
@@ -137,4 +139,29 @@ func (e *basicEditor) lastIndexFunc(f func(rune) bool, last int, truth bool) int
 		}
 	}
 	return -1
+}
+
+func (e *basicEditor) replace(s []rune, at int) {
+	switch {
+	case len(e.buf) <= at:
+		e.buf = append(e.buf, []rune(strings.Repeat(" ", at-len(e.buf)))...)
+		e.buf = append(e.buf, s...)
+	case at+len(s) <= 0:
+		// no-op
+	case at < 0:
+		for i := 0; i < at+len(s); i++ {
+			e.buf[i] = s[i-at]
+		}
+	case len(e.buf) < at+len(s):
+		v := make([]rune, at+len(s))
+		copy(v, e.buf)
+		for i := at; i < at+len(s); i++ {
+			v[i] = s[i-at]
+		}
+		e.buf = v
+	default:
+		for i := at; i < at+len(s); i++ {
+			e.buf[i] = s[i-at]
+		}
+	}
 }

@@ -235,3 +235,43 @@ func TestLastIndex(t *testing.T) {
 		}
 	}
 }
+
+func TestReplace(t *testing.T) {
+	tests := []struct {
+		initial basicEditor
+		input   []rune
+		at      int
+		want    basicEditor
+	}{
+		{
+			initial: basicEditor{buf: []rune(""), pos: 0},
+			input:   []rune("aaa"),
+			at:      0,
+			want:    basicEditor{buf: []rune("aaa"), pos: 0},
+		},
+		{
+			initial: basicEditor{buf: []rune("AAA"), pos: 2},
+			input:   []rune("aaa"),
+			at:      -1,
+			want:    basicEditor{buf: []rune("aaA"), pos: 2},
+		},
+		{
+			initial: basicEditor{buf: []rune("AAA"), pos: 1},
+			input:   []rune("aaa"),
+			at:      2,
+			want:    basicEditor{buf: []rune("AAaaa"), pos: 1},
+		},
+		{
+			initial: basicEditor{buf: []rune("AAA"), pos: 3},
+			input:   []rune("aaa"),
+			at:      10,
+			want:    basicEditor{buf: []rune("AAA       aaa"), pos: 3},
+		},
+	}
+	for _, test := range tests {
+		test.initial.replace(test.input, test.at)
+		if !reflect.DeepEqual(test.initial, test.want) {
+			t.Errorf("replace(%v, %v): got %v, want %v", string(test.input), test.at, test.initial, test.want)
+		}
+	}
+}
