@@ -98,6 +98,12 @@ func TestDelete(t *testing.T) {
 			to:      8,
 			want:    basicEditor{buf: []rune("AAAAaaaa"), pos: 3},
 		},
+		{
+			initial: basicEditor{buf: []rune(""), pos: 0},
+			from:    -1,
+			to:      -1,
+			want:    basicEditor{buf: []rune(""), pos: 0},
+		},
 	}
 	for _, test := range tests {
 		test.initial.delete(test.from, test.to)

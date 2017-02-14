@@ -43,21 +43,35 @@ func (e *basicEditor) insert(s []rune, at int) {
 	}
 }
 
+func max(m, n int) int {
+	if m > n {
+		return m
+	}
+	return n
+}
+
+func min(m, n int) int {
+	if m < n {
+		return m
+	}
+	return n
+}
+
+func constrain(n, low, high int) int {
+	if n < low {
+		return low
+	}
+	if n > high {
+		return high
+	}
+	return n
+}
+
 // delete deletes runes from the buffer [from, to].
 // Given a invalid position, delete considers the position to be at the end of the buffer.
 func (e *basicEditor) delete(from, to int) {
-	left := from
-	right := to
-	if from > to {
-		left = to
-		right = from
-	}
-	if left < 0 {
-		left = 0
-	}
-	if right > len(e.buf) {
-		right = len(e.buf)
-	}
+	left := constrain(min(from, to), 0, len(e.buf))
+	right := constrain(max(from, to), 0, len(e.buf))
 	switch {
 	case left == 0:
 		e.buf = e.buf[right:]
