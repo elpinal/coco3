@@ -15,7 +15,7 @@ func (e *editor) put(r rune, at int) {
 	e.insert(s, at)
 }
 
-func iskeyword(ch rune) bool {
+func isKeyword(ch rune) bool {
 	if 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '0' <= ch && ch <= '9' || ch == '_' || 192 <= ch && ch <= 255 {
 		return true
 	}
@@ -43,8 +43,8 @@ func (e *editor) wordForward() {
 			e.pos = i
 			return
 		}
-	case iskeyword(ch):
-		if i := e.indexFunc(iskeyword, e.pos+1, false); i > 0 {
+	case isKeyword(ch):
+		if i := e.indexFunc(isKeyword, e.pos+1, false); i > 0 {
 			if !isWhitespace(e.buf[i]) {
 				e.pos = i
 				return
@@ -55,8 +55,8 @@ func (e *editor) wordForward() {
 			}
 		}
 	default:
-		if i := e.indexFunc(func(r rune) bool { return isWhitespace(r) || iskeyword(r) }, e.pos+1, true); i > 0 {
-			if iskeyword(e.buf[i]) {
+		if i := e.indexFunc(func(r rune) bool { return isWhitespace(r) || isKeyword(r) }, e.pos+1, true); i > 0 {
+			if isKeyword(e.buf[i]) {
 				e.pos = i
 				return
 			}
@@ -89,15 +89,15 @@ func (e *editor) wordBackward() {
 	}
 
 	switch ch := e.buf[n]; {
-	case iskeyword(ch):
-		if i := e.lastIndexFunc(iskeyword, n, false); i >= 0 {
+	case isKeyword(ch):
+		if i := e.lastIndexFunc(isKeyword, n, false); i >= 0 {
 			e.pos = i + 1
 			return
 		}
 	default:
 		for i := n - 1; i >= 0; i-- {
 			switch ch := e.buf[i]; {
-			case iskeyword(ch), isWhitespace(ch):
+			case isKeyword(ch), isWhitespace(ch):
 				e.pos = i + 1
 				return
 			}
