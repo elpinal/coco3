@@ -106,3 +106,46 @@ func TestWordForward(t *testing.T) {
 		}
 	}
 }
+
+func TestWordBackward(t *testing.T) {
+	tests := []struct {
+		initial basicEditor
+		want    int
+	}{
+		{
+			initial: basicEditor{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basicEditor{buf: []rune("aaa"), pos: 3},
+			want:    0,
+		},
+		{
+			initial: basicEditor{buf: []rune("aaa()"), pos: 4},
+			want:    3,
+		},
+		{
+			initial: basicEditor{buf: []rune("aaa x bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basicEditor{buf: []rune("aaa () bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basicEditor{buf: []rune("aaa x #####"), pos: 8},
+			want:    6,
+		},
+		{
+			initial: basicEditor{buf: []rune("#aa   #####"), pos: 5},
+			want:    1,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basicEditor: test.initial}
+		e.wordBackward()
+		if e.pos != test.want {
+			t.Errorf("wordBackward %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}

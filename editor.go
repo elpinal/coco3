@@ -54,3 +54,40 @@ func (e *editor) wordForward() {
 	}
 	e.pos = len(e.buf)
 }
+
+func (e *editor) wordBackward() {
+	switch e.pos {
+	case 0:
+		return
+	case 1:
+		e.pos = 0
+		return
+	}
+
+	n := e.pos - 1
+	switch ch := e.buf[n]; {
+	case isWhitespace(ch):
+		n = e.lastIndexFunc(isWhitespace, n, false)
+		if n < 0 {
+			e.pos = 0
+			return
+		}
+	}
+
+	switch ch := e.buf[n]; {
+	case iskeyword(ch):
+		if i := e.lastIndexFunc(iskeyword, n, false); i >= 0 {
+			e.pos = i + 1
+			return
+		}
+	default:
+		for i := n - 1; i >= 0; i-- {
+			switch ch := e.buf[i]; {
+			case iskeyword(ch), isWhitespace(ch):
+				e.pos = i + 1
+				return
+			}
+		}
+	}
+	e.pos = 0
+}
