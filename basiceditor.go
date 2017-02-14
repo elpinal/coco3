@@ -109,7 +109,7 @@ func (e *basicEditor) index(ch rune, start int) int {
 
 func (e *basicEditor) lastIndex(ch rune, last int) int {
 	last = constrain(last, 0, len(e.buf))
-	for i := last-1; i >= 0; i-- {
+	for i := last - 1; i >= 0; i-- {
 		if e.buf[i] == ch {
 			return i
 		}
