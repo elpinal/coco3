@@ -127,3 +127,14 @@ func (e *basicEditor) indexFunc(f func(rune) bool, start int, truth bool) int {
 	}
 	return -1
 }
+
+// lastIndexFunc(f, start, true) == lastIndexFunc(func(r) bool { return !f(r) }, start, false)
+func (e *basicEditor) lastIndexFunc(f func(rune) bool, last int, truth bool) int {
+	last = constrain(last, 0, len(e.buf))
+	for i := last - 1; i >= 0; i-- {
+		if f(e.buf[i]) == truth {
+			return i
+		}
+	}
+	return -1
+}
