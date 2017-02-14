@@ -149,7 +149,7 @@ func TestSlice(t *testing.T) {
 		e := &basicEditor{buf: test.initial}
 		got := e.slice(test.from, test.to)
 		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("slice(%v, %v): got %v, want %v", test.from, test.to, test.initial, test.want)
+			t.Errorf("slice(%v, %v): got %v, want %v", test.from, test.to, got, test.want)
 		}
 	}
 }
