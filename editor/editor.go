@@ -15,6 +15,20 @@ func (e *editor) put(r rune, at int) {
 	e.insert(s, at)
 }
 
+func iskeyword(ch rune) bool {
+	if 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || '0' <= ch && ch <= '9' || ch == '_' || 192 <= ch && ch <= 255 {
+		return true
+	}
+	return false
+}
+
+func isWhitespace(ch rune) bool {
+	if ch == ' ' || ch == '\t' {
+		return true
+	}
+	return false
+}
+
 func (e *editor) wordForward() {
 	switch n := len(e.buf) - e.pos; {
 	case n < 1:
