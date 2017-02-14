@@ -142,6 +142,9 @@ func (e *basicEditor) lastIndexFunc(f func(rune) bool, last int, truth bool) int
 }
 
 func (e *basicEditor) replace(s []rune, at int) {
+	if s == nil {
+		return
+	}
 	switch {
 	case len(e.buf) <= at:
 		e.buf = append(e.buf, []rune(strings.Repeat(" ", at-len(e.buf)))...)
