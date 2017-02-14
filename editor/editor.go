@@ -105,3 +105,31 @@ func (e *editor) wordBackward() {
 	}
 	e.pos = 0
 }
+
+func (e *editor) wordForwardNonBlank() {
+	i := e.indexFunc(isWhitespace, e.pos, true)
+	if i < 0 {
+		e.pos = len(e.buf)
+		return
+	}
+	i = e.indexFunc(isWhitespace, i+1, false)
+	if i < 0 {
+		e.pos = len(e.buf)
+		return
+	}
+	e.pos = i
+}
+
+func (e *editor) wordBackwardNonBlank() {
+	i := e.lastIndexFunc(isWhitespace, e.pos, false)
+	if i < 0 {
+		e.pos = 0
+		return
+	}
+	i = e.lastIndexFunc(isWhitespace, i, true)
+	if i < 0 {
+		e.pos = 0
+		return
+	}
+	e.pos = i + 1
+}
