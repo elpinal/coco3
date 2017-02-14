@@ -88,3 +88,11 @@ func (e *basicEditor) delete(from, to int) {
 		e.pos = left
 	}
 }
+
+// slice slices the buffer [from, to].
+// Given a invalid position, slice considers the position to be at the end of the buffer.
+func (e *basicEditor) slice(from, to int) []rune {
+	left := constrain(min(from, to), 0, len(e.buf))
+	right := constrain(max(from, to), 0, len(e.buf))
+	return e.buf[left:right]
+}

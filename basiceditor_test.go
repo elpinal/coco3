@@ -112,3 +112,44 @@ func TestDelete(t *testing.T) {
 		}
 	}
 }
+
+func TestSlice(t *testing.T) {
+	tests := []struct {
+		initial []rune
+		from    int
+		to      int
+		want    []rune
+	}{
+		{
+			initial: []rune(""),
+			from:    -1,
+			to:      1,
+			want:    []rune(""),
+		},
+		{
+			initial: []rune("ABC"),
+			from:    -1,
+			to:      1,
+			want:    []rune("A"),
+		},
+		{
+			initial: []rune("aaa bbb ccc"),
+			from:    2,
+			to:      9,
+			want:    []rune("a bbb c"),
+		},
+		{
+			initial: []rune("aaa x bbb"),
+			from:    10,
+			to:      4,
+			want:    []rune("x bbb"),
+		},
+	}
+	for _, test := range tests {
+		e := &basicEditor{buf: test.initial}
+		got := e.slice(test.from, test.to)
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("slice(%v, %v): got %v, want %v", test.from, test.to, test.initial, test.want)
+		}
+	}
+}
