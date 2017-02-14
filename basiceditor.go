@@ -35,7 +35,7 @@ func (e *basicEditor) insert(s []rune, at int) {
 	case len(e.buf):
 		e.buf = append(e.buf, s...)
 	default:
-		s = append(e.buf[:at], s...)
+		s = append(e.buf[:at:at], s...)
 		e.buf = append(s, e.buf[at:]...)
 	}
 	if at <= e.pos {
