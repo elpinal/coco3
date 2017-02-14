@@ -12,7 +12,7 @@ const (
 	EOF
 
 	literal_beg
-	IDENT // main
+	IDENT  // main
 	STRING // 'abc'
 	literal_end
 
@@ -34,7 +34,7 @@ var tokens = [...]string{
 
 	EOF: "EOF",
 
-	IDENT: "IDENT",
+	IDENT:  "IDENT",
 	STRING: "STRING",
 
 	LPAREN: "(",

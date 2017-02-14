@@ -6,8 +6,8 @@ import (
 )
 
 type window struct {
-	row    uint16
-	col    uint16
+	row uint16
+	col uint16
 }
 
 func getWidth() (uint, error) {

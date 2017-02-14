@@ -67,31 +67,31 @@ func TestRegister(t *testing.T) {
 func TestWordForward(t *testing.T) {
 	tests := []struct {
 		initial basicEditor
-		want int
+		want    int
 	}{
 		{
 			initial: basicEditor{buf: []rune(""), pos: 0},
-			want: 0,
+			want:    0,
 		},
 		{
 			initial: basicEditor{buf: []rune("aaa"), pos: 0},
-			want: 3,
+			want:    3,
 		},
 		{
 			initial: basicEditor{buf: []rune("aaa()"), pos: 2},
-			want: 3,
+			want:    3,
 		},
 		{
 			initial: basicEditor{buf: []rune("aaa x bbb"), pos: 3},
-			want: 4,
+			want:    4,
 		},
 		{
 			initial: basicEditor{buf: []rune("aaa () bbb"), pos: 3},
-			want: 4,
+			want:    4,
 		},
 		{
 			initial: basicEditor{buf: []rune("##### x bbb"), pos: 3},
-			want: 6,
+			want:    6,
 		},
 	}
 	for i, test := range tests {

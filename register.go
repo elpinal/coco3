@@ -47,7 +47,7 @@ func (r *registers) register(where rune, s []rune) {
 		r.named[where] = s
 		return
 	case 'A' <= where && where <= 'Z':
-		i := where-'A'+'a'
+		i := where - 'A' + 'a'
 		r.named[i] = append(r.named[i], s...)
 		return
 	}
