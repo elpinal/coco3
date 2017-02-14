@@ -235,3 +235,44 @@ func TestWordBackwardNonBlank(t *testing.T) {
 		}
 	}
 }
+
+func TestToUpper(t *testing.T) {
+	tests := []struct {
+		input []rune
+		from  int
+		to    int
+		want  []rune
+	}{
+		{
+			input: []rune(""),
+			from:  0,
+			to:    0,
+			want:  []rune(""),
+		},
+		{
+			input: []rune("Gopher"),
+			from:  0,
+			to:    8,
+			want:  []rune("GOPHER"),
+		},
+		{
+			input: []rune("AAAAAA"),
+			from:  -9,
+			to:    9,
+			want:  []rune("AAAAAA"),
+		},
+		{
+			input: []rune("aaa X bbb X ccc"),
+			from:  4,
+			to:    8,
+			want:  []rune("aaa X BBb X ccc"),
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basicEditor: basicEditor{buf: test.input}}
+		e.toUpper(test.from, test.to)
+		if string(e.buf) != string(test.want) {
+			t.Errorf("toUpper %v: got %v, want %v", i, string(e.buf), string(test.want))
+		}
+	}
+}

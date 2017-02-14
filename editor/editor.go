@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 type editor struct {
 	basicEditor
 	registers
@@ -132,4 +134,9 @@ func (e *editor) wordBackwardNonBlank() {
 		return
 	}
 	e.pos = i + 1
+}
+
+func (e *editor) toUpper(from, to int) {
+	at := min(from, to)
+	e.replace([]rune(strings.ToUpper(string(e.slice(from, to)))), at)
 }
