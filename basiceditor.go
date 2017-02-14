@@ -96,3 +96,23 @@ func (e *basicEditor) slice(from, to int) []rune {
 	right := constrain(max(from, to), 0, len(e.buf))
 	return e.buf[left:right]
 }
+
+func (e *basicEditor) index(ch rune, start int) int {
+	start = constrain(start, 0, len(e.buf))
+	for i := start; i < len(e.buf); i++ {
+		if e.buf[i] == ch {
+			return i
+		}
+	}
+	return -1
+}
+
+func (e *basicEditor) lastIndex(ch rune, last int) int {
+	last = constrain(last, 0, len(e.buf))
+	for i := last-1; i >= 0; i-- {
+		if e.buf[i] == ch {
+			return i
+		}
+	}
+	return -1
+}

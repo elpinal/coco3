@@ -153,3 +153,85 @@ func TestSlice(t *testing.T) {
 		}
 	}
 }
+
+func TestIndex(t *testing.T) {
+	tests := []struct {
+		initial []rune
+		ch      rune
+		start   int
+		want    int
+	}{
+		{
+			initial: []rune(""),
+			ch:      'a',
+			start:   0,
+			want:    -1,
+		},
+		{
+			initial: []rune("aaa"),
+			ch:      'a',
+			start:   1,
+			want:    1,
+		},
+		{
+			initial: []rune("abcde"),
+			ch:      'e',
+			start:   3,
+			want:    4,
+		},
+		{
+			initial: []rune("AA AA"),
+			ch:      'A',
+			start:   2,
+			want:    3,
+		},
+	}
+	for _, test := range tests {
+		e := &basicEditor{buf: test.initial}
+		got := e.index(test.ch, test.start)
+		if got != test.want {
+			t.Errorf("index(%v, %v): got %v, want %v", test.ch, test.start, got, test.want)
+		}
+	}
+}
+
+func TestLastIndex(t *testing.T) {
+	tests := []struct {
+		initial []rune
+		ch      rune
+		start   int
+		want    int
+	}{
+		{
+			initial: []rune(""),
+			ch:      'a',
+			start:   0,
+			want:    -1,
+		},
+		{
+			initial: []rune("aaa"),
+			ch:      'a',
+			start:   1,
+			want:    0,
+		},
+		{
+			initial: []rune("abcde"),
+			ch:      'e',
+			start:   3,
+			want:    -1,
+		},
+		{
+			initial: []rune("AA AA"),
+			ch:      'A',
+			start:   2,
+			want:    1,
+		},
+	}
+	for _, test := range tests {
+		e := &basicEditor{buf: test.initial}
+		got := e.lastIndex(test.ch, test.start)
+		if got != test.want {
+			t.Errorf("lastIndex(%v, %v): got %v, want %v", string(test.ch), test.start, got, test.want)
+		}
+	}
+}
