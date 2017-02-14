@@ -140,3 +140,8 @@ func (e *editor) toUpper(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
 	e.replace([]rune(strings.ToUpper(string(e.slice(from, to)))), at)
 }
+
+func (e *editor) toLower(from, to int) {
+	at := constrain(min(from, to), 0, len(e.buf))
+	e.replace([]rune(strings.ToLower(string(e.slice(from, to)))), at)
+}

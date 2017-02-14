@@ -276,3 +276,44 @@ func TestToUpper(t *testing.T) {
 		}
 	}
 }
+
+func TestToLower(t *testing.T) {
+	tests := []struct {
+		input []rune
+		from  int
+		to    int
+		want  []rune
+	}{
+		{
+			input: []rune(""),
+			from:  0,
+			to:    0,
+			want:  []rune(""),
+		},
+		{
+			input: []rune("Gopher"),
+			from:  0,
+			to:    8,
+			want:  []rune("gopher"),
+		},
+		{
+			input: []rune("AAAAAA"),
+			from:  -9,
+			to:    9,
+			want:  []rune("aaaaaa"),
+		},
+		{
+			input: []rune("aaa X bbb X ccc"),
+			from:  4,
+			to:    8,
+			want:  []rune("aaa x bbb X ccc"),
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basicEditor: basicEditor{buf: test.input}}
+		e.toLower(test.from, test.to)
+		if string(e.buf) != string(test.want) {
+			t.Errorf("toLower %v: got %v, want %v", i, string(e.buf), string(test.want))
+		}
+	}
+}
