@@ -93,6 +93,10 @@ func TestWordForward(t *testing.T) {
 			initial: basicEditor{buf: []rune("##### x bbb"), pos: 3},
 			want:    6,
 		},
+		{
+			initial: basicEditor{buf: []rune("#####   aa#"), pos: 5},
+			want:    8,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basicEditor: test.initial}
