@@ -17,7 +17,7 @@ func (e *normal) Run() (end bool, next mode, err error) {
 	}
 	for _, cmd := range normalCommands {
 		if cmd.r == r {
-			next = cmd.fn(e)
+			next = cmd.fn(e, r)
 			return
 		}
 	}
@@ -33,14 +33,17 @@ func (e *normal) Position() int {
 }
 
 type normalCommand struct {
-	r   rune               // first char
-	fn  func(*normal) mode // function for this command
+	r   rune                     // first char
+	fn  func(*normal, rune) mode // function for this command
 	arg int
 }
 
 var normalCommands = []normalCommand{
 	{'$', (*normal).endline, 0},
 	{'0', (*normal).beginline, 0},
+	{'A', (*normal).edit, 0},
+	{'I', (*normal).edit, 0},
+	{'a', (*normal).edit, 0},
 	{'b', (*normal).wordBack, 0},
 	{'h', (*normal).left, 0},
 	{'i', (*normal).edit, 0},
@@ -48,36 +51,44 @@ var normalCommands = []normalCommand{
 	{'w', (*normal).word, 0},
 }
 
-func (e *normal) endline() mode {
+func (e *normal) endline(r rune) mode {
 	e.move(len(e.buf) - 1)
 	return modeNormal
 }
 
-func (e *normal) beginline() mode {
+func (e *normal) beginline(r rune) mode {
 	e.move(0)
 	return modeNormal
 }
 
-func (e *normal) wordBack() mode {
+func (e *normal) wordBack(r rune) mode {
 	e.wordBackward()
 	return modeNormal
 }
 
-func (e *normal) left() mode {
+func (e *normal) left(r rune) mode {
 	e.move(e.pos - 1)
 	return modeNormal
 }
 
-func (e *normal) edit() mode {
+func (e *normal) edit(r rune) mode {
+	switch r {
+	case 'A':
+		e.move(len(e.buf))
+	case 'I':
+		e.move(0)
+	case 'a':
+		e.move(e.pos + 1)
+	}
 	return modeInsert
 }
 
-func (e *normal) right() mode {
+func (e *normal) right(r rune) mode {
 	e.move(e.pos + 1)
 	return modeNormal
 }
 
-func (e *normal) word() mode {
+func (e *normal) word(r rune) mode {
 	e.wordForward()
 	return modeNormal
 }
