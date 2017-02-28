@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/elpinal/coco3/coco4/gate"
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/parser"
 )
@@ -58,17 +59,32 @@ func (c cli) run(args []string) int {
 		return 0
 	}
 
-	if err := interact(); err != nil {
+	if err := c.interact(); err != nil {
 		fmt.Fprintln(c.err, err)
 		return 1
 	}
 	return 0
 }
 
-func interact() error {
+func (c cli) interact() error {
+	g := gate.New(c.in, c.out, c.err)
 	for {
-		// TODO
-		return nil
+		old, err := enterRowMode()
+		if err != nil {
+			return err
+		}
+		r, err := g.Read()
+		if err != nil {
+			return err
+		}
+		c.out.Write([]byte{'\n'})
+		if err := exitRowMode(old); err != nil {
+			return err
+		}
+		if err := execute([]byte(string(r))); err != nil {
+			return err
+		}
+		g.Clear()
 	}
 	return nil
 }
