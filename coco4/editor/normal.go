@@ -42,7 +42,9 @@ var normalCommands = []normalCommand{
 	{'$', (*normal).endline, 0},
 	{'0', (*normal).beginline, 0},
 	{'A', (*normal).edit, 0},
+	{'B', (*normal).wordBack, 0},
 	{'I', (*normal).edit, 0},
+	{'W', (*normal).word, 0},
 	{'a', (*normal).edit, 0},
 	{'b', (*normal).wordBack, 0},
 	{'h', (*normal).left, 0},
@@ -62,7 +64,12 @@ func (e *normal) beginline(r rune) mode {
 }
 
 func (e *normal) wordBack(r rune) mode {
-	e.wordBackward()
+	switch r {
+	case 'b':
+		e.wordBackward()
+	case 'B':
+		e.wordBackwardNonBlank()
+	}
 	return modeNormal
 }
 
@@ -89,6 +96,11 @@ func (e *normal) right(r rune) mode {
 }
 
 func (e *normal) word(r rune) mode {
-	e.wordForward()
+	switch r {
+	case 'w':
+		e.wordForward()
+	case 'W':
+		e.wordForwardNonBlank()
+	}
 	return modeNormal
 }
