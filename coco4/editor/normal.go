@@ -5,6 +5,7 @@ import "github.com/elpinal/coco3/coco4/editor/register"
 type opArg struct {
 	opType     int // current operator type
 	opStart    int
+	opCount    int
 	motionType int
 }
 
@@ -42,6 +43,9 @@ func (e *normal) Run() (end bool, next mode, err error) {
 	}
 	if e.count == 0 {
 		e.count = 1
+	}
+	if e.opCount > 0 {
+		e.count *= e.opCount
 	}
 	for _, cmd := range normalCommands {
 		if cmd.r == r {
@@ -122,6 +126,7 @@ func (e *normal) operator(r rune) mode {
 	} else {
 		e.opStart = e.pos
 		e.opType = op
+		e.opCount = e.count
 	}
 	return modeNormal
 }
@@ -205,4 +210,5 @@ func (e *normal) doPendingOperator() mode {
 
 func (e *normal) clearOp() {
 	e.opType = OpNop
+	e.opCount = 0
 }
