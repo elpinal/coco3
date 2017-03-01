@@ -71,6 +71,7 @@ var normalCommands = []normalCommand{
 	{'h', (*normal).left, 0},
 	{'i', (*normal).edit, 0},
 	{'l', (*normal).right, 0},
+	{'p', (*normal).put1, 0},
 	{'w', (*normal).word, 0},
 	{'y', (*normal).operator, 0},
 }
@@ -125,6 +126,11 @@ func (e *normal) edit(r rune) mode {
 
 func (e *normal) right(r rune) mode {
 	e.move(e.pos + 1)
+	return modeNormal
+}
+
+func (e *normal) put1(r rune) mode {
+	e.put(register.Unnamed, e.pos+1)
 	return modeNormal
 }
 
