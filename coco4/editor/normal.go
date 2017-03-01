@@ -1,8 +1,23 @@
 package editor
 
+import "github.com/elpinal/coco3/coco4/editor/register"
+
+type opArg struct {
+	opType     int // current operator type
+	opStart    int
+	motionType int
+}
+
+type normalSet struct {
+	opArg
+	finishOp bool
+}
+
 type normal struct {
 	streamSet
 	*editor
+
+	normalSet
 }
 
 func (e *normal) Mode() mode {
@@ -11,6 +26,7 @@ func (e *normal) Mode() mode {
 
 func (e *normal) Run() (end bool, next mode, err error) {
 	next = modeNormal
+	e.finishOp = e.opType != OpNop
 	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -18,6 +34,7 @@ func (e *normal) Run() (end bool, next mode, err error) {
 	for _, cmd := range normalCommands {
 		if cmd.r == r {
 			next = cmd.fn(e, r)
+			e.doPendingOperator()
 			return
 		}
 	}
@@ -47,6 +64,8 @@ var normalCommands = []normalCommand{
 	{'W', (*normal).word, 0},
 	{'a', (*normal).edit, 0},
 	{'b', (*normal).wordBack, 0},
+	{'c', (*normal).operator, 0},
+	{'d', (*normal).operator, 0},
 	{'h', (*normal).left, 0},
 	{'i', (*normal).edit, 0},
 	{'l', (*normal).right, 0},
@@ -69,6 +88,17 @@ func (e *normal) wordBack(r rune) mode {
 		e.wordBackward()
 	case 'B':
 		e.wordBackwardNonBlank()
+	}
+	return modeNormal
+}
+
+func (e *normal) operator(r rune) mode {
+	op := opChars[r]
+	if op == e.opType { // double operator
+		e.motionType = mline
+	} else {
+		e.opStart = e.pos
+		e.opType = op
 	}
 	return modeNormal
 }
@@ -103,4 +133,28 @@ func (e *normal) word(r rune) mode {
 		e.wordForwardNonBlank()
 	}
 	return modeNormal
+}
+
+func (e *normal) doPendingOperator() {
+	if !e.finishOp {
+		return
+	}
+	from := e.opStart
+	to := e.pos
+	if e.motionType == mline {
+		from = 0
+		to = len(e.buf)
+	}
+	switch e.opType {
+	case OpDelete:
+		e.yank(register.Unnamed, from, to)
+		e.delete(from, to)
+	case OpYank:
+		e.yank(register.Unnamed, from, to)
+	}
+	e.clearOp()
+}
+
+func (e *normal) clearOp() {
+	e.opType = OpNop
 }

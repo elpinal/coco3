@@ -43,10 +43,10 @@ type balancer struct {
 }
 
 func (b *balancer) Read() ([]rune, error) {
-	next := modeInsert
+	prev := modeInsert
+	m := b.enter(prev)
 	for {
-		m := b.enter(next)
-		end, next1, err := m.Run()
+		end, next, err := m.Run()
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +54,10 @@ func (b *balancer) Read() ([]rune, error) {
 		if end {
 			return m.Runes(), nil
 		}
-		next = next1
+		if prev != next {
+			m = b.enter(next)
+		}
+		prev = next
 	}
 }
 
@@ -86,3 +89,8 @@ func (b *balancer) Clear() {
 	b.buf = b.buf[:0]
 	b.pos = 0
 }
+
+const (
+	mchar = iota
+	mline
+)
