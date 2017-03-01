@@ -85,6 +85,7 @@ var normalCommands = []normalCommand{
 	{'i', (*normal).edit, 0},
 	{'l', (*normal).right, 0},
 	{'p', (*normal).put1, 0},
+	{'r', (*normal).replace, 0},
 	{'w', (*normal).word, 0},
 	{'y', (*normal).operator, 0},
 }
@@ -148,6 +149,17 @@ func (e *normal) put1(r rune) mode {
 	for i := 0; i < e.count; i++ {
 		e.put(register.Unnamed, e.pos+1)
 	}
+	return modeNormal
+}
+
+func (e *normal) replace(r rune) mode {
+	r1, _, _ := e.streamSet.in.ReadRune()
+	s := make([]rune, e.count)
+	for i := 0; i < e.count; i++ {
+		s[i] = r1
+	}
+	e.editor.replace(s, e.pos)
+	e.move(e.pos + e.count - 1)
 	return modeNormal
 }
 
