@@ -34,7 +34,9 @@ func (e *normal) Run() (end bool, next mode, err error) {
 	for _, cmd := range normalCommands {
 		if cmd.r == r {
 			next = cmd.fn(e, r)
-			e.doPendingOperator()
+			if n := e.doPendingOperator(); n != 0 {
+				next = n
+			}
 			return
 		}
 	}
@@ -70,6 +72,7 @@ var normalCommands = []normalCommand{
 	{'i', (*normal).edit, 0},
 	{'l', (*normal).right, 0},
 	{'w', (*normal).word, 0},
+	{'y', (*normal).operator, 0},
 }
 
 func (e *normal) endline(r rune) mode {
@@ -135,9 +138,9 @@ func (e *normal) word(r rune) mode {
 	return modeNormal
 }
 
-func (e *normal) doPendingOperator() {
+func (e *normal) doPendingOperator() mode {
 	if !e.finishOp {
-		return
+		return 0
 	}
 	from := e.opStart
 	to := e.pos
@@ -151,8 +154,13 @@ func (e *normal) doPendingOperator() {
 		e.delete(from, to)
 	case OpYank:
 		e.yank(register.Unnamed, from, to)
+	case OpChange:
+		e.yank(register.Unnamed, from, to)
+		e.delete(from, to)
+		return modeInsert
 	}
 	e.clearOp()
+	return modeNormal
 }
 
 func (e *normal) clearOp() {
