@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 
+	"github.com/elpinal/coco3/coco4/config"
 	"github.com/elpinal/coco3/coco4/screen"
 )
 
@@ -12,7 +13,7 @@ type Editor interface {
 	Clear()
 }
 
-func New(s screen.Screen, in io.Reader, out, err io.Writer) Editor {
+func New(s screen.Screen, conf *config.Config, in io.Reader, out, err io.Writer) Editor {
 	var rd io.RuneReader
 	if x, ok := in.(io.RuneReader); ok {
 		rd = x
@@ -27,6 +28,7 @@ func New(s screen.Screen, in io.Reader, out, err io.Writer) Editor {
 		},
 		editor: &editor{},
 		s:      s,
+		conf:   conf,
 	}
 }
 
@@ -39,10 +41,12 @@ type streamSet struct {
 type balancer struct {
 	streamSet
 	*editor
-	s screen.Screen
+	s    screen.Screen
+	conf *config.Config
 }
 
 func (b *balancer) Read() ([]rune, error) {
+	b.s.Refresh(b.conf.Prompt, nil, 0)
 	prev := modeInsert
 	m := b.enter(prev)
 	for {
@@ -50,7 +54,7 @@ func (b *balancer) Read() ([]rune, error) {
 		if err != nil {
 			return nil, err
 		}
-		b.s.Refresh(string(m.Runes()), m.Position())
+		b.s.Refresh(b.conf.Prompt, m.Runes(), m.Position())
 		if end {
 			return m.Runes(), nil
 		}
