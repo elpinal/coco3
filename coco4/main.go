@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/elpinal/coco3/coco4/config"
 	"github.com/elpinal/coco3/coco4/gate"
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/parser"
@@ -59,15 +60,17 @@ func (c cli) run(args []string) int {
 		return 0
 	}
 
-	if err := c.interact(); err != nil {
+	conf := new(config.Config)
+	conf.Init()
+	if err := c.interact(conf); err != nil {
 		fmt.Fprintln(c.err, err)
 		return 1
 	}
 	return 0
 }
 
-func (c cli) interact() error {
-	g := gate.New(c.in, c.out, c.err)
+func (c cli) interact(conf *config.Config) error {
+	g := gate.New(conf, c.in, c.out, c.err)
 	for {
 		old, err := enterRowMode()
 		if err != nil {

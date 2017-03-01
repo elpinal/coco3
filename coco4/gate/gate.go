@@ -3,6 +3,7 @@ package gate
 import (
 	"io"
 
+	"github.com/elpinal/coco3/coco4/config"
 	"github.com/elpinal/coco3/coco4/editor"
 	"github.com/elpinal/coco3/coco4/screen/terminal"
 )
@@ -31,8 +32,8 @@ func (g *gate) Clear() {
 	g.e.Clear()
 }
 
-func New(in io.Reader, out, err io.Writer) Gate {
+func New(conf *config.Config, in io.Reader, out, err io.Writer) Gate {
 	return &gate{
-		e: editor.New(terminal.New(out), in, out, err),
+		e: editor.New(terminal.New(out), conf, in, out, err),
 	}
 }
