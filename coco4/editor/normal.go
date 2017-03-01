@@ -11,6 +11,7 @@ type opArg struct {
 type normalSet struct {
 	opArg
 	finishOp bool
+	count    int
 }
 
 type normal struct {
@@ -31,12 +32,24 @@ func (e *normal) Run() (end bool, next mode, err error) {
 	if err != nil {
 		return end, next, err
 	}
+	for ('1' <= r && r <= '9') || (e.count != 0 && r == '0') {
+		e.count = e.count*10 + int(r-'0')
+		r1, _, err := e.streamSet.in.ReadRune()
+		if err != nil {
+			return end, next, err
+		}
+		r = r1
+	}
+	if e.count == 0 {
+		e.count = 1
+	}
 	for _, cmd := range normalCommands {
 		if cmd.r == r {
 			next = cmd.fn(e, r)
 			if n := e.doPendingOperator(); n != 0 {
 				next = n
 			}
+			e.count = 0
 			return
 		}
 	}
@@ -87,11 +100,13 @@ func (e *normal) beginline(r rune) mode {
 }
 
 func (e *normal) wordBack(r rune) mode {
-	switch r {
-	case 'b':
-		e.wordBackward()
-	case 'B':
-		e.wordBackwardNonBlank()
+	for i := 0; i < e.count; i++ {
+		switch r {
+		case 'b':
+			e.wordBackward()
+		case 'B':
+			e.wordBackwardNonBlank()
+		}
 	}
 	return modeNormal
 }
@@ -108,7 +123,7 @@ func (e *normal) operator(r rune) mode {
 }
 
 func (e *normal) left(r rune) mode {
-	e.move(e.pos - 1)
+	e.move(e.pos - e.count)
 	return modeNormal
 }
 
@@ -125,21 +140,25 @@ func (e *normal) edit(r rune) mode {
 }
 
 func (e *normal) right(r rune) mode {
-	e.move(e.pos + 1)
+	e.move(e.pos + e.count)
 	return modeNormal
 }
 
 func (e *normal) put1(r rune) mode {
-	e.put(register.Unnamed, e.pos+1)
+	for i := 0; i < e.count; i++ {
+		e.put(register.Unnamed, e.pos+1)
+	}
 	return modeNormal
 }
 
 func (e *normal) word(r rune) mode {
-	switch r {
-	case 'w':
-		e.wordForward()
-	case 'W':
-		e.wordForwardNonBlank()
+	for i := 0; i < e.count; i++ {
+		switch r {
+		case 'w':
+			e.wordForward()
+		case 'W':
+			e.wordForwardNonBlank()
+		}
 	}
 	return modeNormal
 }
