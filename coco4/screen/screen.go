@@ -1,5 +1,5 @@
 package screen
 
 type Screen interface {
-	Refresh(string, int)
+	Refresh(string, []rune, int)
 }
