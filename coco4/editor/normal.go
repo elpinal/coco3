@@ -50,7 +50,7 @@ func (e *normal) Run() (end bool, next mode, err error) {
 				next = n
 			}
 			e.count = 0
-			if e.pos == len(e.buf) {
+			if next != modeInsert && e.pos == len(e.buf) {
 				e.pos--
 			}
 			return
