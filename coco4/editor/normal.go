@@ -55,7 +55,7 @@ func (e *normal) Run() (end bool, next mode, err error) {
 			}
 			e.count = 0
 			if next != modeInsert && e.pos == len(e.buf) {
-				e.pos--
+				e.move(e.pos - 1)
 			}
 			return
 		}
@@ -103,7 +103,7 @@ var normalCommands = []normalCommand{
 }
 
 func (e *normal) endline(r rune) mode {
-	e.move(len(e.buf) - 1)
+	e.move(len(e.buf))
 	return modeNormal
 }
 
