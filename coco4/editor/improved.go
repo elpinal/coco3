@@ -173,3 +173,27 @@ func (e *editor) currentWord(include bool) (from, to int) {
 	}
 	return
 }
+
+func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
+	from = e.lastIndex(quote, e.pos)
+	if from < 0 {
+		return
+	}
+	to = e.index(quote, e.pos)
+	if to < 0 {
+		return
+	}
+	if include {
+		to++
+		if to < len(e.buf) && isWhitespace(e.buf[to]) {
+			to++
+			return
+		}
+		if from > 0 && isWhitespace(e.buf[from-1]) {
+			from--
+		}
+		return
+	}
+	from++
+	return
+}
