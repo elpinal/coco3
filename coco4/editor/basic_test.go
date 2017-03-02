@@ -59,10 +59,10 @@ func TestInsert(t *testing.T) {
 			want:    basic{buf: []rune("AAAaaa"), pos: 6},
 		},
 		{
-			initial: basicEditor{buf: []rune("ABC"), pos: 1},
+			initial: basic{buf: []rune("ABC"), pos: 1},
 			input:   []rune("defg"),
 			at:      1,
-			want:    basicEditor{buf: []rune("AdefgBC"), pos: 5},
+			want:    basic{buf: []rune("AdefgBC"), pos: 5},
 		},
 	}
 	for _, test := range tests {
