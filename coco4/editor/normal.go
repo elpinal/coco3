@@ -82,8 +82,12 @@ var normalCommands = []normalCommand{
 	{'0', (*normal).beginline, 0},
 	{'A', (*normal).edit, 0},
 	{'B', (*normal).wordBack, 0},
+	{'C', (*normal).abbrev, 0},
+	{'D', (*normal).abbrev, 0},
 	{'I', (*normal).edit, 0},
 	{'W', (*normal).word, 0},
+	{'X', (*normal).abbrev, 0},
+	{'Y', (*normal).abbrev, 0},
 	{'a', (*normal).edit, 0},
 	{'b', (*normal).wordBack, 0},
 	{'c', (*normal).operator, 0},
@@ -94,6 +98,7 @@ var normalCommands = []normalCommand{
 	{'p', (*normal).put1, 0},
 	{'r', (*normal).replace, 0},
 	{'w', (*normal).word, 0},
+	{'x', (*normal).abbrev, 0},
 	{'y', (*normal).operator, 0},
 }
 
@@ -211,4 +216,17 @@ func (e *normal) doPendingOperator() mode {
 func (e *normal) clearOp() {
 	e.opType = OpNop
 	e.opCount = 0
+}
+
+func (e *normal) abbrev(r rune) mode {
+	amap := map[rune][]rune{
+		'x': []rune("dl"),
+		'X': []rune("dh"),
+		'D': []rune("d$"),
+		'C': []rune("c$"),
+		'Y': []rune("y$"),
+	}
+	e.streamSet.in.Add(amap[r])
+	e.opCount = e.count
+	return modeNormal
 }
