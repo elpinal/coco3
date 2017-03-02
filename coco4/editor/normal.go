@@ -142,6 +142,10 @@ func (e *normal) left(r rune) mode {
 }
 
 func (e *normal) edit(r rune) mode {
+	if (r == 'a' || r == 'i') && e.opType != OpNop {
+		e.object(r)
+		return modeNormal
+	}
 	switch r {
 	case 'A':
 		e.move(len(e.buf))
@@ -151,6 +155,23 @@ func (e *normal) edit(r rune) mode {
 		e.move(e.pos + 1)
 	}
 	return modeInsert
+}
+
+func (e *normal) object(r rune) {
+	var include bool
+	if r == 'a' {
+		include = true
+	}
+	var from, to int
+	r1, _, _ := e.streamSet.in.ReadRune()
+	switch r1 {
+	case 'w':
+		from, to = e.currentWord(include)
+	default:
+		return
+	}
+	e.opStart = from
+	e.pos = to
 }
 
 func (e *normal) right(r rune) mode {

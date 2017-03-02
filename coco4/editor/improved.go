@@ -149,3 +149,27 @@ func (e *editor) toLower(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
 	e.replace([]rune(strings.ToLower(string(e.slice(from, to)))), at)
 }
+
+func (e *editor) currentWord(include bool) (from, to int) {
+	f := func(r rune) bool { return !(isKeyword(r) || isWhitespace(r)) }
+	switch ch := e.buf[e.pos]; {
+	case isWhitespace(ch):
+		f = isWhitespace
+	case isKeyword(ch):
+		f = isKeyword
+	}
+	from = e.lastIndexFunc(f, e.pos, false) + 1
+	to = e.indexFunc(f, e.pos, false)
+	if to < 0 {
+		to = len(e.buf)
+	}
+	if include && to < len(e.buf) && isWhitespace(e.buf[to]) {
+		to++
+		return
+	}
+	if include && from > 0 && isWhitespace(e.buf[from-1]) {
+		from--
+		return
+	}
+	return
+}
