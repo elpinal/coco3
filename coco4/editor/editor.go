@@ -20,9 +20,10 @@ func New(s screen.Screen, conf *config.Config, in io.Reader, out, err io.Writer)
 	} else {
 		rd = bufio.NewReaderSize(in, 64)
 	}
+	r := NewReader(rd)
 	return &balancer{
 		streamSet: streamSet{
-			in:  rd,
+			in:  r,
 			out: out,
 			err: err,
 		},
@@ -33,7 +34,7 @@ func New(s screen.Screen, conf *config.Config, in io.Reader, out, err io.Writer)
 }
 
 type streamSet struct {
-	in  io.RuneReader
+	in  *RuneAddReader
 	out io.Writer
 	err io.Writer
 }
