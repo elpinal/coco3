@@ -18,7 +18,7 @@ func TestFlagC(t *testing.T) {
 		t.Errorf("Run: got %v, want %v", code, 0)
 	}
 	if got, want := out.String(), "aaa\n"; got != want {
-		t.Errorf("output: got %v, want %v", got, want)
+		t.Errorf("output: got %q, want %q", got, want)
 	}
 	if e := err.String(); e != "" {
 		t.Errorf("error: %v", e)
@@ -38,7 +38,7 @@ func TestArgs(t *testing.T) {
 		t.Errorf("Run: got %v, want %v", code, 0)
 	}
 	if got, want := out.String(), "aaa\nbbb\n"; got != want {
-		t.Errorf("output: got %v, want %v", got, want)
+		t.Errorf("output: got %q, want %q", got, want)
 	}
 	if e := err.String(); e != "" {
 		t.Errorf("error: %v", e)
