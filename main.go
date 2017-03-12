@@ -13,24 +13,24 @@ import (
 	"github.com/elpinal/coco3/parser"
 )
 
-type cli struct {
-	in  io.Reader
-	out io.Writer
-	err io.Writer
+type CLI struct {
+	In  io.Reader
+	Out io.Writer
+	Err io.Writer
 }
 
 func main() {
-	c := cli{
-		in:  os.Stdin,
-		out: os.Stdout,
-		err: os.Stderr,
+	c := CLI{
+		In:  os.Stdin,
+		Out: os.Stdout,
+		Err: os.Stderr,
 	}
 	os.Exit(c.run(os.Args[1:]))
 }
 
-func (c cli) run(args []string) int {
+func (c CLI) run(args []string) int {
 	f := flag.NewFlagSet("coco4", flag.ContinueOnError)
-	f.SetOutput(c.err)
+	f.SetOutput(c.Err)
 
 	flagC := f.String("c", "", "take first argument as a command to execute")
 	if err := f.Parse(args); err != nil {
@@ -39,7 +39,7 @@ func (c cli) run(args []string) int {
 
 	if *flagC != "" {
 		if err := execute([]byte(*flagC)); err != nil {
-			fmt.Fprintln(c.err, err)
+			fmt.Fprintln(c.Err, err)
 			return 1
 		}
 		return 0
@@ -49,11 +49,11 @@ func (c cli) run(args []string) int {
 		for _, file := range f.Args() {
 			b, err := ioutil.ReadFile(file)
 			if err != nil {
-				fmt.Fprintln(c.err, err)
+				fmt.Fprintln(c.Err, err)
 				return 1
 			}
 			if err := execute(b); err != nil {
-				fmt.Fprintln(c.err, err)
+				fmt.Fprintln(c.Err, err)
 				return 1
 			}
 		}
@@ -64,15 +64,15 @@ func (c cli) run(args []string) int {
 	conf.Init()
 	for {
 		if err := c.interact(conf); err != nil {
-			fmt.Fprintln(c.err, err)
+			fmt.Fprintln(c.Err, err)
 			// return 1
 		}
 	}
 	return 0
 }
 
-func (c cli) interact(conf *config.Config) error {
-	g := gate.New(conf, c.in, c.out, c.err)
+func (c CLI) interact(conf *config.Config) error {
+	g := gate.New(conf, c.In, c.Out, c.Err)
 	for {
 		old, err := enterRowMode()
 		if err != nil {
@@ -82,7 +82,7 @@ func (c cli) interact(conf *config.Config) error {
 		if err != nil {
 			return err
 		}
-		c.out.Write([]byte{'\n'})
+		c.Out.Write([]byte{'\n'})
 		if err := exitRowMode(old); err != nil {
 			return err
 		}
