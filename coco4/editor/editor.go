@@ -57,7 +57,7 @@ func (b *balancer) Read() ([]rune, error) {
 			return nil, err
 		}
 		var msg string
-		if next == modeInsert {
+		if !end && next == modeInsert {
 			msg = "-- INSERT --"
 		}
 		b.s.SetLastLine(msg)
