@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"io"
 
-	"github.com/elpinal/coco3/coco4/config"
-	"github.com/elpinal/coco3/coco4/screen"
+	"github.com/elpinal/coco3/config"
+	"github.com/elpinal/coco3/screen"
 )
 
 type Editor interface {

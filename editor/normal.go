@@ -1,6 +1,6 @@
 package editor
 
-import "github.com/elpinal/coco3/coco4/editor/register"
+import "github.com/elpinal/coco3/editor/register"
 
 type opArg struct {
 	opType     int // current operator type

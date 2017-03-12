@@ -3,9 +3,9 @@ package gate
 import (
 	"io"
 
-	"github.com/elpinal/coco3/coco4/config"
-	"github.com/elpinal/coco3/coco4/editor"
-	"github.com/elpinal/coco3/coco4/screen/terminal"
+	"github.com/elpinal/coco3/config"
+	"github.com/elpinal/coco3/editor"
+	"github.com/elpinal/coco3/screen/terminal"
 )
 
 type Gate interface {

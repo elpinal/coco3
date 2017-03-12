@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/elpinal/coco3/coco4/config"
-	"github.com/elpinal/coco3/coco4/gate"
+	"github.com/elpinal/coco3/config"
+	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/parser"
 )

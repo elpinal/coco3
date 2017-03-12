@@ -3,7 +3,7 @@ package editor
 import (
 	"strings"
 
-	"github.com/elpinal/coco3/coco4/editor/register"
+	"github.com/elpinal/coco3/editor/register"
 )
 
 type editor struct {
