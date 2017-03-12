@@ -14,9 +14,17 @@ import (
 	"github.com/elpinal/coco3/token"
 )
 
-func Eval(stmts []ast.Stmt) error {
+func New(in io.Reader, out, err io.Writer) *Evaluator {
+	return &Evaluator{
+		in:  in,
+		out: out,
+		err: err,
+	}
+}
+
+func (e *Evaluator) Eval(stmts []ast.Stmt) error {
 	for _, stmt := range stmts {
-		err := eval(stmt)
+		err := e.eval(stmt)
 		if err != nil {
 			return errors.Wrap(err, "Eval")
 		}
@@ -24,7 +32,7 @@ func Eval(stmts []ast.Stmt) error {
 	return nil
 }
 
-type evaluator struct {
+type Evaluator struct {
 	in  io.Reader
 	out io.Writer
 	err io.Writer
@@ -32,14 +40,9 @@ type evaluator struct {
 	closeAfterStart []io.Closer
 }
 
-func eval(stmt ast.Stmt) error {
+func (e *Evaluator) eval(stmt ast.Stmt) error {
 	switch x := stmt.(type) {
 	case *ast.PipeStmt:
-		e := &evaluator{
-			in:  os.Stdin,
-			out: os.Stdout,
-			err: os.Stderr,
-		}
 		commands := make([][]string, 0, len(x.Args))
 		for _, c := range x.Args {
 			args := make([]string, 0, len(c.Args))
@@ -57,11 +60,6 @@ func eval(stmt ast.Stmt) error {
 		}
 		return errors.Wrap(e.execPipe(commands), "eval")
 	case *ast.ExecStmt:
-		e := &evaluator{
-			in:  os.Stdin,
-			out: os.Stdout,
-			err: os.Stderr,
-		}
 		args := make([]string, 0, len(x.Args))
 		for _, arg := range x.Args {
 			s, err := e.evalExpr(arg)
@@ -78,7 +76,7 @@ func eval(stmt ast.Stmt) error {
 	return fmt.Errorf("eval: unexpected type: %T", stmt)
 }
 
-func (e *evaluator) evalExpr(expr ast.Expr) ([]string, error) {
+func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	switch x := expr.(type) {
 	case *ast.Ident:
 		return []string{x.Name}, nil
@@ -131,7 +129,7 @@ func (e *evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	return nil, fmt.Errorf("evalExpr: unexpected type: %T", expr)
 }
 
-func (e *evaluator) execCmd(name string, args []string) error {
+func (e *Evaluator) execCmd(name string, args []string) error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
@@ -162,7 +160,7 @@ func wait(fn func() error) <-chan error {
 	return c
 }
 
-func (e *evaluator) execPipe(commands [][]string) error {
+func (e *Evaluator) execPipe(commands [][]string) error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 

@@ -28,7 +28,7 @@ func (c CLI) Run(args []string) int {
 	}
 
 	if *flagC != "" {
-		if err := execute([]byte(*flagC)); err != nil {
+		if err := c.execute([]byte(*flagC)); err != nil {
 			fmt.Fprintln(c.Err, err)
 			return 1
 		}
@@ -42,7 +42,7 @@ func (c CLI) Run(args []string) int {
 				fmt.Fprintln(c.Err, err)
 				return 1
 			}
-			if err := execute(b); err != nil {
+			if err := c.execute(b); err != nil {
 				fmt.Fprintln(c.Err, err)
 				return 1
 			}
@@ -76,7 +76,7 @@ func (c CLI) interact(conf *config.Config) error {
 		if err := exitRowMode(old); err != nil {
 			return err
 		}
-		if err := execute([]byte(string(r))); err != nil {
+		if err := c.execute([]byte(string(r))); err != nil {
 			return err
 		}
 		g.Clear()
@@ -84,10 +84,11 @@ func (c CLI) interact(conf *config.Config) error {
 	return nil
 }
 
-func execute(b []byte) error {
+func (c CLI) execute(b []byte) error {
 	f, err := parser.ParseSrc(b)
 	if err != nil {
 		return err
 	}
-	return eval.Eval(f.Lines)
+	e := eval.New(c.In, c.Out, c.Err)
+	return e.Eval(f.Lines)
 }

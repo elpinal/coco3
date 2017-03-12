@@ -30,7 +30,7 @@ func CommandContext(ctx context.Context, name string, arg ...string) Cmd {
 		arg = append(x.args, arg...)
 	}
 	if fn, ok := builtins[name]; ok {
-		return &builtinCmd{fn: fn, name: name, args: arg, e: &evaluator{}}
+		return &builtinCmd{fn: fn, name: name, args: arg, e: &Evaluator{}}
 	}
 	return &externalCmd{exec.CommandContext(ctx, name, arg...)}
 
@@ -53,10 +53,10 @@ func (c *externalCmd) SetStdout(w io.Writer) {
 }
 
 type builtinCmd struct {
-	fn   func(*evaluator, []string) error
+	fn   func(*Evaluator, []string) error
 	name string
 	args []string
-	e    *evaluator
+	e    *Evaluator
 
 	closeAfterStart []io.Closer
 	closeAfterWait  []io.Closer

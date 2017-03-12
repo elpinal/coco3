@@ -7,13 +7,13 @@ import (
 	"strconv"
 )
 
-var builtins = map[string]func(*evaluator, []string) error{
+var builtins = map[string]func(*Evaluator, []string) error{
 	"cd":   cd,
 	"echo": echo,
 	"exit": exit,
 }
 
-func cd(_ *evaluator, args []string) error {
+func cd(_ *Evaluator, args []string) error {
 	var dir string
 	switch len(args) {
 	case 0:
@@ -26,7 +26,7 @@ func cd(_ *evaluator, args []string) error {
 	return os.Chdir(dir)
 }
 
-func echo(e *evaluator, args []string) error {
+func echo(e *Evaluator, args []string) error {
 	if len(args) == 0 {
 		_, err := e.out.Write([]byte{'\n'})
 		return err
@@ -54,7 +54,7 @@ func echo(e *evaluator, args []string) error {
 	return err
 }
 
-func exit(_ *evaluator, args []string) error {
+func exit(_ *Evaluator, args []string) error {
 	var code int
 	switch len(args) {
 	case 0:
