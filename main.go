@@ -62,9 +62,11 @@ func (c cli) run(args []string) int {
 
 	conf := new(config.Config)
 	conf.Init()
-	if err := c.interact(conf); err != nil {
-		fmt.Fprintln(c.err, err)
-		return 1
+	for {
+		if err := c.interact(conf); err != nil {
+			fmt.Fprintln(c.err, err)
+			// return 1
+		}
 	}
 	return 0
 }
