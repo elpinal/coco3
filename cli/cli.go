@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 
 	"github.com/elpinal/coco3/config"
-	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/eval"
+	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/parser"
 )
 
@@ -17,15 +16,6 @@ type CLI struct {
 	In  io.Reader
 	Out io.Writer
 	Err io.Writer
-}
-
-func main() {
-	c := CLI{
-		In:  os.Stdin,
-		Out: os.Stdout,
-		Err: os.Stderr,
-	}
-	os.Exit(c.Run(os.Args[1:]))
 }
 
 func (c CLI) Run(args []string) int {
