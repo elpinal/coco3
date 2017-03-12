@@ -25,10 +25,10 @@ func main() {
 		Out: os.Stdout,
 		Err: os.Stderr,
 	}
-	os.Exit(c.run(os.Args[1:]))
+	os.Exit(c.Run(os.Args[1:]))
 }
 
-func (c CLI) run(args []string) int {
+func (c CLI) Run(args []string) int {
 	f := flag.NewFlagSet("coco4", flag.ContinueOnError)
 	f.SetOutput(c.Err)
 
