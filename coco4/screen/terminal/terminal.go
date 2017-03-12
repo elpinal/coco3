@@ -8,7 +8,8 @@ import (
 )
 
 type Terminal struct {
-	w io.Writer
+	w   io.Writer
+	msg string
 }
 
 func New(w io.Writer) *Terminal {
@@ -16,9 +17,14 @@ func New(w io.Writer) *Terminal {
 }
 
 func (t *Terminal) Refresh(prompt string, s []rune, pos int) {
-	io.WriteString(t.w, "\r\033[K")
+	io.WriteString(t.w, "\r\033[J")
 	io.WriteString(t.w, prompt)
 	io.WriteString(t.w, string(s))
+	if t.msg != "" {
+		io.WriteString(t.w, "\n")
+		io.WriteString(t.w, t.msg)
+		io.WriteString(t.w, "\033[A")
+	}
 	fmt.Fprintf(t.w, "\033[%vG", runewidth.StringWidth(prompt)+runesWidth(s[:pos])+1)
 }
 
@@ -27,4 +33,8 @@ func runesWidth(s []rune) (width int) {
 		width += runewidth.RuneWidth(r)
 	}
 	return width
+}
+
+func (t *Terminal) SetLastLine(msg string) {
+	t.msg = msg
 }
