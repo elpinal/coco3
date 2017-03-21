@@ -125,16 +125,14 @@ func (p *parser) parseList() *ast.ParenExpr {
 	var list []ast.Expr
 	p.next()
 	for p.tok != token.RPAREN && p.tok != token.EOF {
-		for p.tok == token.SEMICOLON {
+		if p.tok == token.SEMICOLON {
 			p.next()
-		}
-		if p.tok == token.RPAREN {
-			break
+			continue
 		}
 		expr := p.parseExpr()
 		list = append(list, expr)
 	}
-	p.next()
+	p.expect(token.RPAREN)
 	return &ast.ParenExpr{Lparen: pos, Exprs: list, Rparen: p.pos - 1}
 }
 
