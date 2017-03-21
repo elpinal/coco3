@@ -67,7 +67,6 @@ func (c CLI) Run(args []string) int {
 			// return 1
 		}
 	}
-	return 0
 }
 
 func (c CLI) interact(conf *config.Config) error {
@@ -90,7 +89,6 @@ func (c CLI) interact(conf *config.Config) error {
 		}
 		g.Clear()
 	}
-	return nil
 }
 
 func (c CLI) execute(b []byte) error {

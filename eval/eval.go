@@ -151,7 +151,6 @@ func (e *Evaluator) execCmd(name string, args []string) error {
 	case err := <-wait(cmd.Run):
 		return err
 	}
-	return nil
 }
 
 func wait(fn func() error) <-chan error {
@@ -166,6 +165,7 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 
 	cmds := make([]Cmd, len(commands))
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	for i, c := range commands {
 		name := c[0]
 		args := c[1:]
@@ -201,12 +201,10 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 			closer.Close()
 		}
 	}()
-	defer cancel()
 	select {
 	case s := <-c:
 		return errors.New(s.String())
 	case err := <-wait(f):
 		return err
 	}
-	return nil
 }
