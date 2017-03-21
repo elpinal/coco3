@@ -5,12 +5,14 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 )
 
 var builtins = map[string]func(*Evaluator, []string) error{
-	"cd":   cd,
-	"echo": echo,
-	"exit": exit,
+	"cd":      cd,
+	"echo":    echo,
+	"exit":    exit,
+	"setpath": setpath,
 }
 
 func cd(_ *Evaluator, args []string) error {
@@ -71,4 +73,31 @@ func exit(_ *Evaluator, args []string) error {
 	}
 	os.Exit(code)
 	return nil
+}
+
+func setpath(_ *Evaluator, args []string) error {
+	switch len(args) {
+	case 0:
+		return errors.New("setpath: need 1 or more arguments")
+	}
+	paths := strings.Split(os.Getenv("PATH"), ":")
+	var newPaths []string
+	for _, path := range paths {
+		if contains(args, path) {
+			continue
+		}
+		newPaths = append(newPaths, path)
+	}
+	newPaths = append(args, newPaths...)
+	os.Setenv("PATH", strings.Join(newPaths, ":"))
+	return nil
+}
+
+func contains(x []string, s string) bool {
+	for i := range x {
+		if x[i] == s {
+			return true
+		}
+	}
+	return false
 }
