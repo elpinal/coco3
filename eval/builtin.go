@@ -13,6 +13,7 @@ var builtins = map[string]func(*Evaluator, []string) error{
 	"echo":    echo,
 	"exit":    exit,
 	"setpath": setpath,
+	"setenv":  setenv,
 }
 
 func cd(_ *Evaluator, args []string) error {
@@ -100,4 +101,14 @@ func contains(x []string, s string) bool {
 		}
 	}
 	return false
+}
+
+func setenv(_ *Evaluator, args []string) error {
+	if len(args)%2 == 1 {
+		return errors.New("setenv: need even arguments")
+	}
+	for i := 0; i < len(args); i += 2 {
+		os.Setenv(args[i], args[i+1])
+	}
+	return nil
 }
