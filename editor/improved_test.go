@@ -321,3 +321,52 @@ func TestToLower(t *testing.T) {
 		}
 	}
 }
+
+func TestCurrentWord(t *testing.T) {
+	tests := []struct {
+		input   []rune
+		pos     int
+		include bool
+		from    int
+		to      int
+	}{
+		{
+			input:   []rune(""),
+			pos:     0,
+			include: false,
+			from:    0,
+			to:      0,
+		},
+		{
+			input:   []rune("aaa"),
+			pos:     0,
+			include: false,
+			from:    0,
+			to:      3,
+		},
+		{
+			input:   []rune("a a a"),
+			pos:     1,
+			include: false,
+			from:    1,
+			to:      2,
+		},
+		{
+			input:   []rune(" aaa bbb ccc "),
+			pos:     7,
+			include: true,
+			from:    5,
+			to:      9,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
+		from, to := e.currentWord(test.include)
+		if from != test.from {
+			t.Errorf("currentWord/%v (from): got %v, want %v", i, from, test.from)
+		}
+		if to != test.to {
+			t.Errorf("currentWord/%v (to): got %v, want %v", i, to, test.to)
+		}
+	}
+}
