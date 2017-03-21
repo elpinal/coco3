@@ -29,6 +29,13 @@ func (c CLI) Run(args []string) int {
 		return 2
 	}
 
+	if len(c.Config.StartUpCommand) > 0 {
+		if err := c.execute(c.Config.StartUpCommand); err != nil {
+			fmt.Fprintln(c.Err, err)
+			return 1
+		}
+	}
+
 	if *flagC != "" {
 		if err := c.execute([]byte(*flagC)); err != nil {
 			fmt.Fprintln(c.Err, err)
