@@ -58,7 +58,7 @@ func (e *Evaluator) eval(stmt ast.Stmt) error {
 			}
 			commands = append(commands, args)
 		}
-		return errors.Wrap(e.execPipe(commands), "eval")
+		return e.execPipe(commands)
 	case *ast.ExecStmt:
 		args := make([]string, 0, len(x.Args))
 		for _, arg := range x.Args {
