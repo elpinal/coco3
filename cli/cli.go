@@ -16,6 +16,8 @@ type CLI struct {
 	In  io.Reader
 	Out io.Writer
 	Err io.Writer
+
+	config.Config
 }
 
 func (c CLI) Run(args []string) int {
@@ -50,7 +52,7 @@ func (c CLI) Run(args []string) int {
 		return 0
 	}
 
-	conf := new(config.Config)
+	conf := &c.Config
 	conf.Init()
 	for {
 		if err := c.interact(conf); err != nil {
