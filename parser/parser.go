@@ -125,6 +125,12 @@ func (p *parser) parseList() *ast.ParenExpr {
 	var list []ast.Expr
 	p.next()
 	for p.tok != token.RPAREN && p.tok != token.EOF {
+		for p.tok == token.SEMICOLON {
+			p.next()
+		}
+		if p.tok == token.RPAREN {
+			break
+		}
 		expr := p.parseExpr()
 		list = append(list, expr)
 	}
