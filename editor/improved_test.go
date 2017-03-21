@@ -370,3 +370,57 @@ func TestCurrentWord(t *testing.T) {
 		}
 	}
 }
+
+func TestCurrentQuote(t *testing.T) {
+	tests := []struct {
+		input   []rune
+		pos     int
+		include bool
+		quote   rune
+		from    int
+		to      int
+	}{
+		{
+			input:   []rune(""),
+			pos:     0,
+			include: false,
+			quote:   '\'',
+			from:    0,
+			to:      0,
+		},
+		{
+			input:   []rune("'aaa'"),
+			pos:     0,
+			include: false,
+			quote:   '\'',
+			from:    1,
+			to:      4,
+		},
+		{
+			input:   []rune("a' a 'a"),
+			pos:     3,
+			include: false,
+			quote:   '\'',
+			from:    2,
+			to:      5,
+		},
+		{
+			input:   []rune(` aaa "bbb ccc "`),
+			pos:     7,
+			include: true,
+			quote:   '"',
+			from:    4,
+			to:      15,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
+		from, to := e.currentQuote(test.include, test.quote)
+		if from != test.from {
+			t.Errorf("currentQuote/%v (from): got %v, want %v", i, from, test.from)
+		}
+		if to != test.to {
+			t.Errorf("currentQuote/%v (to): got %v, want %v", i, to, test.to)
+		}
+	}
+}
