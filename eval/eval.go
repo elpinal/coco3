@@ -79,7 +79,7 @@ func (e *Evaluator) eval(stmt ast.Stmt) error {
 func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	switch x := expr.(type) {
 	case *ast.Ident:
-		return []string{x.Name}, nil
+		return []string{strings.Replace(x.Name, "~", os.Getenv("HOME"), -1)}, nil
 	case *ast.BasicLit:
 		s := strings.TrimPrefix(x.Value, "'")
 		s = strings.TrimSuffix(s, "'")
