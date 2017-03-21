@@ -151,6 +151,9 @@ func (e *editor) toLower(from, to int) {
 }
 
 func (e *editor) currentWord(include bool) (from, to int) {
+	if len(e.buf) == 0 {
+		return 0, 0
+	}
 	f := func(r rune) bool { return !(isKeyword(r) || isWhitespace(r)) }
 	switch ch := e.buf[e.pos]; {
 	case isWhitespace(ch):
