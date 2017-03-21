@@ -24,7 +24,7 @@ func cd(_ *Evaluator, args []string) error {
 	case 1:
 		dir = args[0]
 	default:
-		return errors.New("cd: too many arguments")
+		return errors.New("too many arguments")
 	}
 	return os.Chdir(dir)
 }
@@ -70,7 +70,7 @@ func exit(_ *Evaluator, args []string) error {
 		}
 		code = i
 	default:
-		return errors.New("exit: too many arguments")
+		return errors.New("too many arguments")
 	}
 	os.Exit(code)
 	return nil
@@ -79,7 +79,7 @@ func exit(_ *Evaluator, args []string) error {
 func setpath(_ *Evaluator, args []string) error {
 	switch len(args) {
 	case 0:
-		return errors.New("setpath: need 1 or more arguments")
+		return errors.New("need 1 or more arguments")
 	}
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	var newPaths []string
@@ -105,7 +105,7 @@ func contains(x []string, s string) bool {
 
 func setenv(_ *Evaluator, args []string) error {
 	if len(args)%2 == 1 {
-		return errors.New("setenv: need even arguments")
+		return errors.New("need even arguments")
 	}
 	for i := 0; i < len(args); i += 2 {
 		os.Setenv(args[i], args[i+1])

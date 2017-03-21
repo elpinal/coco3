@@ -26,7 +26,7 @@ func (e *Evaluator) Eval(stmts []ast.Stmt) error {
 	for _, stmt := range stmts {
 		err := e.eval(stmt)
 		if err != nil {
-			return errors.Wrap(err, "Eval")
+			return err
 		}
 	}
 	return nil
@@ -73,7 +73,7 @@ func (e *Evaluator) eval(stmt ast.Stmt) error {
 		}
 		return e.execCmd(args[0], args[1:])
 	}
-	return fmt.Errorf("eval: unexpected type: %T", stmt)
+	return fmt.Errorf("unexpected type: %T", stmt)
 }
 
 func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
@@ -126,7 +126,7 @@ func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	case nil:
 		return nil, nil
 	}
-	return nil, fmt.Errorf("evalExpr: unexpected type: %T", expr)
+	return nil, fmt.Errorf("unexpected type: %T", expr)
 }
 
 func (e *Evaluator) execCmd(name string, args []string) error {
@@ -184,13 +184,13 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 
 	for _, cmd := range cmds {
 		if err := cmd.Start(); err != nil {
-			return errors.Wrap(err, "cmd.Start")
+			return err
 		}
 	}
 	f := func() error {
 		for _, cmd := range cmds {
 			if err := cmd.Wait(); err != nil {
-				return errors.Wrap(err, "cmd.Wait")
+				return err
 			}
 		}
 		return nil

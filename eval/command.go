@@ -83,7 +83,7 @@ func (c *builtinCmd) Start() error {
 func (c *builtinCmd) Wait() error {
 	err := <-c.ch
 	c.closeDescriptors(c.closeAfterWait)
-	return errors.Wrapf(err, "builtinCmd %s", c.name)
+	return errors.Wrap(err, c.name)
 }
 
 func (c *builtinCmd) closeDescriptors(closers []io.Closer) {
