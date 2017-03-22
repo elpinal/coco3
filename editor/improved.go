@@ -192,18 +192,15 @@ func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 			from = e.lastIndex(quote, e.pos)
 			to = e.pos
 		}
-		if to < 0 {
-			return
-		}
 	} else {
 		from = e.lastIndex(quote, e.pos)
 		if from < 0 {
 			return
 		}
 		to = e.index(quote, e.pos)
-		if to < 0 {
-			return
-		}
+	}
+	if to < 0 {
+		return
 	}
 	if include {
 		to++
