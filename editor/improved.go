@@ -186,14 +186,15 @@ func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 		if n%2 == 0 {
 			// expect `to` as the position of the even-numbered quote
 			to = e.index(quote, e.pos+1)
+			from = e.pos
 		} else {
 			// expect `to` as the position of the odd-numbered quote
-			to = e.lastIndex(quote, e.pos)
+			from = e.lastIndex(quote, e.pos)
+			to = e.pos
 		}
 		if to < 0 {
 			return
 		}
-		from = e.pos
 	} else {
 		from = e.lastIndex(quote, e.pos)
 		if from < 0 {

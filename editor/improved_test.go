@@ -412,6 +412,14 @@ func TestCurrentQuote(t *testing.T) {
 			from:    4,
 			to:      15,
 		},
+		{
+			input:   []rune(` aaa "bbb ccc "ddd "eee f"ff`),
+			pos:     25,
+			include: true,
+			quote:   '"',
+			from:    18,
+			to:      26,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
