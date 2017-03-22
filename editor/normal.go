@@ -94,6 +94,8 @@ var normalCommands = []normalCommand{
 	{'d', (*normal).operator, 0},
 	{'h', (*normal).left, 0},
 	{'i', (*normal).edit, 0},
+	{'j', (*normal).down, 0},
+	{'k', (*normal).up, 0},
 	{'l', (*normal).right, 0},
 	{'p', (*normal).put1, 0},
 	{'r', (*normal).replace, 0},
@@ -177,6 +179,32 @@ func (e *normal) object(r rune) {
 	}
 	e.opStart = from
 	e.pos = to
+}
+
+func (e *normal) down(r rune) mode {
+	if e.age >= len(e.history)-1 {
+		return modeNormal
+	}
+	e.history[e.age] = e.buf
+	e.age++
+	e.buf = e.history[e.age]
+	e.pos = len(e.buf)
+	return modeNormal
+}
+
+func (e *normal) up(r rune) mode {
+	if e.age <= 0 {
+		return modeNormal
+	}
+	if e.age == len(e.history) {
+		e.history = append(e.history, e.buf)
+	} else {
+		e.history[e.age] = e.buf
+	}
+	e.age--
+	e.buf = e.history[e.age]
+	e.pos = len(e.buf)
+	return modeNormal
 }
 
 func (e *normal) right(r rune) mode {

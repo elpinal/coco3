@@ -11,6 +11,7 @@ import (
 type Editor interface {
 	Read() ([]rune, error)
 	Clear()
+	SetHistory([][]rune)
 }
 
 func New(s screen.Screen, conf *config.Config, in io.Reader, out, err io.Writer) Editor {
@@ -99,6 +100,11 @@ func (b *balancer) enter(m mode) moder {
 func (b *balancer) Clear() {
 	b.buf = b.buf[:0]
 	b.pos = 0
+}
+
+func (b *balancer) SetHistory(history [][]rune) {
+	b.history = history
+	b.age = len(history)
 }
 
 const (

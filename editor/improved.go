@@ -9,6 +9,9 @@ import (
 type editor struct {
 	basic
 	register.Registers
+
+	history [][]rune
+	age     int
 }
 
 func (e *editor) yank(r rune, from, to int) {
