@@ -28,5 +28,11 @@ func TestEditor(t *testing.T) {
 	if want := "aaa"; string(s) != want {
 		t.Errorf("got %q, want %q", string(s), want)
 	}
+	if got := outBuf.String(); got != "" {
+		t.Errorf("got %q, want %q", got, "")
+	}
+	if got := errBuf.String(); got != "" {
+		t.Errorf("got %q, want %q", got, "")
+	}
 	e.Clear()
 }
