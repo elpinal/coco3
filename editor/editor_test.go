@@ -36,3 +36,34 @@ func TestEditor(t *testing.T) {
 	}
 	e.Clear()
 }
+
+func TestNormal(t *testing.T) {
+	inBuf := strings.NewReader("aaa" + string([]rune{
+		CharEscape,
+		'3', 'h',
+		'2', 'x',
+		'i',
+		'A',
+		CharEscape,
+		'y', 'y',
+		'2', 'p',
+		'i',
+		CharCtrlM,
+	}))
+	var outBuf, errBuf bytes.Buffer
+	e := New(&testScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
+	s, err := e.Read()
+	if err != nil {
+		t.Error(err)
+	}
+	if want := "AAaAaa"; string(s) != want {
+		t.Errorf("got %q, want %q", string(s), want)
+	}
+	if got := outBuf.String(); got != "" {
+		t.Errorf("got %q, want %q", got, "")
+	}
+	if got := errBuf.String(); got != "" {
+		t.Errorf("got %q, want %q", got, "")
+	}
+	e.Clear()
+}
