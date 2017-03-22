@@ -178,13 +178,31 @@ func (e *editor) currentWord(include bool) (from, to int) {
 }
 
 func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
-	from = e.lastIndex(quote, e.pos)
-	if from < 0 {
+	if len(e.buf) == 0 {
 		return
 	}
-	to = e.index(quote, e.pos)
-	if to < 0 {
-		return
+	if e.buf[e.pos] == quote {
+		n := strings.Count(string(e.buf[:e.pos]), string(quote))
+		if n%2 == 0 {
+			// expect `to` as the position of the even-numbered quote
+			to = e.index(quote, e.pos+1)
+		} else {
+			// expect `to` as the position of the odd-numbered quote
+			to = e.lastIndex(quote, e.pos)
+		}
+		if to < 0 {
+			return
+		}
+		from = e.pos
+	} else {
+		from = e.lastIndex(quote, e.pos)
+		if from < 0 {
+			return
+		}
+		to = e.index(quote, e.pos)
+		if to < 0 {
+			return
+		}
 	}
 	if include {
 		to++
