@@ -154,8 +154,10 @@ func (e *Evaluator) execCmd(name string, args []string) error {
 }
 
 func wait(fn func() error) <-chan error {
-	c := make(chan error, 1)
-	c <- fn()
+	c := make(chan error)
+	go func() {
+		c <- fn()
+	}()
 	return c
 }
 
