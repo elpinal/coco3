@@ -147,7 +147,7 @@ func (e *Evaluator) execCmd(name string, args []string) error {
 	defer cancel()
 	select {
 	case s := <-c:
-		return errors.New(s.String())
+		return errors.New("signal caught: " + s.String())
 	case err := <-wait(cmd.Run):
 		return err
 	}
