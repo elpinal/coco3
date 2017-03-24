@@ -25,7 +25,9 @@ func (g *gate) Read() ([]rune, error) {
 	if err != nil {
 		return nil, err
 	}
-	g.history = append(g.history, b)
+	if len(g.history) == 0 || string(g.history[len(g.history)-1]) != string(b) {
+		g.history = append(g.history, b)
+	}
 	return b, nil
 }
 
