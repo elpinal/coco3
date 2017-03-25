@@ -172,20 +172,6 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 		return err
 	}
 
-	for _, cmd := range cmds {
-		if err := cmd.Start(); err != nil {
-			return err
-		}
-	}
-	f := func() error {
-		for _, cmd := range cmds {
-			if err := cmd.Wait(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
 	defer func() {
 		for _, closer := range e.closeAfterStart {
 			closer.Close()
@@ -194,12 +180,12 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 	select {
 	case s := <-c:
 		return errors.New(s.String())
-	case err := <-wait(f):
+	case err := <-wait(cmds.Run):
 		return err
 	}
 }
 
-func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) ([]Cmd, error) {
+func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) (pipeCmd, error) {
 	cmds := make([]Cmd, len(commands))
 	for i, c := range commands {
 		name := c[0]
@@ -216,5 +202,33 @@ func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) ([]Cmd, e
 	}
 	cmds[0].SetStdin(e.in)
 	cmds[len(cmds)-1].SetStdout(e.out)
-	return cmds, nil
+	return pipeCmd(cmds), nil
+}
+
+type pipeCmd []Cmd
+
+func (p pipeCmd) start() error {
+	for _, cmd := range p {
+		if err := cmd.Start(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (p pipeCmd) wait() error {
+	for _, cmd := range p {
+		if err := cmd.Wait(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (p pipeCmd) Run() error {
+	err := p.start()
+	if err != nil {
+		return err
+	}
+	return p.wait()
 }
