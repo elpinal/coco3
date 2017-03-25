@@ -171,6 +171,7 @@ func (e *Evaluator) run(cmd runner) error {
 	}()
 	select {
 	case s := <-c:
+		// TODO: improve error message.
 		return errors.New("signal caught: " + s.String())
 	case err := <-wait(cmd.Run):
 		return err
