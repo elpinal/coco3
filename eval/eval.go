@@ -130,27 +130,13 @@ func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 }
 
 func (e *Evaluator) execCmd(name string, args []string) error {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	cmd := CommandContext(ctx, name, args...)
 	cmd.SetStdin(e.in)
 	cmd.SetStdout(e.out)
 	cmd.SetStderr(e.err)
-
-	defer func() {
-		for _, closer := range e.closeAfterStart {
-			closer.Close()
-		}
-	}()
-	defer cancel()
-	select {
-	case s := <-c:
-		return errors.New("signal caught: " + s.String())
-	case err := <-wait(cmd.Run):
-		return err
-	}
+	return e.run(cmd)
 }
 
 func wait(fn func() error) <-chan error {
@@ -162,16 +148,22 @@ func wait(fn func() error) <-chan error {
 }
 
 func (e *Evaluator) execPipe(commands [][]string) error {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	cmds, err := e.makePipe(ctx, commands)
 	if err != nil {
 		return err
 	}
+	return e.run(cmds)
+}
 
+type runner interface {
+	Run() error
+}
+
+func (e *Evaluator) run(cmd runner) error {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
 	defer func() {
 		for _, closer := range e.closeAfterStart {
 			closer.Close()
@@ -179,8 +171,8 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 	}()
 	select {
 	case s := <-c:
-		return errors.New(s.String())
-	case err := <-wait(cmds.Run):
+		return errors.New("signal caught: " + s.String())
+	case err := <-wait(cmd.Run):
 		return err
 	}
 }
