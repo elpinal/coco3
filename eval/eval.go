@@ -165,24 +165,12 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
-	cmds := make([]Cmd, len(commands))
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	for i, c := range commands {
-		name := c[0]
-		args := c[1:]
-		cmds[i] = CommandContext(ctx, name, args...)
-		if i > 0 {
-			pipe, err := cmds[i-1].StdoutPipe()
-			if err != nil {
-				return err
-			}
-			cmds[i].SetStdin(pipe)
-		}
-		cmds[i].SetStderr(e.err)
+	cmds, err := e.makePipe(ctx, commands)
+	if err != nil {
+		return err
 	}
-	cmds[0].SetStdin(e.in)
-	cmds[len(cmds)-1].SetStdout(e.out)
 
 	for _, cmd := range cmds {
 		if err := cmd.Start(); err != nil {
@@ -209,4 +197,24 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 	case err := <-wait(f):
 		return err
 	}
+}
+
+func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) ([]Cmd, error) {
+	cmds := make([]Cmd, len(commands))
+	for i, c := range commands {
+		name := c[0]
+		args := c[1:]
+		cmds[i] = CommandContext(ctx, name, args...)
+		if i > 0 {
+			pipe, err := cmds[i-1].StdoutPipe()
+			if err != nil {
+				return nil, err
+			}
+			cmds[i].SetStdin(pipe)
+		}
+		cmds[i].SetStderr(e.err)
+	}
+	cmds[0].SetStdin(e.in)
+	cmds[len(cmds)-1].SetStdout(e.out)
+	return cmds, nil
 }
