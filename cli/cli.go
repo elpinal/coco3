@@ -23,6 +23,11 @@ type CLI struct {
 func (c CLI) Run(args []string) int {
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
+	f.Usage = func() {
+		c.Err.Write([]byte("coco3 is a shell.\n"))
+		c.Err.Write([]byte("Usage:\n"))
+		f.PrintDefaults()
+	}
 
 	flagC := f.String("c", "", "take first argument as a command to execute")
 	if err := f.Parse(args); err != nil {
