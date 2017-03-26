@@ -103,7 +103,12 @@ func (b *balancer) Clear() {
 }
 
 func (b *balancer) SetHistory(history [][]rune) {
-	b.history = history
+	// copy history
+	b.history = make([][]rune, len(history))
+	for i, h := range history {
+		b.history[i] = make([]rune, len(h))
+		copy(b.history[i], h)
+	}
 	b.age = len(history)
 }
 
