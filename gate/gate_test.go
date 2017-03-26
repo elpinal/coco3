@@ -14,19 +14,14 @@ func TestGate(t *testing.T) {
 	conf := new(config.Config)
 	conf.Init()
 	g := New(conf, in, ioutil.Discard, ioutil.Discard).(*gate)
-	b, err := g.Read()
-	if err != nil {
-		t.Errorf("reading input: %v", err)
-	}
-	if want := "echo 1"; string(b) != want {
-		t.Errorf("got %q, want %q", string(b), want)
-	}
-	b, err = g.Read()
-	if err != nil {
-		t.Errorf("reading input: %v", err)
-	}
-	if want := "echo 2"; string(b) != want {
-		t.Errorf("got %q, want %q", string(b), want)
+	for _, n := range [...]string{"1", "2"} {
+		b, err := g.Read()
+		if err != nil {
+			t.Errorf("reading input: %v", err)
+		}
+		if want := "echo " + n; string(b) != want {
+			t.Errorf("got %q, want %q", string(b), want)
+		}
 	}
 	if l := len(g.history); l != 2 {
 		t.Errorf("the length of history should be %v, got %v", 2, l)
