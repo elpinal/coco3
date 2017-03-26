@@ -98,7 +98,9 @@ func (e *basic) delete(from, to int) {
 func (e *basic) slice(from, to int) []rune {
 	left := constrain(min(from, to), 0, len(e.buf))
 	right := constrain(max(from, to), 0, len(e.buf))
-	return e.buf[left:right]
+	s := make([]rune, right-left)
+	copy(s, e.buf[left:right])
+	return s
 }
 
 func (e *basic) index(ch rune, start int) int {
