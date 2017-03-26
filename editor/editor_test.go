@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"io/ioutil"
 	"strings"
 	"testing"
 
@@ -66,4 +67,15 @@ func TestNormal(t *testing.T) {
 		t.Errorf("got %q, want %q", got, "")
 	}
 	e.Clear()
+}
+
+func TestYankPaste(t *testing.T) {
+	e := New(&testScreen{}, &config.Config{}, strings.NewReader("123"+string([]rune{CharEscape, 'h', 'x', 'p', 'i', CharCtrlM})), ioutil.Discard, ioutil.Discard)
+	s, err := e.Read()
+	if err != nil {
+		t.Error(err)
+	}
+	if want := "132"; string(s) != want {
+		t.Errorf("got %q, want %q", string(s), want)
+	}
 }
