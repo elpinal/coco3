@@ -29,6 +29,6 @@ func TestGate(t *testing.T) {
 		t.Errorf("got %q, want %q", string(b), want)
 	}
 	if l := len(g.history); l != 2 {
-		t.Errorf("the lenght of history should be %v, got %v", 2, l)
+		t.Errorf("the length of history should be %v, got %v", 2, l)
 	}
 }
