@@ -1,31 +1,39 @@
 package terminal
 
 import (
-	"fmt"
+	"bytes"
 	"io"
+	"strconv"
 
 	"github.com/mattn/go-runewidth"
 )
 
 type Terminal struct {
 	w   io.Writer
+	buf *bytes.Buffer
 	msg string
 }
 
 func New(w io.Writer) *Terminal {
-	return &Terminal{w: w}
+	return &Terminal{
+		w:   w,
+		buf: bytes.NewBuffer(make([]byte, 0, 32)),
+	}
 }
 
 func (t *Terminal) Refresh(prompt string, s []rune, pos int) {
-	io.WriteString(t.w, "\r\033[J")
-	io.WriteString(t.w, prompt)
-	io.WriteString(t.w, string(s))
+	t.buf.WriteString("\r\033[J")
+	t.buf.WriteString(prompt)
+	t.buf.WriteString(string(s))
 	if t.msg != "" {
-		io.WriteString(t.w, "\n")
-		io.WriteString(t.w, t.msg)
-		io.WriteString(t.w, "\033[A")
+		t.buf.WriteString("\n")
+		t.buf.WriteString(t.msg)
+		t.buf.WriteString("\033[A")
 	}
-	fmt.Fprintf(t.w, "\033[%vG", runewidth.StringWidth(prompt)+runesWidth(s[:pos])+1)
+	t.buf.WriteString("\033[")
+	t.buf.WriteString(strconv.Itoa(runewidth.StringWidth(prompt) + runesWidth(s[:pos]) + 1))
+	t.buf.WriteString("G")
+	t.buf.WriteTo(t.w)
 }
 
 func runesWidth(s []rune) (width int) {
