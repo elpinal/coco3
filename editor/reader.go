@@ -8,33 +8,41 @@ import (
 
 type RuneAddReader struct {
 	ird io.RuneReader
-
-	mu sync.Mutex
-	ch chan rune
+	ch  chan rune
+	wg  *sync.WaitGroup
 }
 
 func NewReader(rd io.RuneReader) *RuneAddReader {
-	return &RuneAddReader{ird: rd, ch: make(chan rune, 2)}
+	return &RuneAddReader{ird: rd, ch: make(chan rune), wg: &sync.WaitGroup{}}
 }
 
 func (rd *RuneAddReader) ReadRune() (r rune, size int, err error) {
-	rd.mu.Lock()
-	defer rd.mu.Unlock()
+	done := make(chan struct{})
+	go func() {
+		rd.wg.Wait()
+		select {
+		case <-done:
+			return
+		default:
+		}
+		r, size, err = rd.ird.ReadRune()
+		close(done)
+	}()
 	select {
 	case r = <-rd.ch:
+		close(done)
 		size = utf8.RuneLen(r)
-		return r, size, err
-	default:
-		return rd.ird.ReadRune()
+	case <-done:
 	}
+	return r, size, err
 }
 
 func (rd *RuneAddReader) Add(s []rune) {
-	rd.mu.Lock()
+	rd.wg.Add(len(s))
 	go func() {
 		for _, r := range s {
 			rd.ch <- r
+			rd.wg.Done()
 		}
-		rd.mu.Unlock()
 	}()
 }
