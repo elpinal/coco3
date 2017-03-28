@@ -17,7 +17,7 @@ func NewReader(rd io.RuneReader) *RuneAddReader {
 }
 
 func (rd *RuneAddReader) ReadRune() (r rune, size int, err error) {
-	done := make(chan struct{})
+	done := make(chan struct{}, 1)
 	go func() {
 		rd.wg.Wait()
 		select {
@@ -26,11 +26,11 @@ func (rd *RuneAddReader) ReadRune() (r rune, size int, err error) {
 		default:
 		}
 		r, size, err = rd.ird.ReadRune()
-		close(done)
+		done <- struct{}{}
 	}()
 	select {
 	case r = <-rd.ch:
-		close(done)
+		done <- struct{}{}
 		size = utf8.RuneLen(r)
 	case <-done:
 	}
