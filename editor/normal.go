@@ -92,6 +92,7 @@ var normalCommands = []normalCommand{
 	{'b', (*normal).wordBack, 0},
 	{'c', (*normal).operator, 0},
 	{'d', (*normal).operator, 0},
+	{'e', (*normal).word, 0},
 	{'h', (*normal).left, 0},
 	{'i', (*normal).edit, 0},
 	{'j', (*normal).down, 0},
@@ -237,6 +238,8 @@ func (e *normal) word(r rune) mode {
 			e.wordForward()
 		case 'W':
 			e.wordForwardNonBlank()
+		case 'e':
+			e.wordEnd()
 		}
 	}
 	return modeNormal
