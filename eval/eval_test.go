@@ -25,11 +25,11 @@ func TestExecPipe(t *testing.T) {
 	var in, out, err bytes.Buffer
 	e := New(&in, &out, &err)
 	if err := e.execPipe([][]string{
-		[]string{
+		{
 			"echo",
 			"aaa",
 		},
-		[]string{
+		{
 			"tr",
 			"a",
 			"A",
