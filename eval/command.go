@@ -24,13 +24,13 @@ type Cmd interface {
 
 var _ Cmd = (*externalCmd)(nil)
 
-func CommandContext(ctx context.Context, name string, arg ...string) Cmd {
+func (e *Evaluator) CommandContext(ctx context.Context, name string, arg ...string) Cmd {
 	if x, ok := aliases[name]; ok {
 		name = x.cmd
 		arg = append(x.args, arg...)
 	}
 	if fn, ok := builtins[name]; ok {
-		return &builtinCmd{fn: fn, name: name, args: arg, e: &Evaluator{}}
+		return &builtinCmd{fn: fn, name: name, args: arg, e: e}
 	}
 	return &externalCmd{exec.CommandContext(ctx, name, arg...)}
 

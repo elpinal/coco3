@@ -16,9 +16,10 @@ import (
 
 func New(in io.Reader, out, err io.Writer) *Evaluator {
 	return &Evaluator{
-		in:  in,
-		out: out,
-		err: err,
+		in:     in,
+		out:    out,
+		err:    err,
+		ExitCh: make(chan int, 1),
 	}
 }
 
@@ -38,6 +39,8 @@ type Evaluator struct {
 	err io.Writer
 
 	closeAfterStart []io.Closer
+
+	ExitCh chan int
 }
 
 func (e *Evaluator) eval(stmt ast.Stmt) error {
@@ -132,7 +135,7 @@ func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 func (e *Evaluator) execCmd(name string, args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	cmd := CommandContext(ctx, name, args...)
+	cmd := e.CommandContext(ctx, name, args...)
 	cmd.SetStdin(e.in)
 	cmd.SetStdout(e.out)
 	cmd.SetStderr(e.err)
@@ -183,7 +186,7 @@ func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) (pipeCmd,
 	for i, c := range commands {
 		name := c[0]
 		args := c[1:]
-		cmds[i] = CommandContext(ctx, name, args...)
+		cmds[i] = e.CommandContext(ctx, name, args...)
 		if i > 0 {
 			pipe, err := cmds[i-1].StdoutPipe()
 			if err != nil {

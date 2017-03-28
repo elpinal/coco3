@@ -18,9 +18,12 @@ type CLI struct {
 	Err io.Writer
 
 	config.Config
+
+	exitCh chan int
 }
 
-func (c CLI) Run(args []string) int {
+func (c *CLI) Run(args []string) (code int) {
+	c.exitCh = make(chan int, 1)
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
 	f.Usage = func() {
@@ -34,6 +37,14 @@ func (c CLI) Run(args []string) int {
 		return 2
 	}
 
+	defer func() {
+		select {
+		case i := <-c.exitCh:
+			code = i
+		default:
+		}
+	}()
+
 	if len(c.Config.StartUpCommand) > 0 {
 		if err := c.execute(c.Config.StartUpCommand); err != nil {
 			fmt.Fprintln(c.Err, err)
@@ -46,7 +57,7 @@ func (c CLI) Run(args []string) int {
 			fmt.Fprintln(c.Err, err)
 			return 1
 		}
-		return 0
+		return code
 	}
 
 	if len(f.Args()) > 0 {
@@ -61,22 +72,25 @@ func (c CLI) Run(args []string) int {
 				return 1
 			}
 		}
-		return 0
+		return code
 	}
 
 	conf := &c.Config
 	conf.Init()
 	g := gate.New(conf, c.In, c.Out, c.Err)
-	for {
-		if err := c.interact(g); err != nil {
-			fmt.Fprintln(c.Err, err)
-			g.Clear()
-			// return 1
+	go func() {
+		for {
+			if err := c.interact(g); err != nil {
+				fmt.Fprintln(c.Err, err)
+				g.Clear()
+			}
 		}
-	}
+	}()
+	i := <-c.exitCh
+	return i
 }
 
-func (c CLI) interact(g gate.Gate) error {
+func (c *CLI) interact(g gate.Gate) error {
 	for {
 		old, err := enterRowMode()
 		if err != nil {
@@ -97,11 +111,17 @@ func (c CLI) interact(g gate.Gate) error {
 	}
 }
 
-func (c CLI) execute(b []byte) error {
+func (c *CLI) execute(b []byte) error {
 	f, err := parser.ParseSrc(b)
 	if err != nil {
 		return err
 	}
 	e := eval.New(c.In, c.Out, c.Err)
-	return e.Eval(f.Lines)
+	err = e.Eval(f.Lines)
+	select {
+	case code := <-e.ExitCh:
+		c.exitCh <- code
+	default:
+	}
+	return err
 }

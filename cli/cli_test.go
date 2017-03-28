@@ -44,3 +44,23 @@ func TestArgs(t *testing.T) {
 		t.Errorf("error: %v", e)
 	}
 }
+
+func TestExit(t *testing.T) {
+	var in, out, err bytes.Buffer
+	c := CLI{
+		In:  &in,
+		Out: &out,
+		Err: &err,
+	}
+	args := []string{"-c", "echo aaa; exit 42"}
+	code := c.Run(args)
+	if code != 42 {
+		t.Errorf("Run: got %v, want %v", code, 42)
+	}
+	if got, want := out.String(), "aaa\n"; got != want {
+		t.Errorf("output: got %q, want %q", got, want)
+	}
+	if e := err.String(); e != "" {
+		t.Errorf("error: %v", e)
+	}
+}

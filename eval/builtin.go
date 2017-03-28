@@ -57,7 +57,7 @@ func echo(e *Evaluator, args []string) error {
 	return err
 }
 
-func exit(_ *Evaluator, args []string) error {
+func exit(e *Evaluator, args []string) error {
 	var code int
 	switch len(args) {
 	case 0:
@@ -72,7 +72,7 @@ func exit(_ *Evaluator, args []string) error {
 	default:
 		return errors.New("too many arguments")
 	}
-	os.Exit(code)
+	e.ExitCh <- code
 	return nil
 }
 
