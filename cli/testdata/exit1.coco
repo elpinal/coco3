@@ -1,0 +1,3 @@
+echo 'starting exit1!'
+echo 'exiting 42!'
+exit 42

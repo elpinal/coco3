@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -20,10 +21,12 @@ type CLI struct {
 	config.Config
 
 	exitCh chan int
+	doneCh chan struct{}
 }
 
-func (c *CLI) Run(args []string) (code int) {
-	c.exitCh = make(chan int, 1)
+func (c *CLI) Run(args []string) int {
+	c.exitCh = make(chan int)
+	c.doneCh = make(chan struct{})
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
 	f.Usage = func() {
@@ -37,47 +40,59 @@ func (c *CLI) Run(args []string) (code int) {
 		return 2
 	}
 
-	defer func() {
-		select {
-		case i := <-c.exitCh:
-			code = i
-		default:
-		}
-	}()
-
 	if len(c.Config.StartUpCommand) > 0 {
-		if err := c.execute(c.Config.StartUpCommand); err != nil {
-			fmt.Fprintln(c.Err, err)
-			return 1
-		}
-		select {
-		case i := <-c.exitCh:
-			return i
-		default:
-		}
+		go func() {
+			if err := c.execute(c.Config.StartUpCommand); err != nil {
+				fmt.Fprintln(c.Err, err)
+				c.exitCh <- 1
+			}
+			c.exitCh <- 0
+		}()
+		i := <-c.exitCh
+		return i
 	}
 
 	if *flagC != "" {
-		if err := c.execute([]byte(*flagC)); err != nil {
-			fmt.Fprintln(c.Err, err)
-			return 1
-		}
-		return code
+		go func() {
+			if err := c.execute([]byte(*flagC)); err != nil {
+				fmt.Fprintln(c.Err, err)
+				c.exitCh <- 1
+			}
+			c.exitCh <- 0
+		}()
+		i := <-c.exitCh
+		return i
 	}
 
 	if len(f.Args()) > 0 {
-		for _, file := range f.Args() {
-			b, err := ioutil.ReadFile(file)
-			if err != nil {
-				fmt.Fprintln(c.Err, err)
-				return 1
+		defer func() {
+			close(c.doneCh)
+		}()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		go func(ctx context.Context) {
+			for _, file := range f.Args() {
+				b, err := ioutil.ReadFile(file)
+				if err != nil {
+					fmt.Fprintln(c.Err, err)
+					c.exitCh <- 1
+					return
+				}
+				if err := c.execute(b); err != nil {
+					fmt.Fprintln(c.Err, err)
+					c.exitCh <- 1
+					return
+				}
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
 			}
-			if err := c.execute(b); err != nil {
-				fmt.Fprintln(c.Err, err)
-				return 1
-			}
-		}
-		return code
+			c.exitCh <- 0
+		}(ctx)
+		i := <-c.exitCh
+		return i
 	}
 
 	conf := &c.Config
@@ -126,6 +141,7 @@ func (c *CLI) execute(b []byte) error {
 	select {
 	case code := <-e.ExitCh:
 		c.exitCh <- code
+		<-c.doneCh
 	default:
 	}
 	return err
