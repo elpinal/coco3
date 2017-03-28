@@ -72,15 +72,14 @@ func (c *CLI) Run(args []string) int {
 		return <-c.exitCh
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	if len(f.Args()) > 0 {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
 		go c.runFiles(ctx, f.Args())
 		return <-c.exitCh
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	conf := &c.Config
 	conf.Init()
 	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err)
