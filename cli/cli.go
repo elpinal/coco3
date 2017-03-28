@@ -41,14 +41,19 @@ func (c *CLI) Run(args []string) int {
 	}
 
 	if len(c.Config.StartUpCommand) > 0 {
+		done := make(chan struct{})
 		go func() {
 			if err := c.execute(c.Config.StartUpCommand); err != nil {
 				fmt.Fprintln(c.Err, err)
 				c.exitCh <- 1
 			}
-			c.exitCh <- 0
+			close(done)
 		}()
-		return <-c.exitCh
+		select {
+		case code := <-c.exitCh:
+			return code
+		case <-done:
+		}
 	}
 
 	if *flagC != "" {

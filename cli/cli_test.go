@@ -65,6 +65,28 @@ func TestExit(t *testing.T) {
 	}
 }
 
+func TestStartUpCommand(t *testing.T) {
+	var out, err bytes.Buffer
+	c := CLI{
+		Out: &out,
+		Err: &err,
+		Config: config.Config{
+			StartUpCommand: []byte("echo startup..."),
+		},
+	}
+	args := []string{"-c", "echo aaa; echo bbb"}
+	code := c.Run(args)
+	if code != 0 {
+		t.Errorf("Run: got %v, want %v", code, 0)
+	}
+	if got, want := out.String(), "startup...\naaa\nbbb\n"; got != want {
+		t.Errorf("output: got %q, want %q", got, want)
+	}
+	if e := err.String(); e != "" {
+		t.Errorf("error: %v", e)
+	}
+}
+
 func TestExitInStartUp(t *testing.T) {
 	var out, err bytes.Buffer
 	c := CLI{
