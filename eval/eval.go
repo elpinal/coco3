@@ -155,7 +155,7 @@ func (e *Evaluator) execPipe(commands [][]string) error {
 	defer cancel()
 	cmds, err := e.makePipe(ctx, commands)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "constructing pipe")
 	}
 	return e.run(cmds)
 }
