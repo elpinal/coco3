@@ -79,14 +79,14 @@ func (c *CLI) Run(args []string) int {
 		return <-c.exitCh
 	}
 
-	conf := &c.Config
-	conf.Init()
-	g := gate.New(conf, c.In, c.Out, c.Err)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	conf := &c.Config
+	conf.Init()
+	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err)
 	go func(ctx context.Context) {
 		for {
-			if err := c.interact(ctx, g); err != nil {
+			if err := c.interact(g); err != nil {
 				fmt.Fprintln(c.Err, err)
 				g.Clear()
 			}
@@ -100,7 +100,7 @@ func (c *CLI) Run(args []string) int {
 	return <-c.exitCh
 }
 
-func (c *CLI) interact(ctx context.Context, g gate.Gate) error {
+func (c *CLI) interact(g gate.Gate) error {
 	for {
 		old, err := enterRowMode()
 		if err != nil {
@@ -118,11 +118,6 @@ func (c *CLI) interact(ctx context.Context, g gate.Gate) error {
 			return err
 		}
 		g.Clear()
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-		}
 	}
 }
 

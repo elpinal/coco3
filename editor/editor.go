@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bufio"
+	"context"
 	"io"
 
 	"github.com/elpinal/coco3/config"
@@ -15,13 +16,17 @@ type Editor interface {
 }
 
 func New(s screen.Screen, conf *config.Config, in io.Reader, out, err io.Writer) Editor {
+	return NewContext(context.Background(), s, conf, in, out, err)
+}
+
+func NewContext(ctx context.Context, s screen.Screen, conf *config.Config, in io.Reader, out, err io.Writer) Editor {
 	var rd io.RuneReader
 	if x, ok := in.(io.RuneReader); ok {
 		rd = x
 	} else {
 		rd = bufio.NewReaderSize(in, 64)
 	}
-	r := NewReader(rd)
+	r := NewReaderContext(ctx, rd)
 	return &balancer{
 		streamSet: streamSet{
 			in:  r,

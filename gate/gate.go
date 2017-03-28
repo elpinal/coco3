@@ -1,6 +1,7 @@
 package gate
 
 import (
+	"context"
 	"io"
 
 	"github.com/elpinal/coco3/config"
@@ -36,7 +37,11 @@ func (g *gate) Clear() {
 }
 
 func New(conf *config.Config, in io.Reader, out, err io.Writer) Gate {
+	return NewContext(context.Background(), conf, in, out, err)
+}
+
+func NewContext(ctx context.Context, conf *config.Config, in io.Reader, out, err io.Writer) Gate {
 	return &gate{
-		e: editor.New(terminal.New(out), conf, in, out, err),
+		e: editor.NewContext(ctx, terminal.New(out), conf, in, out, err),
 	}
 }
