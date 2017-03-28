@@ -276,10 +276,7 @@ func (e *normal) doPendingOperator() mode {
 }
 
 func (e *normal) clearOp() {
-	e.opType = OpNop
-	e.opCount = 0
-	e.motionType = mchar
-	e.inclusive = false
+	e.opArg = opArg{}
 }
 
 func (e *normal) abbrev(r rune) mode {
