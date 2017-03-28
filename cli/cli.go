@@ -27,6 +27,9 @@ type CLI struct {
 func (c *CLI) Run(args []string) int {
 	c.exitCh = make(chan int)
 	c.doneCh = make(chan struct{})
+	defer func() {
+		close(c.doneCh)
+	}()
 
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
@@ -70,9 +73,6 @@ func (c *CLI) Run(args []string) int {
 	}
 
 	if len(f.Args()) > 0 {
-		defer func() {
-			close(c.doneCh)
-		}()
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		go c.runFiles(ctx, f.Args())
