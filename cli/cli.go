@@ -48,8 +48,7 @@ func (c *CLI) Run(args []string) int {
 			}
 			c.exitCh <- 0
 		}()
-		i := <-c.exitCh
-		return i
+		return <-c.exitCh
 	}
 
 	if *flagC != "" {
@@ -60,8 +59,7 @@ func (c *CLI) Run(args []string) int {
 			}
 			c.exitCh <- 0
 		}()
-		i := <-c.exitCh
-		return i
+		return <-c.exitCh
 	}
 
 	if len(f.Args()) > 0 {
@@ -71,8 +69,7 @@ func (c *CLI) Run(args []string) int {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		go c.runFiles(ctx, f.Args())
-		i := <-c.exitCh
-		return i
+		return <-c.exitCh
 	}
 
 	conf := &c.Config
@@ -86,8 +83,7 @@ func (c *CLI) Run(args []string) int {
 			}
 		}
 	}()
-	i := <-c.exitCh
-	return i
+	return <-c.exitCh
 }
 
 func (c *CLI) interact(g gate.Gate) error {
