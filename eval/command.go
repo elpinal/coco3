@@ -53,10 +53,13 @@ func (c *externalCmd) SetStdout(w io.Writer) {
 }
 
 type builtinCmd struct {
-	fn   func(*Evaluator, []string) error
+	fn   func(stream, *Evaluator, []string) error
 	name string
 	args []string
 	e    *Evaluator
+	in   io.Reader
+	out  io.Writer
+	err  io.Writer
 
 	closeAfterStart []io.Closer
 	closeAfterWait  []io.Closer
@@ -73,7 +76,7 @@ func (c *builtinCmd) Run() error {
 func (c *builtinCmd) Start() error {
 	c.ch = make(chan error)
 	go func() {
-		err := c.fn(c.e, c.args)
+		err := c.fn(stream{in: c.in, out: c.out, err: c.err}, c.e, c.args)
 		c.ch <- err
 		c.closeDescriptors(c.closeAfterStart)
 	}()
@@ -93,28 +96,28 @@ func (c *builtinCmd) closeDescriptors(closers []io.Closer) {
 }
 
 func (c *builtinCmd) StderrPipe() (io.ReadCloser, error) {
-	if c.e.err != nil {
+	if c.err != nil {
 		return nil, errors.New("Stderr already set")
 	}
 	pr, pw, err := os.Pipe()
 	if err != nil {
 		return nil, err
 	}
-	c.e.err = pw
+	c.err = pw
 	c.closeAfterStart = append(c.closeAfterStart, pw)
 	c.closeAfterWait = append(c.closeAfterWait, pr)
 	return pr, nil
 }
 
 func (c *builtinCmd) StdinPipe() (io.WriteCloser, error) {
-	if c.e.in != nil {
+	if c.in != nil {
 		return nil, errors.New("Stdin already set")
 	}
 	pr, pw, err := os.Pipe()
 	if err != nil {
 		return nil, err
 	}
-	c.e.in = pr
+	c.in = pr
 	c.closeAfterStart = append(c.closeAfterStart, pr)
 	wc := &closeOnce{File: pw}
 	c.closeAfterWait = append(c.closeAfterWait, wc)
@@ -138,27 +141,27 @@ func (c *closeOnce) close() {
 }
 
 func (c *builtinCmd) StdoutPipe() (io.ReadCloser, error) {
-	if c.e.out != nil {
+	if c.out != nil {
 		return nil, errors.New("Stdout already set")
 	}
 	pr, pw, err := os.Pipe()
 	if err != nil {
 		return nil, err
 	}
-	c.e.out = pw
+	c.out = pw
 	c.closeAfterStart = append(c.closeAfterStart, pw)
 	c.closeAfterWait = append(c.closeAfterWait, pr)
 	return pr, nil
 }
 
 func (c *builtinCmd) SetStderr(w io.Writer) {
-	c.e.err = w
+	c.err = w
 }
 
 func (c *builtinCmd) SetStdin(r io.Reader) {
-	c.e.in = r
+	c.in = r
 }
 
 func (c *builtinCmd) SetStdout(w io.Writer) {
-	c.e.out = w
+	c.out = w
 }

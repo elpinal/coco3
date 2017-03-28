@@ -8,7 +8,13 @@ import (
 	"strings"
 )
 
-var builtins = map[string]func(*Evaluator, []string) error{
+type stream struct {
+	in  io.Reader
+	out io.Writer
+	err io.Writer
+}
+
+var builtins = map[string]func(stream, *Evaluator, []string) error{
 	"cd":      cd,
 	"echo":    echo,
 	"exit":    exit,
@@ -16,7 +22,7 @@ var builtins = map[string]func(*Evaluator, []string) error{
 	"setpath": setpath,
 }
 
-func cd(_ *Evaluator, args []string) error {
+func cd(_ stream, _ *Evaluator, args []string) error {
 	var dir string
 	switch len(args) {
 	case 0:
@@ -29,35 +35,35 @@ func cd(_ *Evaluator, args []string) error {
 	return os.Chdir(dir)
 }
 
-func echo(e *Evaluator, args []string) error {
+func echo(s stream, _ *Evaluator, args []string) error {
 	if len(args) == 0 {
-		_, err := e.out.Write([]byte{'\n'})
+		_, err := s.out.Write([]byte{'\n'})
 		return err
 	}
-	_, err := io.WriteString(e.out, args[0])
+	_, err := io.WriteString(s.out, args[0])
 	if err != nil {
 		return err
 	}
 	if len(args) == 1 {
-		_, err := e.out.Write([]byte{'\n'})
+		_, err := s.out.Write([]byte{'\n'})
 		return err
 	}
 	args = args[1:]
 	for _, arg := range args {
-		_, err := e.out.Write([]byte{' '})
+		_, err := s.out.Write([]byte{' '})
 		if err != nil {
 			return err
 		}
-		_, err = io.WriteString(e.out, arg)
+		_, err = io.WriteString(s.out, arg)
 		if err != nil {
 			return err
 		}
 	}
-	_, err = e.out.Write([]byte{'\n'})
+	_, err = s.out.Write([]byte{'\n'})
 	return err
 }
 
-func exit(e *Evaluator, args []string) error {
+func exit(_ stream, e *Evaluator, args []string) error {
 	var code int
 	switch len(args) {
 	case 0:
@@ -76,7 +82,7 @@ func exit(e *Evaluator, args []string) error {
 	return nil
 }
 
-func setenv(_ *Evaluator, args []string) error {
+func setenv(_ stream, _ *Evaluator, args []string) error {
 	if len(args)%2 == 1 {
 		return errors.New("need even arguments")
 	}
@@ -86,7 +92,7 @@ func setenv(_ *Evaluator, args []string) error {
 	return nil
 }
 
-func setpath(_ *Evaluator, args []string) error {
+func setpath(_ stream, _ *Evaluator, args []string) error {
 	switch len(args) {
 	case 0:
 		return errors.New("need 1 or more arguments")
