@@ -57,10 +57,9 @@ func TestInterrupt(t *testing.T) {
 	e := New(&in, &out, &err)
 	done := make(chan struct{})
 	go func() {
-		if err := e.execCmd("cat", nil); err != nil && err == ErrInterrupted {
-		} else if err == nil {
+		if err := e.execCmd("cat", nil); err == nil {
 			t.Error("cat: error should not be nil because the command must have been interrupted")
-		} else {
+		} else if err != ErrInterrupted {
 			t.Errorf("cat: %v", err)
 		}
 		done <- struct{}{}
