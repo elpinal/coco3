@@ -57,8 +57,7 @@ func TestInterrupt(t *testing.T) {
 	e := New(&in, &out, &err)
 	done := make(chan struct{})
 	go func() {
-		// TODO: never inspect the output of error.Error()
-		if err := e.execCmd("cat", nil); err != nil && err.Error() == "signal caught: interrupt" {
+		if err := e.execCmd("cat", nil); err != nil && err == ErrInterrupted {
 		} else if err == nil {
 			t.Error("cat: error should not be nil because the command must have been interrupted")
 		} else {

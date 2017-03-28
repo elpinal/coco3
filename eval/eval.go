@@ -14,6 +14,8 @@ import (
 	"github.com/elpinal/coco3/token"
 )
 
+var ErrInterrupted = errors.New("signal caught: interrupt")
+
 func New(in io.Reader, out, err io.Writer) *Evaluator {
 	return &Evaluator{
 		in:     in,
@@ -173,9 +175,8 @@ func (e *Evaluator) run(cmd runner) error {
 		}
 	}()
 	select {
-	case s := <-c:
-		// TODO: improve error message.
-		return errors.New("signal caught: " + s.String())
+	case <-c:
+		return ErrInterrupted
 	case err := <-wait(cmd.Run):
 		return err
 	}
