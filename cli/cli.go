@@ -21,7 +21,7 @@ type CLI struct {
 	config.Config
 
 	exitCh chan int
-	doneCh chan struct{}
+	doneCh chan struct{} // to ensure exiting just after exitCh received
 }
 
 func (c *CLI) Run(args []string) int {
