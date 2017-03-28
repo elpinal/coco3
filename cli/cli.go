@@ -27,6 +27,7 @@ type CLI struct {
 func (c *CLI) Run(args []string) int {
 	c.exitCh = make(chan int)
 	c.doneCh = make(chan struct{})
+
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
 	f.Usage = func() {
