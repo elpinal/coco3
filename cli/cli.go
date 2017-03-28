@@ -70,27 +70,7 @@ func (c *CLI) Run(args []string) int {
 		}()
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		go func(ctx context.Context) {
-			for _, file := range f.Args() {
-				b, err := ioutil.ReadFile(file)
-				if err != nil {
-					fmt.Fprintln(c.Err, err)
-					c.exitCh <- 1
-					return
-				}
-				if err := c.execute(b); err != nil {
-					fmt.Fprintln(c.Err, err)
-					c.exitCh <- 1
-					return
-				}
-				select {
-				case <-ctx.Done():
-					return
-				default:
-				}
-			}
-			c.exitCh <- 0
-		}(ctx)
+		go c.runFiles(ctx, f.Args())
 		i := <-c.exitCh
 		return i
 	}
@@ -145,4 +125,26 @@ func (c *CLI) execute(b []byte) error {
 	default:
 	}
 	return err
+}
+
+func (c *CLI) runFiles(ctx context.Context, files []string) {
+	for _, file := range files {
+		b, err := ioutil.ReadFile(file)
+		if err != nil {
+			fmt.Fprintln(c.Err, err)
+			c.exitCh <- 1
+			return
+		}
+		if err := c.execute(b); err != nil {
+			fmt.Fprintln(c.Err, err)
+			c.exitCh <- 1
+			return
+		}
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+	}
+	c.exitCh <- 0
 }
