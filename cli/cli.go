@@ -50,6 +50,11 @@ func (c *CLI) Run(args []string) (code int) {
 			fmt.Fprintln(c.Err, err)
 			return 1
 		}
+		select {
+		case i := <-c.exitCh:
+			return i
+		default:
+		}
 	}
 
 	if *flagC != "" {

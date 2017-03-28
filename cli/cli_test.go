@@ -3,6 +3,8 @@ package cli
 import (
 	"bytes"
 	"testing"
+
+	"github.com/elpinal/coco3/config"
 )
 
 func TestFlagC(t *testing.T) {
@@ -55,6 +57,28 @@ func TestExit(t *testing.T) {
 		t.Errorf("Run: got %v, want %v", code, 42)
 	}
 	if got, want := out.String(), "aaa\n"; got != want {
+		t.Errorf("output: got %q, want %q", got, want)
+	}
+	if e := err.String(); e != "" {
+		t.Errorf("error: %v", e)
+	}
+}
+
+func TestExitInStartUp(t *testing.T) {
+	var out, err bytes.Buffer
+	c := CLI{
+		Out: &out,
+		Err: &err,
+		Config: config.Config{
+			StartUpCommand: []byte("exit 21"),
+		},
+	}
+	args := []string{"-c", "echo aaa; exit 42"}
+	code := c.Run(args)
+	if code != 21 {
+		t.Errorf("Run: got %v, want %v", code, 42)
+	}
+	if got, want := out.String(), ""; got != want {
 		t.Errorf("output: got %q, want %q", got, want)
 	}
 	if e := err.String(); e != "" {
