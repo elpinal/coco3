@@ -131,3 +131,10 @@ func TestExitInFiles(t *testing.T) {
 		t.Errorf("error: %v", e)
 	}
 }
+
+func BenchmarkCLI(b *testing.B) {
+	c := CLI{Out: ioutil.Discard}
+	for i := 0; i < b.N; i++ {
+		_ = c.Run([]string{"-c", "echo 1024; echo 2048"})
+	}
+}
