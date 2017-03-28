@@ -1,7 +1,7 @@
 package terminal
 
 import (
-	"bytes"
+	"bufio"
 	"io"
 	"strconv"
 
@@ -9,31 +9,29 @@ import (
 )
 
 type Terminal struct {
-	w   io.Writer
-	buf *bytes.Buffer
+	w   *bufio.Writer
 	msg string
 }
 
 func New(w io.Writer) *Terminal {
 	return &Terminal{
-		w:   w,
-		buf: bytes.NewBuffer(make([]byte, 0, 32)),
+		w: bufio.NewWriterSize(w, 32),
 	}
 }
 
 func (t *Terminal) Refresh(prompt string, s []rune, pos int) {
-	t.buf.WriteString("\r\033[J")
-	t.buf.WriteString(prompt)
-	t.buf.WriteString(string(s))
+	t.w.WriteString("\r\033[J")
+	t.w.WriteString(prompt)
+	t.w.WriteString(string(s))
 	if t.msg != "" {
-		t.buf.WriteString("\n")
-		t.buf.WriteString(t.msg)
-		t.buf.WriteString("\033[A")
+		t.w.WriteString("\n")
+		t.w.WriteString(t.msg)
+		t.w.WriteString("\033[A")
 	}
-	t.buf.WriteString("\033[")
-	t.buf.WriteString(strconv.Itoa(runewidth.StringWidth(prompt) + runesWidth(s[:pos]) + 1))
-	t.buf.WriteString("G")
-	t.buf.WriteTo(t.w)
+	t.w.WriteString("\033[")
+	t.w.WriteString(strconv.Itoa(runewidth.StringWidth(prompt) + runesWidth(s[:pos]) + 1))
+	t.w.WriteString("G")
+	t.w.Flush()
 }
 
 func runesWidth(s []rune) (width int) {
