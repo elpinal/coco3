@@ -6,9 +6,8 @@ import (
 )
 
 func TestFlagC(t *testing.T) {
-	var in, out, err bytes.Buffer
+	var out, err bytes.Buffer
 	c := CLI{
-		In:  &in,
 		Out: &out,
 		Err: &err,
 	}
@@ -26,9 +25,8 @@ func TestFlagC(t *testing.T) {
 }
 
 func TestArgs(t *testing.T) {
-	var in, out, err bytes.Buffer
+	var out, err bytes.Buffer
 	c := CLI{
-		In:  &in,
 		Out: &out,
 		Err: &err,
 	}
@@ -46,9 +44,8 @@ func TestArgs(t *testing.T) {
 }
 
 func TestExit(t *testing.T) {
-	var in, out, err bytes.Buffer
+	var out, err bytes.Buffer
 	c := CLI{
-		In:  &in,
 		Out: &out,
 		Err: &err,
 	}
