@@ -7,6 +7,7 @@ type opArg struct {
 	opStart    int
 	opCount    int
 	motionType int
+	inclusive  bool
 }
 
 type normalSet struct {
@@ -239,6 +240,7 @@ func (e *normal) word(r rune) mode {
 		case 'W':
 			e.wordForwardNonBlank()
 		case 'e':
+			e.inclusive = true
 			e.wordEnd()
 		}
 	}
@@ -251,6 +253,9 @@ func (e *normal) doPendingOperator() mode {
 	}
 	from := e.opStart
 	to := e.pos
+	if e.inclusive {
+		to++
+	}
 	if e.motionType == mline {
 		from = 0
 		to = len(e.buf)
@@ -274,6 +279,7 @@ func (e *normal) clearOp() {
 	e.opType = OpNop
 	e.opCount = 0
 	e.motionType = mchar
+	e.inclusive = false
 }
 
 func (e *normal) abbrev(r rune) mode {
