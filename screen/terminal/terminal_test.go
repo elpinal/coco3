@@ -12,7 +12,7 @@ func TestTerminal(t *testing.T) {
 	term := New(&buf)
 	term.SetLastLine("-- last line --")
 	term.Refresh("prompt ", []rune("aaa"), 2)
-	if got := buf.String(); strings.Index(got, "prompt aaa") < 0 {
+	if got := buf.String(); !strings.Contains(got, "prompt aaa") {
 		t.Errorf("got %q, but should include %q", got, "prompt aaa")
 	}
 }
