@@ -149,6 +149,7 @@ func (e *basic) replace(s []rune, at int) {
 	if s == nil {
 		return
 	}
+	// Q. What should we do when `at` < 0 or len(e.buf) < `at`?
 	switch {
 	case len(e.buf) <= at:
 		e.buf = append(e.buf, []rune(strings.Repeat(" ", at-len(e.buf)))...)
