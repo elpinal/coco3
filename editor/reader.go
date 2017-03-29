@@ -18,7 +18,7 @@ func NewReaderContext(ctx context.Context, rd io.RuneReader) *RuneAddReader {
 }
 
 func NewReader(rd io.RuneReader) *RuneAddReader {
-	return &RuneAddReader{rd: rd, ctx: context.Background()}
+	return NewReaderContext(context.Background(), rd)
 }
 
 type runeRead struct {
