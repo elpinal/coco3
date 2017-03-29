@@ -7,18 +7,18 @@ import (
 )
 
 type RuneAddReader struct {
-	ird io.RuneReader
+	rd  io.RuneReader
 	s   []rune
 	n   int
 	ctx context.Context
 }
 
 func NewReaderContext(ctx context.Context, rd io.RuneReader) *RuneAddReader {
-	return &RuneAddReader{ird: rd, ctx: ctx}
+	return &RuneAddReader{rd: rd, ctx: ctx}
 }
 
 func NewReader(rd io.RuneReader) *RuneAddReader {
-	return &RuneAddReader{ird: rd, ctx: context.Background()}
+	return &RuneAddReader{rd: rd, ctx: context.Background()}
 }
 
 type runeRead struct {
@@ -30,7 +30,7 @@ type runeRead struct {
 func (rd *RuneAddReader) readRune() chan runeRead {
 	ch := make(chan runeRead)
 	go func() {
-		r, size, err := rd.ird.ReadRune()
+		r, size, err := rd.rd.ReadRune()
 		ch <- runeRead{r, size, err}
 	}()
 	return ch
