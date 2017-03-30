@@ -8,8 +8,8 @@ import (
 )
 
 func TestExecCmd(t *testing.T) {
-	var in, out, err bytes.Buffer
-	e := New(&in, &out, &err)
+	var out, err bytes.Buffer
+	e := New(nil, &out, &err)
 	if err := e.execCmd("echo", []string{"aaa"}); err != nil {
 		t.Errorf("execute command: %v", err)
 	}
@@ -22,8 +22,8 @@ func TestExecCmd(t *testing.T) {
 }
 
 func TestExecPipe(t *testing.T) {
-	var in, out, err bytes.Buffer
-	e := New(&in, &out, &err)
+	var out, err bytes.Buffer
+	e := New(nil, &out, &err)
 	if err := e.execPipe([][]string{
 		{
 			"echo",
