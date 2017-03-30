@@ -2,6 +2,7 @@ package eval
 
 import (
 	"bytes"
+	"io/ioutil"
 	"syscall"
 	"testing"
 	"time"
@@ -53,8 +54,7 @@ func (r *myReader) Read(_ []byte) (int, error) {
 
 func TestInterrupt(t *testing.T) {
 	in := myReader{}
-	var out, err bytes.Buffer
-	e := New(&in, &out, &err)
+	e := New(&in, ioutil.Discard, ioutil.Discard)
 	done := make(chan struct{})
 	go func() {
 		if err := e.execCmd("cat", nil); err == nil {
