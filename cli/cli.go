@@ -44,6 +44,10 @@ func (c *CLI) Run(args []string) int {
 		return 2
 	}
 
+	for name, alias := range c.Config.Alias {
+		eval.DefAlias(name, alias)
+	}
+
 	if len(c.Config.StartUpCommand) > 0 {
 		done := make(chan struct{})
 		go func() {
