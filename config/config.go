@@ -5,7 +5,7 @@ const defaultPrompt = "_ "
 type Config struct {
 	Prompt         string
 	StartUpCommand []byte
-	Alias          map[string]string
+	Alias          [][2]string
 }
 
 func (c *Config) Init() {

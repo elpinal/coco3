@@ -44,8 +44,8 @@ func (c *CLI) Run(args []string) int {
 		return 2
 	}
 
-	for name, alias := range c.Config.Alias {
-		eval.DefAlias(name, alias)
+	for _, alias := range c.Config.Alias {
+		eval.DefAlias(alias[0], alias[1])
 	}
 
 	if len(c.Config.StartUpCommand) > 0 {
