@@ -2,16 +2,6 @@ package eval
 
 import "strings"
 
-func init() {
-	// TODO: Remove this.
-	DefAlias("ls", "ls --show-control-chars --color=auto")
-	DefAlias("la", "ls -a")
-	DefAlias("ll", "ls -l")
-	DefAlias("lla", "ls -la")
-	DefAlias("v", "vim")
-	DefAlias("g", "git")
-}
-
 type alias struct {
 	cmd  string
 	args []string
