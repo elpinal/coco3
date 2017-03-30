@@ -4,12 +4,12 @@ import "strings"
 
 func init() {
 	// TODO: Remove this.
-	defAlias("ls", "ls --show-control-chars --color=auto")
-	defAlias("la", "ls -a")
-	defAlias("ll", "ls -l")
-	defAlias("lla", "ls -la")
-	defAlias("v", "vim")
-	defAlias("g", "git")
+	DefAlias("ls", "ls --show-control-chars --color=auto")
+	DefAlias("la", "ls -a")
+	DefAlias("ll", "ls -l")
+	DefAlias("lla", "ls -la")
+	DefAlias("v", "vim")
+	DefAlias("g", "git")
 }
 
 type alias struct {
@@ -19,7 +19,7 @@ type alias struct {
 
 var aliases = make(map[string]alias)
 
-func defAlias(name, arg string) {
+func DefAlias(name, arg string) {
 	// TODO: Support more complex syntax.
 	a := strings.Split(arg, " ")
 	cmd := a[0]
