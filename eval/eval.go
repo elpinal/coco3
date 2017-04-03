@@ -175,8 +175,6 @@ func (e *Evaluator) run(cmd runner) error {
 		}
 	}()
 	select {
-	case <-c:
-		return ErrInterrupted
 	case err := <-wait(cmd.Run):
 		return err
 	}
