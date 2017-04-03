@@ -48,6 +48,14 @@ type Evaluator struct {
 }
 
 func (e *Evaluator) eval(stmt ast.Stmt) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	defer close(c)
+	go func() {
+		<-c
+		cancel()
+	}()
 	switch x := stmt.(type) {
 	case *ast.PipeStmt:
 		commands := make([][]string, 0, len(x.Args))
@@ -65,7 +73,7 @@ func (e *Evaluator) eval(stmt ast.Stmt) error {
 			}
 			commands = append(commands, args)
 		}
-		return e.execPipe(commands)
+		return e.execPipe(ctx, commands)
 	case *ast.ExecStmt:
 		args := make([]string, 0, len(x.Args))
 		for _, arg := range x.Args {
@@ -78,7 +86,7 @@ func (e *Evaluator) eval(stmt ast.Stmt) error {
 		if len(args) == 0 {
 			return nil
 		}
-		return e.execCmd(args[0], args[1:])
+		return e.execCmd(ctx, args[0], args[1:])
 	}
 	return fmt.Errorf("unexpected type: %T", stmt)
 }
@@ -136,9 +144,7 @@ func (e *Evaluator) evalExpr(expr ast.Expr) ([]string, error) {
 	return nil, fmt.Errorf("unexpected type: %T", expr)
 }
 
-func (e *Evaluator) execCmd(name string, args []string) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+func (e *Evaluator) execCmd(ctx context.Context, name string, args []string) error {
 	cmd := e.CommandContext(ctx, name, args...)
 	cmd.SetStdin(e.in)
 	cmd.SetStdout(e.out)
@@ -154,9 +160,7 @@ func wait(fn func() error) <-chan error {
 	return c
 }
 
-func (e *Evaluator) execPipe(commands [][]string) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+func (e *Evaluator) execPipe(ctx context.Context, commands [][]string) error {
 	cmds, err := e.makePipe(ctx, commands)
 	if err != nil {
 		return errors.Wrap(err, "constructing pipe")
@@ -169,17 +173,12 @@ type runner interface {
 }
 
 func (e *Evaluator) run(cmd runner) error {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
 	defer func() {
 		for _, closer := range e.closeAfterStart {
 			closer.Close()
 		}
 	}()
-	select {
-	case err := <-wait(cmd.Run):
-		return err
-	}
+	return <-wait(cmd.Run)
 }
 
 func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) (pipeCmd, error) {

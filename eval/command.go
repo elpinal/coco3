@@ -30,9 +30,9 @@ func (e *Evaluator) CommandContext(ctx context.Context, name string, arg ...stri
 		arg = append(x.args, arg...)
 	}
 	if fn, ok := builtins[name]; ok {
-		return &builtinCmd{fn: fn, name: name, args: arg, e: e}
+		return &builtinCmd{ctx: ctx, fn: fn, name: name, args: arg, e: e}
 	}
-	return &externalCmd{exec.CommandContext(ctx, name, arg...)}
+	return &externalCmd{exec.Command(name, arg...)}
 
 }
 
@@ -61,7 +61,8 @@ func (c *externalCmd) SetStdout(w io.Writer) {
 }
 
 type builtinCmd struct {
-	fn   func(stream, *Evaluator, []string) error
+	ctx  context.Context
+	fn   func(context.Context, stream, *Evaluator, []string) error
 	name string
 	args []string
 	e    *Evaluator
@@ -84,7 +85,7 @@ func (c *builtinCmd) Run() error {
 func (c *builtinCmd) Start() error {
 	c.ch = make(chan error)
 	go func() {
-		err := c.fn(stream{in: c.in, out: c.out, err: c.err}, c.e, c.args)
+		err := c.fn(c.ctx, stream{in: c.in, out: c.out, err: c.err}, c.e, c.args)
 		c.ch <- err
 		c.closeDescriptors(c.closeAfterStart)
 	}()

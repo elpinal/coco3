@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
@@ -14,7 +15,7 @@ type stream struct {
 	err io.Writer
 }
 
-var builtins = map[string]func(stream, *Evaluator, []string) error{
+var builtins = map[string]func(context.Context, stream, *Evaluator, []string) error{
 	"cd":      cd,
 	"echo":    echo,
 	"exit":    exit,
@@ -22,7 +23,7 @@ var builtins = map[string]func(stream, *Evaluator, []string) error{
 	"setpath": setpath,
 }
 
-func cd(_ stream, _ *Evaluator, args []string) error {
+func cd(_ context.Context, _ stream, _ *Evaluator, args []string) error {
 	var dir string
 	switch len(args) {
 	case 0:
@@ -35,10 +36,15 @@ func cd(_ stream, _ *Evaluator, args []string) error {
 	return os.Chdir(dir)
 }
 
-func echo(s stream, _ *Evaluator, args []string) error {
+func echo(ctx context.Context, s stream, _ *Evaluator, args []string) error {
 	if len(args) == 0 {
 		_, err := s.out.Write([]byte{'\n'})
 		return err
+	}
+	select {
+	case <-ctx.Done():
+		return nil
+	default:
 	}
 	_, err := io.WriteString(s.out, args[0])
 	if err != nil {
@@ -50,6 +56,11 @@ func echo(s stream, _ *Evaluator, args []string) error {
 	}
 	args = args[1:]
 	for _, arg := range args {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+		}
 		_, err := s.out.Write([]byte{' '})
 		if err != nil {
 			return err
@@ -63,7 +74,7 @@ func echo(s stream, _ *Evaluator, args []string) error {
 	return err
 }
 
-func exit(_ stream, e *Evaluator, args []string) error {
+func exit(_ context.Context, _ stream, e *Evaluator, args []string) error {
 	var code int
 	switch len(args) {
 	case 0:
@@ -82,7 +93,7 @@ func exit(_ stream, e *Evaluator, args []string) error {
 	return nil
 }
 
-func setenv(_ stream, _ *Evaluator, args []string) error {
+func setenv(_ context.Context, _ stream, _ *Evaluator, args []string) error {
 	if len(args)%2 == 1 {
 		return errors.New("need even arguments")
 	}
@@ -92,7 +103,7 @@ func setenv(_ stream, _ *Evaluator, args []string) error {
 	return nil
 }
 
-func setpath(_ stream, _ *Evaluator, args []string) error {
+func setpath(_ context.Context, _ stream, _ *Evaluator, args []string) error {
 	switch len(args) {
 	case 0:
 		return errors.New("need 1 or more arguments")

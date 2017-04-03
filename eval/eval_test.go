@@ -2,8 +2,8 @@ package eval
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
-	"syscall"
 	"testing"
 	"time"
 )
@@ -11,7 +11,7 @@ import (
 func TestExecCmd(t *testing.T) {
 	var out, err bytes.Buffer
 	e := New(nil, &out, &err)
-	if err := e.execCmd("echo", []string{"aaa"}); err != nil {
+	if err := e.execCmd(context.Background(), "echo", []string{"aaa"}); err != nil {
 		t.Errorf("execute command: %v", err)
 	}
 	if got, want := out.String(), "aaa\n"; got != want {
@@ -25,7 +25,7 @@ func TestExecCmd(t *testing.T) {
 func TestExecPipe(t *testing.T) {
 	var out, err bytes.Buffer
 	e := New(nil, &out, &err)
-	if err := e.execPipe([][]string{
+	if err := e.execPipe(context.Background(), [][]string{
 		{
 			"echo",
 			"aaa",
@@ -46,24 +46,22 @@ func TestExecPipe(t *testing.T) {
 	}
 }
 
-type myReader struct{}
+type slowWriter struct{}
 
-func (r *myReader) Read(_ []byte) (int, error) {
-	return 0, nil
+func (w *slowWriter) Write(p []byte) (int, error) {
+	time.Sleep(10 * time.Millisecond)
+	return 1, nil
 }
 
-func TestInterrupt(t *testing.T) {
-	e := New(&myReader{}, ioutil.Discard, ioutil.Discard)
-	done := make(chan struct{})
-	go func() {
-		if err := e.execCmd("cat", nil); err == nil {
-			t.Error("cat: error should not be nil because the command must have been interrupted")
-		} else if err != ErrInterrupted {
-			t.Errorf("cat: %v", err)
-		}
-		done <- struct{}{}
-	}()
-	time.Sleep(50 * time.Millisecond)
-	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-	<-done
+func TestKillBuiltin(t *testing.T) {
+	e := New(nil, &slowWriter{}, ioutil.Discard)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	start := time.Now()
+	if err := e.execCmd(ctx, "echo", []string{100: ""}); err != nil {
+		t.Errorf("echo: %v", err)
+	}
+	if elapsed := time.Since(start); elapsed > time.Second {
+		t.Errorf("echo: should be killed by 1 second, but elapsed time is %v", elapsed)
+	}
 }
