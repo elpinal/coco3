@@ -40,6 +40,14 @@ type externalCmd struct {
 	*exec.Cmd
 }
 
+func (c *externalCmd) Run() error {
+	err := c.Cmd.Run()
+	if err == nil || isInterrupt(err) {
+		return nil
+	}
+	return err
+}
+
 func (c *externalCmd) SetStderr(w io.Writer) {
 	c.Stderr = w
 }
