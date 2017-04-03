@@ -191,7 +191,7 @@ func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) (pipeCmd,
 		if i > 0 {
 			pipe, err := cmds[i-1].StdoutPipe()
 			if err != nil {
-				return nil, err
+				return pipeCmd{}, err
 			}
 			cmds[i].SetStdin(pipe)
 		}
@@ -199,10 +199,17 @@ func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) (pipeCmd,
 	}
 	cmds[0].SetStdin(e.in)
 	cmds[len(cmds)-1].SetStdout(e.out)
-	return pipeCmd(cmds), nil
+	return pipeCmd{cmds: cmds, errStream: e.err}, nil
 }
 
-type pipeCmd []Cmd
+type pipeCmd struct {
+	cmds      []Cmd
+	errStream io.Writer
+}
+
+func (p pipeCmd) errorf(format string, err error) {
+	fmt.Fprintf(p.errStream, format, err)
+}
 
 func (p pipeCmd) start() error {
 	for _, cmd := range p {
