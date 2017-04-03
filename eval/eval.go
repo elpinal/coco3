@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/pkg/errors"
 
@@ -209,6 +211,15 @@ func (p pipeCmd) start() error {
 		}
 	}
 	return nil
+}
+
+func isInterrupt(err error) bool {
+	ee, ok := err.(*exec.ExitError)
+	if !ok {
+		return false
+	}
+	status := ee.ProcessState.Sys().(syscall.WaitStatus)
+	return status.Signal() == syscall.SIGINT
 }
 
 func (p pipeCmd) wait() error {
