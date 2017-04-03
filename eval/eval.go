@@ -212,9 +212,9 @@ func (p pipeCmd) errorf(format string, err error) {
 }
 
 func (p pipeCmd) start() error {
-	for _, cmd := range p {
+	for _, cmd := range p.cmds {
 		if err := cmd.Start(); err != nil {
-			return err
+			p.errorf("%v\n", err)
 		}
 	}
 	return nil
@@ -230,10 +230,12 @@ func isInterrupt(err error) bool {
 }
 
 func (p pipeCmd) wait() error {
-	for _, cmd := range p {
-		if err := cmd.Wait(); err != nil {
-			return err
+	for _, cmd := range p.cmds {
+		err := cmd.Wait()
+		if err == nil || isInterrupt(err) {
+			continue
 		}
+		p.errorf("%v\n", err)
 	}
 	return nil
 }
