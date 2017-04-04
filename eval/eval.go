@@ -16,8 +16,6 @@ import (
 	"github.com/elpinal/coco3/token"
 )
 
-var ErrInterrupted = errors.New("signal caught: interrupt")
-
 func New(in io.Reader, out, err io.Writer) *Evaluator {
 	return &Evaluator{
 		in:     in,
