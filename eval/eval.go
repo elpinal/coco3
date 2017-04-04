@@ -151,14 +151,6 @@ func (e *Evaluator) execCmd(ctx context.Context, name string, args []string) err
 	return e.run(cmd)
 }
 
-func wait(fn func() error) <-chan error {
-	c := make(chan error)
-	go func() {
-		c <- fn()
-	}()
-	return c
-}
-
 func (e *Evaluator) execPipe(ctx context.Context, commands [][]string) error {
 	cmds, err := e.makePipe(ctx, commands)
 	if err != nil {
@@ -178,6 +170,14 @@ func (e *Evaluator) run(cmd runner) error {
 		}
 	}()
 	return <-wait(cmd.Run)
+}
+
+func wait(fn func() error) <-chan error {
+	c := make(chan error)
+	go func() {
+		c <- fn()
+	}()
+	return c
 }
 
 func (e *Evaluator) makePipe(ctx context.Context, commands [][]string) (pipeCmd, error) {
