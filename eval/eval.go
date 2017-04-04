@@ -52,6 +52,7 @@ func (e *Evaluator) eval(stmt ast.Stmt) error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	defer close(c)
+	defer signal.Stop(c)
 	go func() {
 		<-c
 		cancel()
