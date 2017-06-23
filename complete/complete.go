@@ -1,9 +1,16 @@
 package complete
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+	"strings"
+)
 
 func File(buf []rune, pos int) ([]string, error) {
-	dir, err := os.Open(".")
+	words := strings.Split(string(buf), " ")
+	prefix := words[len(words)-1]
+	p := filepath.Dir(prefix)
+	dir, err := os.Open(p)
 	if err != nil {
 		return nil, err
 	}

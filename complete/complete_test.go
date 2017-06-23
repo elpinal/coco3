@@ -1,14 +1,12 @@
 package complete
 
 import (
-	"os"
 	"reflect"
 	"testing"
 )
 
 func TestFile(t *testing.T) {
-	os.Chdir("testdata")
-	list, err := File(nil, 0)
+	list, err := File([]rune("testdata/"), 0)
 	if err != nil {
 		t.Errorf("File: %v", err)
 	}
