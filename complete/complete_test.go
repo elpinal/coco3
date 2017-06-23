@@ -6,11 +6,11 @@ import (
 )
 
 func TestFile(t *testing.T) {
-	list, err := File([]rune("testdata/"), 0)
+	list, err := File([]rune("testdata/file"), 0)
 	if err != nil {
 		t.Errorf("File: %v", err)
 	}
-	if want := []string{"file1.txt", "file2.txt"}; !reflect.DeepEqual(list, want) {
+	if want := []string{"1.txt", "2.txt"}; !reflect.DeepEqual(list, want) {
 		t.Errorf("File: want %v, got %v", want, list)
 	}
 }
