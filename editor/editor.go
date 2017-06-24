@@ -88,8 +88,8 @@ func (b *balancer) enter(m mode) moder {
 				err: b.err,
 			},
 			editor: b.editor,
-			s: b.s,
-			conf: b.conf,
+			s:      b.s,
+			conf:   b.conf,
 		}
 	case modeNormal:
 		return &normal{
