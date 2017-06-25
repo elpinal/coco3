@@ -13,6 +13,9 @@ func File(buf []rune, pos int) ([]string, error) {
 	if p == "" {
 		p = "."
 	}
+	if strings.HasPrefix(p, "~") {
+		p = os.Getenv("HOME") + p[1:]
+	}
 	dir, err := os.Open(p)
 	if err != nil {
 		return nil, err
