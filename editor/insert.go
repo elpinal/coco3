@@ -91,6 +91,14 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 			if n < 0 {
 				n = len(list) - 1
 			}
+		case CharCtrlY:
+			r2, _, err := e.streamSet.in.ReadRune()
+			return r2, err
+		case CharCtrlE:
+			e.delete(e.pos, e.pos-len(list[n1]))
+			e.s.Refresh(e.conf.Prompt, e.buf, e.pos)
+			r2, _, err := e.streamSet.in.ReadRune()
+			return r2, err
 		default:
 			return r1, nil
 		}
