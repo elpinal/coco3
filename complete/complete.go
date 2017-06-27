@@ -30,7 +30,15 @@ func File(buf []rune, pos int) ([]string, error) {
 		if !strings.HasPrefix(name, pend) {
 			continue
 		}
-		names = append(names, name[len(pend):])
+		n := name[len(pend):]
+		stat, err := os.Stat(filepath.Join(p, name))
+		if err != nil {
+			return nil, err
+		}
+		if stat.IsDir() {
+			n += "/"
+		}
+		names = append(names, n)
 	}
 	return names, nil
 }

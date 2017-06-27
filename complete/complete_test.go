@@ -6,11 +6,26 @@ import (
 )
 
 func TestFile(t *testing.T) {
-	list, err := File([]rune("testdata/file"), 0)
-	if err != nil {
-		t.Errorf("File: %v", err)
+	tests := []struct {
+		input string
+		want  []string
+	}{
+		{
+			input: "testdata/file",
+			want:  []string{"1.txt", "2.txt"},
+		},
+		{
+			input: "testdata/",
+			want:  []string{"dir1/", "file1.txt", "file2.txt"},
+		},
 	}
-	if want := []string{"1.txt", "2.txt"}; !reflect.DeepEqual(list, want) {
-		t.Errorf("File: want %v, got %v", want, list)
+	for _, test := range tests {
+		list, err := File([]rune(test.input), 0)
+		if err != nil {
+			t.Errorf("File: %v", err)
+		}
+		if !reflect.DeepEqual(list, test.want) {
+			t.Errorf("File: want %v, got %v", test.want, list)
+		}
 	}
 }
