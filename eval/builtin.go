@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 type stream struct {
@@ -26,6 +27,7 @@ func init() {
 		"setenv":  setenv,
 		"setpath": setpath,
 		"let":     let,
+		"exec":    execCmd,
 	}
 }
 
@@ -169,4 +171,15 @@ func contains(x []string, s string) bool {
 		}
 	}
 	return false
+}
+
+func execCmd(ctx context.Context, s stream, env []string, e *Evaluator, args []string) error {
+	if len(args) == 0 {
+		return errors.New("1 or more arguments required")
+	}
+	name, err := exec.LookPath(args[0])
+	if err != nil {
+		return err
+	}
+	return syscall.Exec(name, append([]string{name}, args[1:]...), env)
 }
