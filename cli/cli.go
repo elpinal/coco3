@@ -110,10 +110,11 @@ func (c *CLI) interact(g gate.Gate) error {
 			return err
 		}
 		r, err := g.Read()
+		// Make a newline before error handling.
+		c.Out.Write([]byte{'\n'})
 		if err != nil {
 			return err
 		}
-		c.Out.Write([]byte{'\n'})
 		if err := exitRowMode(old); err != nil {
 			return err
 		}
