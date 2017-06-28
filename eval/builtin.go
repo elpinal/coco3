@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -142,11 +143,13 @@ func let(ctx context.Context, s stream, env []string, e *Evaluator, args []strin
 		newEnv = append(newEnv, args[i]+"="+args[i+1])
 	}
 	name := args[n+1]
-	cmd := e.CommandContext(ctx, name, args[n+2:]...)
-	cmd.SetEnv(append(env, newEnv...))
-	cmd.SetStdin(s.in)
-	cmd.SetStdout(s.out)
-	cmd.SetStderr(s.err)
+	// Builtin command is not supported.
+	// For instance, `let ... in cd` does actually execute /usr/bin/cd.
+	cmd := exec.CommandContext(ctx, name, args[n+2:]...)
+	cmd.Env = append(env, newEnv...)
+	cmd.Stdin = s.in
+	cmd.Stdout = s.out
+	cmd.Stderr = s.err
 	return cmd.Run()
 }
 
