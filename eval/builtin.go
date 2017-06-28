@@ -143,7 +143,7 @@ func let(ctx context.Context, s stream, env []string, e *Evaluator, args []strin
 	}
 	name := args[n+1]
 	cmd := e.CommandContext(ctx, name, args[n+2:]...)
-	cmd.SetEnv(append(newEnv, env...))
+	cmd.SetEnv(append(env, newEnv...))
 	cmd.SetStdin(s.in)
 	cmd.SetStdout(s.out)
 	cmd.SetStderr(s.err)

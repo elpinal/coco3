@@ -31,7 +31,7 @@ func (e *Evaluator) CommandContext(ctx context.Context, name string, arg ...stri
 		arg = append(x.args, arg...)
 	}
 	if fn, ok := builtins[name]; ok {
-		return &builtinCmd{ctx: ctx, fn: fn, name: name, args: arg, e: e}
+		return &builtinCmd{ctx: ctx, fn: fn, name: name, args: arg, e: e, env: os.Environ()}
 	}
 	return &externalCmd{exec.Command(name, arg...)}
 
