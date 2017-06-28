@@ -26,6 +26,9 @@ func New(w io.Writer) *Terminal {
 
 func getwd() string {
 	wd, _ := os.Getwd()
+	if home := os.Getenv("HOME"); strings.HasPrefix(wd, home) {
+		wd = strings.Replace(wd, home, "~", 1)
+	}
 	return wd
 }
 
