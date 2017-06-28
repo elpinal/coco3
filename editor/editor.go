@@ -54,7 +54,7 @@ type balancer struct {
 
 func (b *balancer) Read() ([]rune, error) {
 	b.s.SetLastLine("-- INSERT --")
-	b.s.Refresh(b.conf.Prompt, nil, 0)
+	b.s.Start(b.conf, nil, 0)
 	prev := modeInsert
 	m := b.enter(prev)
 	for {
@@ -67,7 +67,7 @@ func (b *balancer) Read() ([]rune, error) {
 			msg = "-- INSERT --"
 		}
 		b.s.SetLastLine(msg)
-		b.s.Refresh(b.conf.Prompt, m.Runes(), m.Position())
+		b.s.Refresh(b.conf, m.Runes(), m.Position())
 		if end {
 			return m.Runes(), nil
 		}

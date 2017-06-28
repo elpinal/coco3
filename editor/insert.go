@@ -74,7 +74,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 	e.insert([]rune(list[0]), e.pos)
 	n := 0
 	for {
-		e.s.Refresh(e.conf.Prompt, e.buf, e.pos)
+		e.s.Refresh(e.conf, e.buf, e.pos)
 		r1, _, err := e.streamSet.in.ReadRune()
 		if err != nil {
 			return 0, err
@@ -96,7 +96,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 			return r2, err
 		case CharCtrlE:
 			e.delete(e.pos, e.pos-len(list[n1]))
-			e.s.Refresh(e.conf.Prompt, e.buf, e.pos)
+			e.s.Refresh(e.conf, e.buf, e.pos)
 			r2, _, err := e.streamSet.in.ReadRune()
 			return r2, err
 		default:
