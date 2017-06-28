@@ -8,6 +8,6 @@ import (
 
 func BenchmarkEcho(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		echo(context.TODO(), stream{out: ioutil.Discard}, nil, []string{"aaaaaaa"})
+		echo(context.TODO(), stream{out: ioutil.Discard}, nil, nil, []string{"aaaaaaa"})
 	}
 }
