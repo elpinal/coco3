@@ -16,7 +16,7 @@ $ go get -u github.com/elpinal/coco3
 ## Motivation
 
 Most shells have too complicated syntax. Some shells have an insufficient
-editing facility. These facts lead to develop Coco3 shell.
+editing facility. These facts lead to developing Coco3 shell.
 
 ## Contribution
 
