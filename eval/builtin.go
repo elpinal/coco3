@@ -15,15 +15,20 @@ type stream struct {
 	err io.Writer
 }
 
-var builtins = map[string]func(context.Context, stream, *Evaluator, []string) error{
-	"cd":      cd,
-	"echo":    echo,
-	"exit":    exit,
-	"setenv":  setenv,
-	"setpath": setpath,
+var builtins map[string]func(context.Context, stream, []string, *Evaluator, []string) error
+
+func init() {
+	builtins = map[string]func(context.Context, stream, []string, *Evaluator, []string) error{
+		"cd":      cd,
+		"echo":    echo,
+		"exit":    exit,
+		"setenv":  setenv,
+		"setpath": setpath,
+		"let":     let,
+	}
 }
 
-func cd(_ context.Context, _ stream, _ *Evaluator, args []string) error {
+func cd(_ context.Context, _ stream, env []string, _ *Evaluator, args []string) error {
 	var dir string
 	switch len(args) {
 	case 0:
@@ -36,7 +41,7 @@ func cd(_ context.Context, _ stream, _ *Evaluator, args []string) error {
 	return os.Chdir(dir)
 }
 
-func echo(ctx context.Context, s stream, _ *Evaluator, args []string) error {
+func echo(ctx context.Context, s stream, env []string, _ *Evaluator, args []string) error {
 	if len(args) == 0 {
 		_, err := s.out.Write([]byte{'\n'})
 		return err
@@ -74,7 +79,7 @@ func echo(ctx context.Context, s stream, _ *Evaluator, args []string) error {
 	return err
 }
 
-func exit(_ context.Context, _ stream, e *Evaluator, args []string) error {
+func exit(_ context.Context, _ stream, env []string, e *Evaluator, args []string) error {
 	var code int
 	switch len(args) {
 	case 0:
@@ -93,7 +98,7 @@ func exit(_ context.Context, _ stream, e *Evaluator, args []string) error {
 	return nil
 }
 
-func setenv(_ context.Context, _ stream, _ *Evaluator, args []string) error {
+func setenv(_ context.Context, _ stream, env []string, _ *Evaluator, args []string) error {
 	if len(args)%2 == 1 {
 		return errors.New("need even arguments")
 	}
@@ -103,7 +108,7 @@ func setenv(_ context.Context, _ stream, _ *Evaluator, args []string) error {
 	return nil
 }
 
-func setpath(_ context.Context, _ stream, _ *Evaluator, args []string) error {
+func setpath(_ context.Context, _ stream, env []string, _ *Evaluator, args []string) error {
 	switch len(args) {
 	case 0:
 		return errors.New("need 1 or more arguments")
@@ -119,6 +124,39 @@ func setpath(_ context.Context, _ stream, _ *Evaluator, args []string) error {
 	newPaths = append(args, newPaths...)
 	os.Setenv("PATH", strings.Join(newPaths, ":"))
 	return nil
+}
+
+func let(ctx context.Context, s stream, env []string, e *Evaluator, args []string) error {
+	n := getIndex(args, "in")
+	if n < 0 {
+		return errors.New("expecting 'in', but not found")
+	}
+	if n == len(args)-1 {
+		return errors.New("expecting command name after 'in'")
+	}
+	if n%2 == 1 {
+		return errors.New("'let ... in' should have even number of arguments")
+	}
+	newEnv := make([]string, 0, n/2)
+	for i := 0; i < n; i += 2 {
+		newEnv = append(newEnv, args[i]+"="+args[i+1])
+	}
+	name := args[n+1]
+	cmd := e.CommandContext(ctx, name, args[n+2:]...)
+	cmd.SetEnv(append(newEnv, env...))
+	cmd.SetStdin(s.in)
+	cmd.SetStdout(s.out)
+	cmd.SetStderr(s.err)
+	return cmd.Run()
+}
+
+func getIndex(x []string, s string) int {
+	for i := range x {
+		if x[i] == s {
+			return i
+		}
+	}
+	return -1
 }
 
 func contains(x []string, s string) bool {

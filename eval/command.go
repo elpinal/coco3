@@ -20,6 +20,7 @@ type Cmd interface {
 	SetStderr(io.Writer)
 	SetStdin(io.Reader)
 	SetStdout(io.Writer)
+	SetEnv([]string)
 }
 
 var _ Cmd = (*externalCmd)(nil)
@@ -60,15 +61,20 @@ func (c *externalCmd) SetStdout(w io.Writer) {
 	c.Stdout = w
 }
 
+func (c *externalCmd) SetEnv(env []string) {
+	c.Env = env
+}
+
 type builtinCmd struct {
 	ctx  context.Context
-	fn   func(context.Context, stream, *Evaluator, []string) error
+	fn   func(context.Context, stream, []string, *Evaluator, []string) error
 	name string
 	args []string
 	e    *Evaluator
 	in   io.Reader
 	out  io.Writer
 	err  io.Writer
+	env  []string
 
 	closeAfterStart []io.Closer
 	closeAfterWait  []io.Closer
@@ -85,7 +91,7 @@ func (c *builtinCmd) Run() error {
 func (c *builtinCmd) Start() error {
 	c.ch = make(chan error)
 	go func() {
-		err := c.fn(c.ctx, stream{in: c.in, out: c.out, err: c.err}, c.e, c.args)
+		err := c.fn(c.ctx, stream{in: c.in, out: c.out, err: c.err}, c.env, c.e, c.args)
 		c.ch <- err
 		c.closeDescriptors(c.closeAfterStart)
 	}()
@@ -173,4 +179,8 @@ func (c *builtinCmd) SetStdin(r io.Reader) {
 
 func (c *builtinCmd) SetStdout(w io.Writer) {
 	c.out = w
+}
+
+func (c *builtinCmd) SetEnv(env []string) {
+	c.env = env
 }
