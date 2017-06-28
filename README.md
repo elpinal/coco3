@@ -1,6 +1,7 @@
 # Coco3
 
-`coco3` is a shell for everything.
+Coco3 is a shell written in Go, providing Vim-like key mappings and painless
+syntax.
 
 ## Install
 
@@ -11,6 +12,11 @@ $ go get -u github.com/elpinal/coco3
 ```
 
 -u flag stands for "update".
+
+## Motivation
+
+Most shells have too complicated syntax. Some shells have an insufficient
+editing facility. These facts lead to develop Coco3 shell.
 
 ## Contribution
 
