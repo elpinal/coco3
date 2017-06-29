@@ -33,22 +33,16 @@ func getwd() string {
 }
 
 func (t *Terminal) Start(conf *config.Config, s []rune, pos int) {
-	var promptWidth int
+	prompt := conf.Prompt
 	if conf.PromptTmpl != nil {
 		var buf bytes.Buffer
 		conf.PromptTmpl.Execute(&buf, config.Info{WD: getwd()})
-		prompt := buf.String()
-		t.w.WriteString("\r\033[J")
-		t.w.WriteString(prompt)
-		i := strings.LastIndex(prompt, "\n") + 1
-		lastLine := prompt[i:]
-		promptWidth = runewidth.StringWidth(lastLine)
-	} else {
-		t.w.WriteString("\r\033[J")
-		t.w.WriteString(conf.Prompt)
-		i := strings.LastIndex(conf.Prompt, "\n") + 1
-		promptWidth = runewidth.StringWidth(conf.Prompt[i:])
+		prompt = buf.String()
 	}
+	t.w.WriteString("\r\033[J")
+	t.w.WriteString(prompt)
+	i := strings.LastIndex(prompt, "\n") + 1
+	promptWidth := runewidth.StringWidth(prompt[i:])
 	t.w.WriteString(string(s))
 	if t.msg != "" {
 		t.w.WriteString("\n")
@@ -62,34 +56,22 @@ func (t *Terminal) Start(conf *config.Config, s []rune, pos int) {
 }
 
 func (t *Terminal) Refresh(conf *config.Config, s []rune, pos int) {
-	var promptWidth int
+	prompt := conf.Prompt
 	if conf.PromptTmpl != nil {
 		var buf bytes.Buffer
 		conf.PromptTmpl.Execute(&buf, config.Info{WD: getwd()})
-		prompt := buf.String()
-		count := strings.Count(prompt, "\n")
-		if count > 0 {
-			t.w.WriteString("\033[")
-			t.w.WriteString(strconv.Itoa(count))
-			t.w.WriteString("A")
-		}
-		t.w.WriteString("\r\033[J")
-		t.w.WriteString(prompt)
-		i := strings.LastIndex(prompt, "\n") + 1
-		lastLine := prompt[i:]
-		promptWidth = runewidth.StringWidth(lastLine)
-	} else {
-		count := strings.Count(conf.Prompt, "\n")
-		if count > 0 {
-			t.w.WriteString("\033[")
-			t.w.WriteString(strconv.Itoa(count))
-			t.w.WriteString("A")
-		}
-		t.w.WriteString("\r\033[J")
-		t.w.WriteString(conf.Prompt)
-		i := strings.LastIndex(conf.Prompt, "\n") + 1
-		promptWidth = runewidth.StringWidth(conf.Prompt[i:])
+		prompt = buf.String()
 	}
+	count := strings.Count(prompt, "\n")
+	if count > 0 {
+		t.w.WriteString("\033[")
+		t.w.WriteString(strconv.Itoa(count))
+		t.w.WriteString("A")
+	}
+	t.w.WriteString("\r\033[J")
+	t.w.WriteString(prompt)
+	i := strings.LastIndex(prompt, "\n") + 1
+	promptWidth := runewidth.StringWidth(prompt[i:])
 	t.w.WriteString(string(s))
 	if t.msg != "" {
 		t.w.WriteString("\n")
