@@ -33,40 +33,27 @@ func getwd() string {
 }
 
 func (t *Terminal) Start(conf *config.Config, s []rune, pos int) {
-	prompt := conf.Prompt
-	if conf.PromptTmpl != nil {
-		var buf bytes.Buffer
-		conf.PromptTmpl.Execute(&buf, config.Info{WD: getwd()})
-		prompt = buf.String()
-	}
-	t.w.WriteString("\r\033[J")
-	t.w.WriteString(prompt)
-	i := strings.LastIndex(prompt, "\n") + 1
-	promptWidth := runewidth.StringWidth(prompt[i:])
-	t.w.WriteString(string(s))
-	if t.msg != "" {
-		t.w.WriteString("\n")
-		t.w.WriteString(t.msg)
-		t.w.WriteString("\033[A")
-	}
-	t.w.WriteString("\033[")
-	t.w.WriteString(strconv.Itoa(promptWidth + runesWidth(s[:pos]) + 1))
-	t.w.WriteString("G")
-	t.w.Flush()
+	t.draw(conf, s, pos, false)
 }
 
 func (t *Terminal) Refresh(conf *config.Config, s []rune, pos int) {
+	t.draw(conf, s, pos, true)
+}
+
+func (t *Terminal) draw(conf *config.Config, s []rune, pos int, refresh bool) {
 	prompt := conf.Prompt
 	if conf.PromptTmpl != nil {
 		var buf bytes.Buffer
 		conf.PromptTmpl.Execute(&buf, config.Info{WD: getwd()})
 		prompt = buf.String()
 	}
-	count := strings.Count(prompt, "\n")
-	if count > 0 {
-		t.w.WriteString("\033[")
-		t.w.WriteString(strconv.Itoa(count))
-		t.w.WriteString("A")
+	if refresh {
+		count := strings.Count(prompt, "\n")
+		if count > 0 {
+			t.w.WriteString("\033[")
+			t.w.WriteString(strconv.Itoa(count))
+			t.w.WriteString("A")
+		}
 	}
 	t.w.WriteString("\r\033[J")
 	t.w.WriteString(prompt)
