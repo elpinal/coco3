@@ -46,7 +46,8 @@ func (t *Terminal) Start(conf *config.Config, s []rune, pos int) {
 	} else {
 		t.w.WriteString("\r\033[J")
 		t.w.WriteString(conf.Prompt)
-		promptWidth = runewidth.StringWidth(conf.Prompt)
+		i := strings.LastIndex(conf.Prompt, "\n") + 1
+		promptWidth = runewidth.StringWidth(conf.Prompt[i:])
 	}
 	t.w.WriteString(string(s))
 	if t.msg != "" {
@@ -78,9 +79,16 @@ func (t *Terminal) Refresh(conf *config.Config, s []rune, pos int) {
 		lastLine := prompt[i:]
 		promptWidth = runewidth.StringWidth(lastLine)
 	} else {
+		count := strings.Count(conf.Prompt, "\n")
+		if count > 0 {
+			t.w.WriteString("\033[")
+			t.w.WriteString(strconv.Itoa(count))
+			t.w.WriteString("A")
+		}
 		t.w.WriteString("\r\033[J")
 		t.w.WriteString(conf.Prompt)
-		promptWidth = runewidth.StringWidth(conf.Prompt)
+		i := strings.LastIndex(conf.Prompt, "\n") + 1
+		promptWidth = runewidth.StringWidth(conf.Prompt[i:])
 	}
 	t.w.WriteString(string(s))
 	if t.msg != "" {
