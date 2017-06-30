@@ -6,11 +6,15 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/elpinal/coco3/config"
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/parser"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type CLI struct {
@@ -19,6 +23,8 @@ type CLI struct {
 	Err io.Writer
 
 	config.Config
+
+	db *sqlx.DB
 
 	exitCh chan int
 	doneCh chan struct{} // to ensure exiting just after exitCh received
@@ -86,6 +92,17 @@ func (c *CLI) Run(args []string) int {
 
 	conf := &c.Config
 	conf.Init()
+	db, err := sqlx.Connect("sqlite3", conf.HistFile)
+	if err != nil {
+		fmt.Fprintf(c.Err, "connecting history file: %v\n", err)
+		return 1
+	}
+	_, err = db.Exec(schema)
+	if err != nil {
+		fmt.Fprintf(c.Err, "initializing history file: %v\n", err)
+		return 1
+	}
+	c.db = db
 	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err)
 	go func(ctx context.Context) {
 		for {
@@ -118,11 +135,32 @@ func (c *CLI) interact(g gate.Gate) error {
 		if err := exitRowMode(old); err != nil {
 			return err
 		}
+		go c.writeHistory(r)
 		if err := c.execute([]byte(string(r))); err != nil {
 			return err
 		}
 		g.Clear()
 	}
+}
+
+func (c *CLI) writeHistory(r []rune) {
+	startTime := time.Now()
+	_, err := c.db.Exec("insert into command_info (time, line) values ($1, $2)", startTime, string(r))
+	if err != nil {
+		fmt.Fprintf(c.Err, "saving history: %v\n", err)
+		c.exitCh <- 1
+	}
+}
+
+var schema = `
+create table if not exists command_info (
+    time datetime,
+    line text
+)`
+
+type CommandInfo struct {
+	Time time.Time
+	Line string
 }
 
 func (c *CLI) execute(b []byte) error {
