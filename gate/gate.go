@@ -36,12 +36,13 @@ func (g *gate) Clear() {
 	g.e.Clear()
 }
 
-func New(conf *config.Config, in io.Reader, out, err io.Writer) Gate {
-	return NewContext(context.Background(), conf, in, out, err)
+func New(conf *config.Config, in io.Reader, out, err io.Writer, history [][]rune) Gate {
+	return NewContext(context.Background(), conf, in, out, err, history)
 }
 
-func NewContext(ctx context.Context, conf *config.Config, in io.Reader, out, err io.Writer) Gate {
+func NewContext(ctx context.Context, conf *config.Config, in io.Reader, out, err io.Writer, history [][]rune) Gate {
 	return &gate{
-		e: editor.NewContext(ctx, terminal.New(out), conf, in, out, err),
+		e:       editor.NewContext(ctx, terminal.New(out), conf, in, out, err),
+		history: history,
 	}
 }

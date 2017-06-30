@@ -102,8 +102,18 @@ func (c *CLI) Run(args []string) int {
 		fmt.Fprintf(c.Err, "initializing history file: %v\n", err)
 		return 1
 	}
+	var history []string
+	err = db.Select(&history, "select line from command_info")
+	if err != nil {
+		fmt.Fprintf(c.Err, "restoring history: %v\n", err)
+		return 1
+	}
+	histRunes := make([][]rune, len(history))
+	for i, line := range history {
+		histRunes[i] = []rune(line)
+	}
+	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err, histRunes)
 	c.db = db
-	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err)
 	go func(ctx context.Context) {
 		for {
 			if err := c.interact(g); err != nil {
