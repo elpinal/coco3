@@ -10,7 +10,7 @@ import (
 
 func TestExecCmd(t *testing.T) {
 	var out, err bytes.Buffer
-	e := New(nil, &out, &err)
+	e := New(nil, &out, &err, nil)
 	if err := e.execCmd(context.Background(), "echo", []string{"aaa"}); err != nil {
 		t.Errorf("execute command: %v", err)
 	}
@@ -24,7 +24,7 @@ func TestExecCmd(t *testing.T) {
 
 func TestExecPipe(t *testing.T) {
 	var out, err bytes.Buffer
-	e := New(nil, &out, &err)
+	e := New(nil, &out, &err, nil)
 	if err := e.execPipe(context.Background(), [][]string{
 		{
 			"echo",
@@ -54,7 +54,7 @@ func (w *slowWriter) Write(p []byte) (int, error) {
 }
 
 func TestKillBuiltin(t *testing.T) {
-	e := New(nil, &slowWriter{}, ioutil.Discard)
+	e := New(nil, &slowWriter{}, ioutil.Discard, nil)
 	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 	defer cancel()
 	start := time.Now()
