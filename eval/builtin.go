@@ -1,14 +1,19 @@
 package eval
 
 import (
+	"bufio"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type info struct {
@@ -16,6 +21,7 @@ type info struct {
 	env    []string
 	exitCh chan int
 	args   []string
+	db     *sqlx.DB
 }
 
 type stream struct {
@@ -190,4 +196,26 @@ func execCmd(ctx context.Context, ci info) error {
 		return err
 	}
 	return syscall.Exec(name, append([]string{name}, ci.args[1:]...), ci.env)
+}
+
+type execution struct {
+	Time time.Time
+	Line string
+}
+
+func history(ctx context.Context, ci info) error {
+	buf := bufio.NewWriter(ci.out)
+	data := execution{}
+	rows, err := ci.db.Queryx("select * from command_info")
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		err := rows.StructScan(&data)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(buf, "%v  %s\n", data.Time.Format("Mon, 02 Jan 2006 15:04:05"), data.Line)
+	}
+	return buf.Flush()
 }

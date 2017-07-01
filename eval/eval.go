@@ -10,17 +10,19 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 
 	"github.com/elpinal/coco3/ast"
 	"github.com/elpinal/coco3/token"
 )
 
-func New(in io.Reader, out, err io.Writer) *Evaluator {
+func New(in io.Reader, out, err io.Writer, db *sqlx.DB) *Evaluator {
 	return &Evaluator{
 		in:     in,
 		out:    out,
 		err:    err,
+		db:     db,
 		ExitCh: make(chan int, 1),
 	}
 }
@@ -39,6 +41,8 @@ type Evaluator struct {
 	in  io.Reader
 	out io.Writer
 	err io.Writer
+
+	db *sqlx.DB
 
 	closeAfterStart []io.Closer
 

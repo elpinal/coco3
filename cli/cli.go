@@ -178,7 +178,7 @@ func (c *CLI) execute(b []byte) error {
 	if err != nil {
 		return err
 	}
-	e := eval.New(c.In, c.Out, c.Err)
+	e := eval.New(c.In, c.Out, c.Err, c.db)
 	err = e.Eval(f.Lines)
 	select {
 	case code := <-e.ExitCh:

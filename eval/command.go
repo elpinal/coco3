@@ -31,7 +31,14 @@ func (e *Evaluator) CommandContext(ctx context.Context, name string, arg ...stri
 		arg = append(x.args, arg...)
 	}
 	if fn, ok := builtins[name]; ok {
-		return &builtinCmd{ctx: ctx, fn: fn, name: name, args: arg, e: e, env: os.Environ()}
+		return &builtinCmd{
+			ctx:  ctx,
+			fn:   fn,
+			name: name,
+			args: arg,
+			e:    e,
+			env:  os.Environ(),
+		}
 	}
 	return &externalCmd{exec.Command(name, arg...)}
 
@@ -91,7 +98,17 @@ func (c *builtinCmd) Run() error {
 func (c *builtinCmd) Start() error {
 	c.ch = make(chan error)
 	go func() {
-		err := c.fn(c.ctx, info{stream: stream{in: c.in, out: c.out, err: c.err}, env: c.env, exitCh: c.e.ExitCh, args: c.args})
+		err := c.fn(c.ctx, info{
+			stream: stream{
+				in:  c.in,
+				out: c.out,
+				err: c.err,
+			},
+			env:    c.env,
+			exitCh: c.e.ExitCh,
+			args:   c.args,
+			db:     c.e.db,
+		})
 		c.ch <- err
 		c.closeDescriptors(c.closeAfterStart)
 	}()
