@@ -13,7 +13,7 @@ func TestGate(t *testing.T) {
 	in := strings.NewReader("echo 1" + string(editor.CharCtrlM) + string(editor.CharEscape) + "ka" + string(editor.CharBackspace) + "2" + string(editor.CharCtrlM))
 	conf := new(config.Config)
 	conf.Init()
-	g := New(conf, in, ioutil.Discard, ioutil.Discard).(*gate)
+	g := New(conf, in, ioutil.Discard, ioutil.Discard, nil).(*gate)
 	for _, n := range [...]string{"1", "2"} {
 		b, err := g.Read()
 		if err != nil {
