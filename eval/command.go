@@ -67,7 +67,7 @@ func (c *externalCmd) SetEnv(env []string) {
 
 type builtinCmd struct {
 	ctx  context.Context
-	fn   func(context.Context, stream, []string, *Evaluator, []string) error
+	fn   func(context.Context, info) error
 	name string
 	args []string
 	e    *Evaluator
@@ -91,7 +91,7 @@ func (c *builtinCmd) Run() error {
 func (c *builtinCmd) Start() error {
 	c.ch = make(chan error)
 	go func() {
-		err := c.fn(c.ctx, stream{in: c.in, out: c.out, err: c.err}, c.env, c.e, c.args)
+		err := c.fn(c.ctx, info{stream: stream{in: c.in, out: c.out, err: c.err}, env: c.env, exitCh: c.e.ExitCh, args: c.args})
 		c.ch <- err
 		c.closeDescriptors(c.closeAfterStart)
 	}()

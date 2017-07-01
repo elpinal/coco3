@@ -11,16 +11,23 @@ import (
 	"syscall"
 )
 
+type info struct {
+	stream
+	env    []string
+	exitCh chan int
+	args   []string
+}
+
 type stream struct {
 	in  io.Reader
 	out io.Writer
 	err io.Writer
 }
 
-var builtins map[string]func(context.Context, stream, []string, *Evaluator, []string) error
+var builtins map[string]func(context.Context, info) error
 
 func init() {
-	builtins = map[string]func(context.Context, stream, []string, *Evaluator, []string) error{
+	builtins = map[string]func(context.Context, info) error{
 		"cd":      cd,
 		"echo":    echo,
 		"exit":    exit,
@@ -28,25 +35,26 @@ func init() {
 		"setpath": setpath,
 		"let":     let,
 		"exec":    execCmd,
+		"history": history,
 	}
 }
 
-func cd(_ context.Context, _ stream, env []string, _ *Evaluator, args []string) error {
+func cd(_ context.Context, ci info) error {
 	var dir string
-	switch len(args) {
+	switch len(ci.args) {
 	case 0:
 		dir = os.Getenv("HOME")
 	case 1:
-		dir = args[0]
+		dir = ci.args[0]
 	default:
 		return errors.New("too many arguments")
 	}
 	return os.Chdir(dir)
 }
 
-func echo(ctx context.Context, s stream, env []string, _ *Evaluator, args []string) error {
-	if len(args) == 0 {
-		_, err := s.out.Write([]byte{'\n'})
+func echo(ctx context.Context, ci info) error {
+	if len(ci.args) == 0 {
+		_, err := ci.out.Write([]byte{'\n'})
 		return err
 	}
 	select {
@@ -54,42 +62,42 @@ func echo(ctx context.Context, s stream, env []string, _ *Evaluator, args []stri
 		return nil
 	default:
 	}
-	_, err := io.WriteString(s.out, args[0])
+	_, err := io.WriteString(ci.out, ci.args[0])
 	if err != nil {
 		return err
 	}
-	if len(args) == 1 {
-		_, err := s.out.Write([]byte{'\n'})
+	if len(ci.args) == 1 {
+		_, err := ci.out.Write([]byte{'\n'})
 		return err
 	}
-	args = args[1:]
+	args := ci.args[1:]
 	for _, arg := range args {
 		select {
 		case <-ctx.Done():
 			return nil
 		default:
 		}
-		_, err := s.out.Write([]byte{' '})
+		_, err := ci.out.Write([]byte{' '})
 		if err != nil {
 			return err
 		}
-		_, err = io.WriteString(s.out, arg)
+		_, err = io.WriteString(ci.out, arg)
 		if err != nil {
 			return err
 		}
 	}
-	_, err = s.out.Write([]byte{'\n'})
+	_, err = ci.out.Write([]byte{'\n'})
 	return err
 }
 
-func exit(_ context.Context, _ stream, env []string, e *Evaluator, args []string) error {
+func exit(_ context.Context, ci info) error {
 	var code int
-	switch len(args) {
+	switch len(ci.args) {
 	case 0:
 		//FIXME: exit with no args should use the exit code of the last command executed.
 		code = 0
 	case 1:
-		i, err := strconv.Atoi(args[0])
+		i, err := strconv.Atoi(ci.args[0])
 		if err != nil {
 			return err
 		}
@@ -97,44 +105,44 @@ func exit(_ context.Context, _ stream, env []string, e *Evaluator, args []string
 	default:
 		return errors.New("too many arguments")
 	}
-	e.ExitCh <- code
+	ci.exitCh <- code
 	return nil
 }
 
-func setenv(_ context.Context, _ stream, env []string, _ *Evaluator, args []string) error {
-	if len(args)%2 == 1 {
+func setenv(_ context.Context, ci info) error {
+	if len(ci.args)%2 == 1 {
 		return errors.New("need even arguments")
 	}
-	for i := 0; i < len(args); i += 2 {
-		os.Setenv(args[i], args[i+1])
+	for i := 0; i < len(ci.args); i += 2 {
+		os.Setenv(ci.args[i], ci.args[i+1])
 	}
 	return nil
 }
 
-func setpath(_ context.Context, _ stream, env []string, _ *Evaluator, args []string) error {
-	switch len(args) {
+func setpath(_ context.Context, ci info) error {
+	switch len(ci.args) {
 	case 0:
 		return errors.New("need 1 or more arguments")
 	}
 	paths := strings.Split(os.Getenv("PATH"), ":")
 	var newPaths []string
 	for _, path := range paths {
-		if contains(args, path) {
+		if contains(ci.args, path) {
 			continue
 		}
 		newPaths = append(newPaths, path)
 	}
-	newPaths = append(args, newPaths...)
+	newPaths = append(ci.args, newPaths...)
 	os.Setenv("PATH", strings.Join(newPaths, ":"))
 	return nil
 }
 
-func let(ctx context.Context, s stream, env []string, e *Evaluator, args []string) error {
-	n := getIndex(args, "in")
+func let(ctx context.Context, ci info) error {
+	n := getIndex(ci.args, "in")
 	if n < 0 {
 		return errors.New("expecting 'in', but not found")
 	}
-	if n == len(args)-1 {
+	if n == len(ci.args)-1 {
 		return errors.New("expecting command name after 'in'")
 	}
 	if n%2 == 1 {
@@ -142,16 +150,16 @@ func let(ctx context.Context, s stream, env []string, e *Evaluator, args []strin
 	}
 	newEnv := make([]string, 0, n/2)
 	for i := 0; i < n; i += 2 {
-		newEnv = append(newEnv, args[i]+"="+args[i+1])
+		newEnv = append(newEnv, ci.args[i]+"="+ci.args[i+1])
 	}
-	name := args[n+1]
+	name := ci.args[n+1]
 	// Builtin command is not supported.
 	// For instance, `let ... in cd` does actually execute /usr/bin/cd.
-	cmd := exec.CommandContext(ctx, name, args[n+2:]...)
-	cmd.Env = append(env, newEnv...)
-	cmd.Stdin = s.in
-	cmd.Stdout = s.out
-	cmd.Stderr = s.err
+	cmd := exec.CommandContext(ctx, name, ci.args[n+2:]...)
+	cmd.Env = append(ci.env, newEnv...)
+	cmd.Stdin = ci.in
+	cmd.Stdout = ci.out
+	cmd.Stderr = ci.err
 	return cmd.Run()
 }
 
@@ -173,13 +181,13 @@ func contains(x []string, s string) bool {
 	return false
 }
 
-func execCmd(ctx context.Context, s stream, env []string, e *Evaluator, args []string) error {
-	if len(args) == 0 {
+func execCmd(ctx context.Context, ci info) error {
+	if len(ci.args) == 0 {
 		return errors.New("1 or more arguments required")
 	}
-	name, err := exec.LookPath(args[0])
+	name, err := exec.LookPath(ci.args[0])
 	if err != nil {
 		return err
 	}
-	return syscall.Exec(name, append([]string{name}, args[1:]...), env)
+	return syscall.Exec(name, append([]string{name}, ci.args[1:]...), ci.env)
 }
