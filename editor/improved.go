@@ -182,6 +182,32 @@ func (e *editor) wordEnd() {
 	e.pos = len(e.buf)
 }
 
+func (e *editor) wordEndNonBlank() {
+	switch n := len(e.buf) - e.pos; {
+	case n < 1:
+		return
+	case n == 1:
+		e.pos = len(e.buf)
+		return
+	}
+	e.pos++
+	switch ch := e.buf[e.pos]; {
+	case isWhitespace(ch):
+		if i := e.indexFunc(isWhitespace, e.pos+1, false); i > 0 {
+			if i := e.indexFunc(isWhitespace, i+1, true); i > 0 {
+				e.pos = i - 1
+				return
+			}
+		}
+	default:
+		if i := e.indexFunc(isWhitespace, e.pos+1, true); i > 0 {
+			e.pos = i - 1
+			return
+		}
+	}
+	e.pos = len(e.buf)
+}
+
 func (e *editor) toUpper(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
 	e.replace([]rune(strings.ToUpper(string(e.slice(from, to)))), at)

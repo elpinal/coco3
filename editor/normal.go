@@ -85,6 +85,7 @@ var normalCommands = []normalCommand{
 	{'B', (*normal).wordBack, 0},
 	{'C', (*normal).abbrev, 0},
 	{'D', (*normal).abbrev, 0},
+	{'E', (*normal).word, 0},
 	{'I', (*normal).edit, 0},
 	{'W', (*normal).word, 0},
 	{'X', (*normal).abbrev, 0},
@@ -244,6 +245,9 @@ func (e *normal) word(r rune) mode {
 		case 'e':
 			e.inclusive = true
 			e.wordEnd()
+		case 'E':
+			e.inclusive = true
+			e.wordEndNonBlank()
 		}
 	}
 	return modeNormal
