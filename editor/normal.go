@@ -171,6 +171,8 @@ func (e *normal) object(r rune) {
 	switch r1 {
 	case 'w':
 		from, to = e.currentWord(include)
+	case 'W':
+		from, to = e.currentWordNonBlank(include)
 	case '"', '\'', '`':
 		from, to = e.currentQuote(include, r1)
 		if from < 0 || to < 0 {

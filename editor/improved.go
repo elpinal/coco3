@@ -218,6 +218,29 @@ func (e *editor) currentWord(include bool) (from, to int) {
 	}
 	return
 }
+func (e *editor) currentWordNonBlank(include bool) (from, to int) {
+	if len(e.buf) == 0 {
+		return 0, 0
+	}
+	f := func(r rune) bool { return !isWhitespace(r) }
+	if isWhitespace(e.buf[e.pos]) {
+		f = isWhitespace
+	}
+	from = e.lastIndexFunc(f, e.pos, false) + 1
+	to = e.indexFunc(f, e.pos, false)
+	if to < 0 {
+		to = len(e.buf)
+	}
+	if include && to < len(e.buf) && isWhitespace(e.buf[to]) {
+		to++
+		return
+	}
+	if include && from > 0 && isWhitespace(e.buf[from-1]) {
+		from--
+		return
+	}
+	return
+}
 
 func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 	if len(e.buf) == 0 {
