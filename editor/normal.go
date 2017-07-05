@@ -278,6 +278,7 @@ func (e *normal) doPendingOperator() mode {
 		return modeInsert
 	}
 	e.clearOp()
+	e.move(min(from, to))
 	return modeNormal
 }
 
