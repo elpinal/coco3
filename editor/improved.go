@@ -316,3 +316,11 @@ func (e *editor) charSearch(r rune) (int, error) {
 	}
 	return e.pos + 1 + i, nil
 }
+
+func (e *editor) charSearchBackward(r rune) (int, error) {
+	i := strings.LastIndex(string(e.slice(0, e.pos)), string(r))
+	if i < 0 {
+		return 0, fmt.Errorf("pattern not found: %c", r)
+	}
+	return i, nil
+}

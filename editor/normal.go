@@ -86,6 +86,7 @@ var normalCommands = []normalCommand{
 	{'C', (*normal).abbrev, 0},
 	{'D', (*normal).abbrev, 0},
 	{'E', (*normal).word, 0},
+	{'F', (*normal).searchBackward, 0},
 	{'I', (*normal).edit, 0},
 	{'W', (*normal).word, 0},
 	{'X', (*normal).abbrev, 0},
@@ -306,6 +307,19 @@ func (e *normal) search(r rune) mode {
 		return modeNormal
 	}
 	i, err := e.charSearch(r1)
+	if err != nil {
+		return modeNormal
+	}
+	e.move(i)
+	return modeNormal
+}
+
+func (e *normal) searchBackward(r rune) mode {
+	r1, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return modeNormal
+	}
+	i, err := e.charSearchBackward(r1)
 	if err != nil {
 		return modeNormal
 	}
