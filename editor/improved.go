@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/elpinal/coco3/editor/register"
@@ -306,4 +307,12 @@ func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 	}
 	from++
 	return
+}
+
+func (e *editor) charSearch(r rune) (int, error) {
+	i := strings.IndexRune(string(e.slice(e.pos+1, len(e.buf))), r)
+	if i < 0 {
+		return 0, fmt.Errorf("pattern not found: %c", r)
+	}
+	return e.pos + 1 + i, nil
 }

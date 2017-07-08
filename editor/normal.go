@@ -95,6 +95,7 @@ var normalCommands = []normalCommand{
 	{'c', (*normal).operator, 0},
 	{'d', (*normal).operator, 0},
 	{'e', (*normal).word, 0},
+	{'f', (*normal).search, 0},
 	{'h', (*normal).left, 0},
 	{'i', (*normal).edit, 0},
 	{'j', (*normal).down, 0},
@@ -296,5 +297,18 @@ func (e *normal) abbrev(r rune) mode {
 	}
 	e.streamSet.in.Add(amap[r])
 	e.opCount = e.count
+	return modeNormal
+}
+
+func (e *normal) search(r rune) mode {
+	r1, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return modeNormal
+	}
+	i, err := e.charSearch(r1)
+	if err != nil {
+		return modeNormal
+	}
+	e.move(i)
 	return modeNormal
 }
