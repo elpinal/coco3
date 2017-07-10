@@ -73,40 +73,39 @@ func (e *normal) Position() int {
 }
 
 type normalCommand struct {
-	r   rune                     // first char
-	fn  func(*normal, rune) mode // function for this command
-	arg int
+	r  rune                     // first char
+	fn func(*normal, rune) mode // function for this command
 }
 
 var normalCommands = []normalCommand{
-	{'$', (*normal).endline, 0},
-	{'0', (*normal).beginline, 0},
-	{'A', (*normal).edit, 0},
-	{'B', (*normal).wordBack, 0},
-	{'C', (*normal).abbrev, 0},
-	{'D', (*normal).abbrev, 0},
-	{'E', (*normal).word, 0},
-	{'F', (*normal).searchBackward, 0},
-	{'I', (*normal).edit, 0},
-	{'W', (*normal).word, 0},
-	{'X', (*normal).abbrev, 0},
-	{'Y', (*normal).abbrev, 0},
-	{'a', (*normal).edit, 0},
-	{'b', (*normal).wordBack, 0},
-	{'c', (*normal).operator, 0},
-	{'d', (*normal).operator, 0},
-	{'e', (*normal).word, 0},
-	{'f', (*normal).search, 0},
-	{'h', (*normal).left, 0},
-	{'i', (*normal).edit, 0},
-	{'j', (*normal).down, 0},
-	{'k', (*normal).up, 0},
-	{'l', (*normal).right, 0},
-	{'p', (*normal).put1, 0},
-	{'r', (*normal).replace, 0},
-	{'w', (*normal).word, 0},
-	{'x', (*normal).abbrev, 0},
-	{'y', (*normal).operator, 0},
+	{'$', (*normal).endline},
+	{'0', (*normal).beginline},
+	{'A', (*normal).edit},
+	{'B', (*normal).wordBack},
+	{'C', (*normal).abbrev},
+	{'D', (*normal).abbrev},
+	{'E', (*normal).word},
+	{'F', (*normal).searchBackward},
+	{'I', (*normal).edit},
+	{'W', (*normal).word},
+	{'X', (*normal).abbrev},
+	{'Y', (*normal).abbrev},
+	{'a', (*normal).edit},
+	{'b', (*normal).wordBack},
+	{'c', (*normal).operator},
+	{'d', (*normal).operator},
+	{'e', (*normal).word},
+	{'f', (*normal).search},
+	{'h', (*normal).left},
+	{'i', (*normal).edit},
+	{'j', (*normal).down},
+	{'k', (*normal).up},
+	{'l', (*normal).right},
+	{'p', (*normal).put1},
+	{'r', (*normal).replace},
+	{'w', (*normal).word},
+	{'x', (*normal).abbrev},
+	{'y', (*normal).operator},
 }
 
 func (e *normal) endline(r rune) mode {
