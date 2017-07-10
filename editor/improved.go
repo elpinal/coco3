@@ -3,6 +3,7 @@ package editor
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/elpinal/coco3/editor/register"
 )
@@ -217,6 +218,23 @@ func (e *editor) toUpper(from, to int) {
 func (e *editor) toLower(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
 	e.replace([]rune(strings.ToLower(string(e.slice(from, to)))), at)
+}
+
+func swapCase(xs []rune) {
+	for i, r := range xs {
+		if unicode.IsLower(r) {
+			xs[i] = unicode.ToUpper(r)
+		} else if unicode.IsUpper(r) {
+			xs[i] = unicode.ToLower(r)
+		}
+	}
+}
+
+func (e *editor) swapCase(from, to int) {
+	at := constrain(min(from, to), 0, len(e.buf))
+	xs := e.slice(from, to)
+	swapCase(xs)
+	e.replace(xs, at)
 }
 
 func (e *editor) currentWord(include bool) (from, to int) {

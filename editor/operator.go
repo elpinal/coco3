@@ -7,6 +7,7 @@ const (
 	OpChange
 	OpLower
 	OpUpper
+	OpTilde
 )
 
 var opChars = map[string]int{
@@ -15,4 +16,5 @@ var opChars = map[string]int{
 	"c":  OpChange,
 	"gu": OpLower,
 	"gU": OpUpper,
+	"g~": OpTilde,
 }

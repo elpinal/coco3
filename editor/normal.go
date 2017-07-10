@@ -286,6 +286,8 @@ func (e *normal) doPendingOperator() mode {
 		e.toLower(from, to)
 	case OpUpper:
 		e.toUpper(from, to)
+	case OpTilde:
+		e.swapCase(from, to)
 	}
 	e.clearOp()
 	e.move(min(from, to))
@@ -341,7 +343,7 @@ func (e *normal) gCmd(r rune) mode {
 		return modeNormal
 	}
 	switch r1 {
-	case 'u', 'U':
+	case 'u', 'U', '~':
 		return e.operator(string([]rune{r, r1}))
 	}
 	return modeNormal
