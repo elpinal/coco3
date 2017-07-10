@@ -92,10 +92,11 @@ var normalCommands = []normalCommand{
 	{'Y', (*normal).abbrev},
 	{'a', (*normal).edit},
 	{'b', (*normal).wordBack},
-	{'c', (*normal).operator},
-	{'d', (*normal).operator},
+	{'c', (*normal).operator1},
+	{'d', (*normal).operator1},
 	{'e', (*normal).word},
 	{'f', (*normal).search},
+	{'g', (*normal).gCmd},
 	{'h', (*normal).left},
 	{'i', (*normal).edit},
 	{'j', (*normal).down},
@@ -105,7 +106,7 @@ var normalCommands = []normalCommand{
 	{'r', (*normal).replace},
 	{'w', (*normal).word},
 	{'x', (*normal).abbrev},
-	{'y', (*normal).operator},
+	{'y', (*normal).operator1},
 }
 
 func (e *normal) endline(r rune) mode {
@@ -130,8 +131,12 @@ func (e *normal) wordBack(r rune) mode {
 	return modeNormal
 }
 
-func (e *normal) operator(r rune) mode {
-	op := opChars[r]
+func (e *normal) operator1(r rune) mode {
+	return e.operator(string(r))
+}
+
+func (e *normal) operator(s string) mode {
+	op := opChars[s]
 	if op == e.opType { // double operator
 		e.motionType = mline
 	} else {
@@ -277,6 +282,10 @@ func (e *normal) doPendingOperator() mode {
 		e.yank(register.Unnamed, from, to)
 		e.delete(from, to)
 		return modeInsert
+	case OpLower:
+		e.toLower(from, to)
+	case OpUpper:
+		e.toUpper(from, to)
 	}
 	e.clearOp()
 	e.move(min(from, to))
@@ -323,5 +332,17 @@ func (e *normal) searchBackward(r rune) mode {
 		return modeNormal
 	}
 	e.move(i)
+	return modeNormal
+}
+
+func (e *normal) gCmd(r rune) mode {
+	r1, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return modeNormal
+	}
+	switch r1 {
+	case 'u', 'U':
+		return e.operator(string([]rune{r, r1}))
+	}
 	return modeNormal
 }
