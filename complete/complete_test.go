@@ -20,7 +20,7 @@ func TestFile(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		list, err := File([]rune(test.input), 0)
+		list, err := File([]rune(test.input), len(test.input))
 		if err != nil {
 			t.Errorf("File: %v", err)
 		}
