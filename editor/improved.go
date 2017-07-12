@@ -345,7 +345,7 @@ func (e *editor) charSearchBackward(r rune) (int, error) {
 }
 
 func (e *editor) undo() {
-	s, ok  := e.undoTree.undo()
+	s, ok := e.undoTree.undo()
 	if !ok {
 		return
 	}
