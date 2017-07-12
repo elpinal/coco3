@@ -85,23 +85,15 @@ func (b *balancer) enter(m mode) moder {
 	switch m {
 	case modeInsert:
 		return &insert{
-			streamSet: streamSet{
-				in:  b.in,
-				out: b.out,
-				err: b.err,
-			},
-			editor: b.editor,
-			s:      b.s,
-			conf:   b.conf,
+			streamSet: b.streamSet,
+			editor:    b.editor,
+			s:         b.s,
+			conf:      b.conf,
 		}
 	case modeNormal:
 		return &normal{
-			streamSet: streamSet{
-				in:  b.in,
-				out: b.out,
-				err: b.err,
-			},
-			editor: b.editor,
+			streamSet: b.streamSet,
+			editor:    b.editor,
 		}
 	case modeReplace:
 		buf := b.buf
