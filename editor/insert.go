@@ -43,7 +43,7 @@ start:
 			e.undoTree.add(e.buf)
 		}
 	case CharBackspace:
-		e.delete(e.pos-1, e.pos)
+		e.deleteChar()
 		e.needSave = true
 	case CharCtrlM:
 		end = true
@@ -125,5 +125,20 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 		}
 		e.delete(e.pos, e.pos-len(list[n1]))
 		e.insert([]rune(list[n]), e.pos)
+	}
+}
+
+func (e *insert) deleteChar() {
+	if !e.replaceMode {
+		e.delete(e.pos-1, e.pos)
+		return
+	}
+	if e.pos == 0 {
+		return
+	}
+	e.pos--
+	if len(e.buf) > 0 {
+		e.buf = e.buf[:len(e.buf)-1]
+		return
 	}
 }
