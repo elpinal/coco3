@@ -66,6 +66,9 @@ func (b *balancer) Read() ([]rune, error) {
 		if !end && next == modeInsert {
 			msg = "-- INSERT --"
 		}
+		if !end && next == modeReplace {
+			msg = "-- REPLACE --"
+		}
 		b.s.SetLastLine(msg)
 		b.s.Refresh(b.conf, m.Runes(), m.Position())
 		if end {
@@ -99,6 +102,15 @@ func (b *balancer) enter(m mode) moder {
 				err: b.err,
 			},
 			editor: b.editor,
+		}
+	case modeReplace:
+		buf := b.buf
+		b.buf = nil
+		return &insert{
+			streamSet:   b.streamSet,
+			editor:      b.editor,
+			replaceMode: true,
+			replacedBuf: buf,
 		}
 	}
 	return &insert{streamSet: b.streamSet}

@@ -88,6 +88,7 @@ var normalCommands = []normalCommand{
 	{'E', (*normal).word},
 	{'F', (*normal).searchBackward},
 	{'I', (*normal).edit},
+	{'R', (*normal).replaceMode},
 	{'W', (*normal).word},
 	{'X', (*normal).abbrev},
 	{'Y', (*normal).abbrev},
@@ -374,4 +375,8 @@ func (e *normal) undoCmd(r rune) mode {
 func (e *normal) redoCmd(r rune) mode {
 	e.redo()
 	return modeNormal
+}
+
+func (e *normal) replaceMode(r rune) mode {
+	return modeReplace
 }

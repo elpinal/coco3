@@ -363,3 +363,14 @@ func (e *editor) redo() {
 	copy(e.buf, s)
 	e.move(0)
 }
+
+func (e *editor) overwrite(base []rune, cover []rune, at int) []rune {
+	n := constrain(at, 0, len(base))
+	s := make([]rune, max(len(base), n+len(cover)))
+	copy(s[:n], base)
+	copy(s[n:], cover)
+	if n+len(cover) < len(base) {
+		copy(s[n+len(cover):], base[n+len(cover):])
+	}
+	return s
+}

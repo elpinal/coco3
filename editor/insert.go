@@ -13,6 +13,9 @@ type insert struct {
 	conf *config.Config
 
 	needSave bool
+
+	replaceMode bool
+	replacedBuf []rune
 }
 
 func (e *insert) Mode() mode {
@@ -21,6 +24,9 @@ func (e *insert) Mode() mode {
 
 func (e *insert) Run() (end bool, next mode, err error) {
 	next = modeInsert
+	if e.replaceMode {
+		next = modeReplace
+	}
 	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -28,6 +34,9 @@ func (e *insert) Run() (end bool, next mode, err error) {
 start:
 	switch r {
 	case CharEscape:
+		if e.replaceMode {
+			e.buf = e.overwrite(e.replacedBuf, e.buf, e.pos-len(e.buf))
+		}
 		e.move(e.pos - 1)
 		next = modeNormal
 		if e.needSave {
@@ -58,6 +67,9 @@ start:
 }
 
 func (e *insert) Runes() []rune {
+	if e.replaceMode {
+		return e.overwrite(e.replacedBuf, e.editor.buf, e.editor.pos-len(e.buf))
+	}
 	return e.editor.buf
 }
 
