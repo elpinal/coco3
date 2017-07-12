@@ -42,7 +42,7 @@ start:
 		if e.needSave {
 			e.undoTree.add(e.buf)
 		}
-	case CharBackspace:
+	case CharBackspace, CharCtrlH:
 		e.deleteChar()
 		e.needSave = true
 	case CharCtrlM:
