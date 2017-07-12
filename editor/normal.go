@@ -325,11 +325,15 @@ func (e *normal) search(r rune) mode {
 	if err != nil {
 		return modeNormal
 	}
-	i, err := e.charSearch(r1)
-	if err != nil {
-		return modeNormal
+	pos := e.pos
+	for i := 0; i < e.count; i++ {
+		i, err := e.charSearch(r1)
+		if err != nil {
+			e.move(pos)
+			return modeNormal
+		}
+		e.move(i)
 	}
-	e.move(i)
 	return modeNormal
 }
 
@@ -338,11 +342,15 @@ func (e *normal) searchBackward(r rune) mode {
 	if err != nil {
 		return modeNormal
 	}
-	i, err := e.charSearchBackward(r1)
-	if err != nil {
-		return modeNormal
+	pos := e.pos
+	for i := 0; i < e.count; i++ {
+		i, err := e.charSearchBackward(r1)
+		if err != nil {
+			e.move(pos)
+			return modeNormal
+		}
+		e.move(i)
 	}
-	e.move(i)
 	return modeNormal
 }
 
