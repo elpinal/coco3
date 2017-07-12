@@ -78,6 +78,7 @@ type normalCommand struct {
 }
 
 var normalCommands = []normalCommand{
+	{CharCtrlR, (*normal).redoCmd},
 	{'$', (*normal).endline},
 	{'0', (*normal).beginline},
 	{'A', (*normal).edit},
@@ -104,6 +105,7 @@ var normalCommands = []normalCommand{
 	{'l', (*normal).right},
 	{'p', (*normal).put1},
 	{'r', (*normal).replace},
+	{'u', (*normal).undoCmd},
 	{'w', (*normal).word},
 	{'x', (*normal).abbrev},
 	{'y', (*normal).operator1},
@@ -227,6 +229,7 @@ func (e *normal) put1(r rune) mode {
 	for i := 0; i < e.count; i++ {
 		e.put(register.Unnamed, e.pos+1)
 	}
+	e.undoTree.add(e.buf)
 	return modeNormal
 }
 
@@ -238,6 +241,7 @@ func (e *normal) replace(r rune) mode {
 	}
 	e.editor.replace(s, e.pos)
 	e.move(e.pos + e.count - 1)
+	e.undoTree.add(e.buf)
 	return modeNormal
 }
 
@@ -276,18 +280,23 @@ func (e *normal) doPendingOperator() mode {
 	case OpDelete:
 		e.yank(register.Unnamed, from, to)
 		e.delete(from, to)
+		e.undoTree.add(e.buf)
 	case OpYank:
 		e.yank(register.Unnamed, from, to)
 	case OpChange:
 		e.yank(register.Unnamed, from, to)
 		e.delete(from, to)
+		e.undoTree.add(e.buf)
 		return modeInsert
 	case OpLower:
 		e.toLower(from, to)
+		e.undoTree.add(e.buf)
 	case OpUpper:
 		e.toUpper(from, to)
+		e.undoTree.add(e.buf)
 	case OpTilde:
 		e.swapCase(from, to)
+		e.undoTree.add(e.buf)
 	}
 	e.clearOp()
 	e.move(min(from, to))
@@ -346,5 +355,15 @@ func (e *normal) gCmd(r rune) mode {
 	case 'u', 'U', '~':
 		return e.operator(string([]rune{r, r1}))
 	}
+	return modeNormal
+}
+
+func (e *normal) undoCmd(r rune) mode {
+	e.undo()
+	return modeNormal
+}
+
+func (e *normal) redoCmd(r rune) mode {
+	e.redo()
 	return modeNormal
 }

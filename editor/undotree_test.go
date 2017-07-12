@@ -9,19 +9,19 @@ func TestUndoTree(t *testing.T) {
 	u := newUndoTree()
 
 	u.add([]rune(s1))
-	if got, want := string(u.undo()), ""; got != want {
+	if got, want := string(ignore(u.undo())), ""; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	u.add([]rune(s2))
 	u.add([]rune(s3))
-	if got, want := string(u.undo()), s2; got != want {
+	if got, want := string(ignore(u.undo())), s2; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	u.add([]rune(s2))
-	if got, want := string(u.undo()), s2; got != want {
+	if got, want := string(ignore(u.undo())), s2; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got, want := string(u.redo()), s2; got != want {
+	if got, want := string(ignore(u.redo())), s2; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	if got, want := string(u.later()), ""; got != want {
@@ -39,4 +39,8 @@ func TestUndoTree(t *testing.T) {
 	if got, want := string(u.earlier()), ""; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
+}
+
+func ignore(s []rune, _ bool) []rune {
+	return s
 }

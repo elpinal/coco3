@@ -11,6 +11,7 @@ import (
 type editor struct {
 	basic
 	register.Registers
+	undoTree
 
 	history [][]rune
 	age     int
@@ -341,4 +342,24 @@ func (e *editor) charSearchBackward(r rune) (int, error) {
 		return 0, fmt.Errorf("pattern not found: %c", r)
 	}
 	return i, nil
+}
+
+func (e *editor) undo() {
+	s, ok  := e.undoTree.undo()
+	if !ok {
+		return
+	}
+	e.buf = make([]rune, len(s))
+	copy(e.buf, s)
+	e.move(0)
+}
+
+func (e *editor) redo() {
+	s, ok := e.undoTree.redo()
+	if !ok {
+		return
+	}
+	e.buf = make([]rune, len(s))
+	copy(e.buf, s)
+	e.move(0)
 }

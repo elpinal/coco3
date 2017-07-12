@@ -11,6 +11,8 @@ type insert struct {
 	*editor
 	s    screen.Screen
 	conf *config.Config
+
+	needSave bool
 }
 
 func (e *insert) Mode() mode {
@@ -28,10 +30,15 @@ start:
 	case CharEscape:
 		e.move(e.pos - 1)
 		next = modeNormal
+		if e.needSave {
+			e.undoTree.add(e.buf)
+		}
 	case CharBackspace:
 		e.delete(e.pos-1, e.pos)
+		e.needSave = true
 	case CharCtrlM:
 		end = true
+		e.needSave = true
 	case CharCtrlX:
 		r1, _, err := e.streamSet.in.ReadRune()
 		if err != nil {
@@ -45,6 +52,7 @@ start:
 		goto start
 	default:
 		e.insert([]rune{r}, e.pos)
+		e.needSave = true
 	}
 	return end, next, err
 }
@@ -72,6 +80,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 	}
 	list = append(list, "")
 	e.insert([]rune(list[0]), e.pos)
+	e.needSave = true
 	n := 0
 	for {
 		e.s.Refresh(e.conf, e.buf, e.pos)

@@ -18,20 +18,20 @@ func newUndoTree() undoTree {
 	return undoTree{current: &node{}}
 }
 
-func (u *undoTree) undo() []rune {
+func (u *undoTree) undo() ([]rune, bool) {
 	if u.current.parent == nil {
-		return nil
+		return nil, false
 	}
 	u.current = u.current.parent
-	return u.current.data
+	return u.current.data, true
 }
 
-func (u *undoTree) redo() []rune {
-	if u.current == nil {
-		return nil
+func (u *undoTree) redo() ([]rune, bool) {
+	if u.current.child == nil {
+		return nil, false
 	}
 	u.current = u.current.child
-	return u.current.data
+	return u.current.data, true
 }
 
 func (u *undoTree) earlier() []rune {
@@ -61,8 +61,10 @@ func (u *undoTree) later() []rune {
 }
 
 func (u *undoTree) add(s []rune) {
-	n := &node{data: s, parent: u.current, when: time.Now()}
-	u.current.child = n
+	data := make([]rune, len(s))
+	copy(data, s)
+	n := &node{data: data, parent: u.current, when: time.Now()}
 	u.current = n
+	u.current.parent.child = n
 	u.nodes = append(u.nodes, n)
 }
