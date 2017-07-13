@@ -59,6 +59,9 @@ start:
 		}
 		r = r2
 		goto start
+	case CharCtrlW:
+		e.deleteWord()
+		e.needSave = true
 	default:
 		e.insert([]rune{r}, e.pos)
 		e.needSave = true
@@ -141,4 +144,10 @@ func (e *insert) deleteChar() {
 		e.buf = e.buf[:len(e.buf)-1]
 		return
 	}
+}
+
+func (e *insert) deleteWord() {
+	pos := e.pos
+	e.wordBackward()
+	e.delete(pos, e.pos)
 }
