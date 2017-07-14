@@ -62,6 +62,9 @@ start:
 	case CharCtrlW:
 		e.deleteWord()
 		e.needSave = true
+	case CharCtrlU:
+		e.deleteToBeginning()
+		e.needSave = true
 	default:
 		e.insert([]rune{r}, e.pos)
 		e.needSave = true
@@ -162,6 +165,22 @@ func (e *insert) deleteWord() {
 	e.wordBackward()
 	if len(e.buf) > 0 {
 		e.delete(pos, e.pos)
+		e.pos += off
+	}
+}
+
+func (e *insert) deleteToBeginning() {
+	if !e.replaceMode {
+		e.delete(0, e.pos)
+		return
+	}
+	if e.pos == 0 {
+		return
+	}
+	off := e.pos - len(e.buf)
+	e.pos -= off
+	if len(e.buf) > 0 {
+		e.delete(0, e.pos)
 		e.pos += off
 	}
 }
