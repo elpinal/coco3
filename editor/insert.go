@@ -147,7 +147,21 @@ func (e *insert) deleteChar() {
 }
 
 func (e *insert) deleteWord() {
+	if !e.replaceMode {
+		pos := e.pos
+		e.wordBackward()
+		e.delete(pos, e.pos)
+		return
+	}
+	if e.pos == 0 {
+		return
+	}
+	off := e.pos - len(e.buf)
+	e.pos -= off
 	pos := e.pos
 	e.wordBackward()
-	e.delete(pos, e.pos)
+	if len(e.buf) > 0 {
+		e.delete(pos, e.pos)
+		e.pos += off
+	}
 }
