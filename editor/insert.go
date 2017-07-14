@@ -145,7 +145,6 @@ func (e *insert) deleteChar() {
 	e.pos--
 	if len(e.buf) > 0 {
 		e.buf = e.buf[:len(e.buf)-1]
-		return
 	}
 }
 
