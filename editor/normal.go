@@ -14,6 +14,7 @@ type normalSet struct {
 	opArg
 	finishOp bool
 	count    int
+	regName  rune
 }
 
 type normal struct {
@@ -48,6 +49,9 @@ func (e *normal) Run() (end bool, next mode, err error) {
 	if e.opCount > 0 {
 		e.count *= e.opCount
 	}
+	if e.regName == 0 {
+		e.regName = register.Unnamed
+	}
 	for _, cmd := range normalCommands {
 		if cmd.r == r {
 			next = cmd.fn(e, r)
@@ -79,6 +83,7 @@ type normalCommand struct {
 
 var normalCommands = []normalCommand{
 	{CharCtrlR, (*normal).redoCmd},
+	{'"', (*normal).handleRegister},
 	{'$', (*normal).endline},
 	{'0', (*normal).beginline},
 	{'A', (*normal).edit},
@@ -228,7 +233,7 @@ func (e *normal) right(r rune) mode {
 
 func (e *normal) put1(r rune) mode {
 	for i := 0; i < e.count; i++ {
-		e.put(register.Unnamed, e.pos+1)
+		e.put(e.regName, e.pos+1)
 	}
 	e.undoTree.add(e.buf)
 	return modeNormal
@@ -279,13 +284,13 @@ func (e *normal) doPendingOperator() mode {
 	}
 	switch e.opType {
 	case OpDelete:
-		e.yank(register.Unnamed, from, to)
+		e.yank(e.regName, from, to)
 		e.delete(from, to)
 		e.undoTree.add(e.buf)
 	case OpYank:
-		e.yank(register.Unnamed, from, to)
+		e.yank(e.regName, from, to)
 	case OpChange:
-		e.yank(register.Unnamed, from, to)
+		e.yank(e.regName, from, to)
 		e.delete(from, to)
 		e.undoTree.add(e.buf)
 		return modeInsert
@@ -379,4 +384,16 @@ func (e *normal) redoCmd(r rune) mode {
 
 func (e *normal) replaceMode(r rune) mode {
 	return modeReplace
+}
+
+func (e *normal) handleRegister(r rune) mode {
+	r1, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return modeNormal
+	}
+	if !register.IsValid(r1) {
+		return modeNormal
+	}
+	e.regName = r1
+	return modeNormal
 }

@@ -17,6 +17,15 @@ type editor struct {
 	age     int
 }
 
+func newEditor() *editor {
+	r := register.Registers{}
+	r.Init()
+	return &editor{
+		undoTree:  newUndoTree(),
+		Registers: r,
+	}
+}
+
 func (e *editor) yank(r rune, from, to int) {
 	s := e.slice(from, to)
 	e.Register(r, s)

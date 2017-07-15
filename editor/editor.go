@@ -33,7 +33,7 @@ func NewContext(ctx context.Context, s screen.Screen, conf *config.Config, in io
 			out: out,
 			err: err,
 		},
-		editor: &editor{undoTree: newUndoTree()},
+		editor: newEditor(),
 		s:      s,
 		conf:   conf,
 	}

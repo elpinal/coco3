@@ -18,6 +18,18 @@ const (
 	// Dropped       = '~'
 )
 
+func IsValid(r rune) bool {
+	switch r {
+	case Unnamed, SmallDelete, RecentExecuted, LastInserted,
+		CurrentFile, Expression, Clipboard, BlackHole, LastSearch:
+		return true
+	}
+	if '0' <= r && r <= '9' || 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' {
+		return true
+	}
+	return false
+}
+
 type Registers struct {
 	numbered [10][]rune
 	named    map[rune][]rune
