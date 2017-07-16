@@ -172,11 +172,6 @@ create table if not exists command_info (
     line text
 )`
 
-type CommandInfo struct {
-	Time time.Time
-	Line string
-}
-
 func (c *CLI) execute(b []byte) error {
 	f, err := parser.ParseSrc(b)
 	if err != nil {
