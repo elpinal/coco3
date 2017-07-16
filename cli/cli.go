@@ -136,7 +136,7 @@ func (c *CLI) interact(g gate.Gate) error {
 		if err != nil {
 			return err
 		}
-		r, err := g.Read()
+		r, end, err := g.Read()
 		// Make a newline before error handling.
 		c.Out.Write([]byte{'\n'})
 		if err != nil {
@@ -144,6 +144,10 @@ func (c *CLI) interact(g gate.Gate) error {
 		}
 		if err := exitRowMode(old); err != nil {
 			return err
+		}
+		if end {
+			c.exitCh <- 0
+			return nil
 		}
 		go c.writeHistory(r)
 		if err := c.execute([]byte(string(r))); err != nil {

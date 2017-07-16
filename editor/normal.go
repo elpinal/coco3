@@ -28,7 +28,7 @@ func (e *normal) Mode() mode {
 	return modeNormal
 }
 
-func (e *normal) Run() (end bool, next mode, err error) {
+func (e *normal) Run() (end continuity, next mode, err error) {
 	next = modeNormal
 	e.finishOp = e.opType != OpNop
 	r, _, err := e.streamSet.in.ReadRune()

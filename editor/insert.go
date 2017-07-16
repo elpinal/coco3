@@ -22,7 +22,7 @@ func (e *insert) Mode() mode {
 	return modeInsert
 }
 
-func (e *insert) Run() (end bool, next mode, err error) {
+func (e *insert) Run() (end continuity, next mode, err error) {
 	next = modeInsert
 	if e.replaceMode {
 		next = modeReplace
@@ -46,7 +46,7 @@ start:
 		e.deleteChar()
 		e.needSave = true
 	case CharCtrlM:
-		end = true
+		end = execute
 		e.needSave = true
 	case CharCtrlX:
 		r1, _, err := e.streamSet.in.ReadRune()

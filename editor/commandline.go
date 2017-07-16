@@ -7,7 +7,7 @@ import (
 
 type exCommand struct {
 	name string
-	fn   func(*commandline, []string) mode
+	fn   func(*commandline, []string) continuity
 }
 
 // exComands represents a table of Ex commands and corresponding functions.
@@ -33,7 +33,7 @@ func (e *commandline) Runes() []rune {
 	return e.buf
 }
 
-func (e *commandline) Run() (end bool, next mode, err error) {
+func (e *commandline) Run() (end continuity, next mode, err error) {
 	next = modeNormal
 	var r rune
 	rs := make([]rune, 0, 4)
@@ -57,7 +57,7 @@ func (e *commandline) Run() (end bool, next mode, err error) {
 			continue
 		}
 		if cmd.name == s {
-			next = cmd.fn(e, nil)
+			end = cmd.fn(e, nil)
 			return
 		}
 		if candidate.name == "" {
@@ -65,12 +65,13 @@ func (e *commandline) Run() (end bool, next mode, err error) {
 		}
 	}
 	if candidate.name != "" {
-		next = candidate.fn(e, nil)
+		end = candidate.fn(e, nil)
 		return
 	}
-	return false, modeCommandline, fmt.Errorf("not a command: %q", s)
+	err = fmt.Errorf("not a command: %q", s)
+	return
 }
 
-func (e *commandline) quit(args []string) mode {
-	return modeNormal
+func (e *commandline) quit(args []string) continuity {
+	return exit
 }

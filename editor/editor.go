@@ -10,7 +10,7 @@ import (
 )
 
 type Editor interface {
-	Read() ([]rune, error)
+	Read() ([]rune, bool, error)
 	Clear()
 	SetHistory([][]rune)
 }
@@ -52,7 +52,7 @@ type balancer struct {
 	conf *config.Config
 }
 
-func (b *balancer) Read() ([]rune, error) {
+func (b *balancer) Read() ([]rune, bool, error) {
 	b.s.SetLastLine("-- INSERT --")
 	b.s.Start(b.conf, nil, 0)
 	prev := modeInsert
@@ -60,19 +60,22 @@ func (b *balancer) Read() ([]rune, error) {
 	for {
 		end, next, err := m.Run()
 		if err != nil {
-			return nil, err
+			return nil, false, err
+		}
+		if end == exit {
+			return nil, true, nil
 		}
 		var msg string
-		if !end && next == modeInsert {
+		if end != execute && next == modeInsert {
 			msg = "-- INSERT --"
 		}
-		if !end && next == modeReplace {
+		if end != execute && next == modeReplace {
 			msg = "-- REPLACE --"
 		}
 		b.s.SetLastLine(msg)
 		b.s.Refresh(b.conf, m.Runes(), m.Position())
-		if end {
-			return m.Runes(), nil
+		if end == execute {
+			return m.Runes(), false, nil
 		}
 		if prev != next {
 			m = b.enter(next)
@@ -131,4 +134,12 @@ func (b *balancer) SetHistory(history [][]rune) {
 const (
 	mchar = iota
 	mline
+)
+
+type continuity int
+
+const (
+	cont continuity = iota
+	execute
+	exit
 )

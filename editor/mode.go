@@ -20,7 +20,7 @@ const (
 
 type moder interface {
 	Mode() mode
-	Run() (end bool, next mode, err error)
+	Run() (end continuity, next mode, err error)
 	Runes() []rune
 	Position() int
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type Gate interface {
-	Read() ([]rune, error)
+	Read() ([]rune, bool, error)
 	Clear()
 }
 
@@ -20,16 +20,19 @@ type gate struct {
 	history [][]rune
 }
 
-func (g *gate) Read() ([]rune, error) {
+func (g *gate) Read() ([]rune, bool, error) {
 	g.e.SetHistory(g.history)
-	b, err := g.e.Read()
+	b, end, err := g.e.Read()
 	if err != nil {
-		return nil, err
+		return nil, false, err
+	}
+	if end {
+		return nil, true, nil
 	}
 	if len(b) != 0 && (len(g.history) == 0 || string(g.history[len(g.history)-1]) != string(b)) {
 		g.history = append(g.history, b)
 	}
-	return b, nil
+	return b, false, nil
 }
 
 func (g *gate) Clear() {
