@@ -104,6 +104,11 @@ func (b *balancer) enter(m mode) moder {
 			replaceMode: true,
 			replacedBuf: buf,
 		}
+	case modeCommandline:
+		return &commandline{
+			streamSet: b.streamSet,
+			editor:    b.editor,
+		}
 	}
 	return &insert{streamSet: b.streamSet}
 }

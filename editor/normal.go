@@ -84,6 +84,7 @@ type normalCommand struct {
 var normalCommands = []normalCommand{
 	{CharCtrlR, (*normal).redoCmd},
 	{'"', (*normal).handleRegister},
+	{':', (*normal).commandline},
 	{'$', (*normal).endline},
 	{'0', (*normal).beginline},
 	{'A', (*normal).edit},
@@ -396,4 +397,8 @@ func (e *normal) handleRegister(r rune) mode {
 	}
 	e.regName = r1
 	return modeNormal
+}
+
+func (e *normal) commandline(r rune) mode {
+	return modeCommandline
 }
