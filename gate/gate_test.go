@@ -15,7 +15,7 @@ func TestGate(t *testing.T) {
 	conf.Init()
 	g := New(conf, in, ioutil.Discard, ioutil.Discard, nil).(*gate)
 	for _, n := range [...]string{"1", "2"} {
-		b, err := g.Read()
+		b, _, err := g.Read()
 		if err != nil {
 			t.Errorf("reading input: %v", err)
 		}

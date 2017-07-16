@@ -25,7 +25,7 @@ func TestEditor(t *testing.T) {
 	inBuf := strings.NewReader("aaa" + string(CharCtrlM))
 	var outBuf, errBuf bytes.Buffer
 	e := New(&testScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
-	s, err := e.Read()
+	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)
 	}
@@ -56,7 +56,7 @@ func TestNormal(t *testing.T) {
 	}))
 	var outBuf, errBuf bytes.Buffer
 	e := New(&testScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
-	s, err := e.Read()
+	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)
 	}
@@ -74,7 +74,7 @@ func TestNormal(t *testing.T) {
 
 func TestYankPaste(t *testing.T) {
 	e := New(&testScreen{}, &config.Config{}, strings.NewReader("123"+string([]rune{CharEscape, 'h', 'x', 'p', 'i', CharCtrlM})), ioutil.Discard, ioutil.Discard)
-	s, err := e.Read()
+	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)
 	}
