@@ -10,6 +10,8 @@ type exCommand struct {
 	fn   func(*commandline, []string) mode
 }
 
+// exComands represents a table of Ex commands and corresponding functions.
+// The order is important. Precede commands have higher precedence.
 var exCommands = []exCommand{
 	{"quit", (*commandline).quit},
 }
