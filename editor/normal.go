@@ -52,17 +52,14 @@ func (e *normal) Run() (end continuity, next mode, err error) {
 	if e.regName == 0 {
 		e.regName = register.Unnamed
 	}
-	for _, cmd := range normalCommands {
-		if cmd.r == r {
-			next = cmd.fn(e, r)
-			if n := e.doPendingOperator(); n != 0 {
-				next = n
-			}
-			e.count = 0
-			if next != modeInsert && e.pos == len(e.buf) {
-				e.move(e.pos - 1)
-			}
-			return
+	if cmd, ok := normalCommands[r]; ok {
+		next = cmd(e, r)
+		if n := e.doPendingOperator(); n != 0 {
+			next = n
+		}
+		e.count = 0
+		if next != modeInsert && e.pos == len(e.buf) {
+			e.move(e.pos - 1)
 		}
 	}
 	return end, next, err
@@ -76,46 +73,43 @@ func (e *normal) Position() int {
 	return e.editor.pos
 }
 
-type normalCommand struct {
-	r  rune                     // first char
-	fn func(*normal, rune) mode // function for this command
-}
+type normalCommand = func(*normal, rune) mode
 
-var normalCommands = []normalCommand{
-	{CharCtrlR, (*normal).redoCmd},
-	{'"', (*normal).handleRegister},
-	{':', (*normal).commandline},
-	{'$', (*normal).endline},
-	{'0', (*normal).beginline},
-	{'A', (*normal).edit},
-	{'B', (*normal).wordBack},
-	{'C', (*normal).abbrev},
-	{'D', (*normal).abbrev},
-	{'E', (*normal).word},
-	{'F', (*normal).searchBackward},
-	{'I', (*normal).edit},
-	{'R', (*normal).replaceMode},
-	{'W', (*normal).word},
-	{'X', (*normal).abbrev},
-	{'Y', (*normal).abbrev},
-	{'a', (*normal).edit},
-	{'b', (*normal).wordBack},
-	{'c', (*normal).operator1},
-	{'d', (*normal).operator1},
-	{'e', (*normal).word},
-	{'f', (*normal).search},
-	{'g', (*normal).gCmd},
-	{'h', (*normal).left},
-	{'i', (*normal).edit},
-	{'j', (*normal).down},
-	{'k', (*normal).up},
-	{'l', (*normal).right},
-	{'p', (*normal).put1},
-	{'r', (*normal).replace},
-	{'u', (*normal).undoCmd},
-	{'w', (*normal).word},
-	{'x', (*normal).abbrev},
-	{'y', (*normal).operator1},
+var normalCommands = map[rune]normalCommand{
+	CharCtrlR: (*normal).redoCmd,
+	'"':       (*normal).handleRegister,
+	':':       (*normal).commandline,
+	'$':       (*normal).endline,
+	'0':       (*normal).beginline,
+	'A':       (*normal).edit,
+	'B':       (*normal).wordBack,
+	'C':       (*normal).abbrev,
+	'D':       (*normal).abbrev,
+	'E':       (*normal).word,
+	'F':       (*normal).searchBackward,
+	'I':       (*normal).edit,
+	'R':       (*normal).replaceMode,
+	'W':       (*normal).word,
+	'X':       (*normal).abbrev,
+	'Y':       (*normal).abbrev,
+	'a':       (*normal).edit,
+	'b':       (*normal).wordBack,
+	'c':       (*normal).operator1,
+	'd':       (*normal).operator1,
+	'e':       (*normal).word,
+	'f':       (*normal).search,
+	'g':       (*normal).gCmd,
+	'h':       (*normal).left,
+	'i':       (*normal).edit,
+	'j':       (*normal).down,
+	'k':       (*normal).up,
+	'l':       (*normal).right,
+	'p':       (*normal).put1,
+	'r':       (*normal).replace,
+	'u':       (*normal).undoCmd,
+	'w':       (*normal).word,
+	'x':       (*normal).abbrev,
+	'y':       (*normal).operator1,
 }
 
 func (e *normal) endline(r rune) mode {
