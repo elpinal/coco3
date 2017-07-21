@@ -131,30 +131,39 @@ func (c *CLI) Run(args []string) int {
 }
 
 func (c *CLI) interact(g gate.Gate) error {
-	for {
-		old, err := enterRowMode()
-		if err != nil {
-			return err
-		}
-		r, end, err := g.Read()
-		// Make a newline before error handling.
-		c.Out.Write([]byte{'\n'})
-		if err != nil {
-			return err
-		}
-		if err := exitRowMode(old); err != nil {
-			return err
-		}
-		if end {
-			c.exitCh <- 0
-			return nil
-		}
-		go c.writeHistory(r)
-		if err := c.execute([]byte(string(r))); err != nil {
-			return err
-		}
-		g.Clear()
+	r, end, err := c.read(g)
+	if err != nil {
+		return err
 	}
+	if end {
+		c.exitCh <- 0
+		return nil
+	}
+	go c.writeHistory(r)
+	if err := c.execute([]byte(string(r))); err != nil {
+		return err
+	}
+	g.Clear()
+	return nil
+}
+
+func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
+	old, err := enterRowMode()
+	if err != nil {
+		return nil, false, err
+	}
+	defer func() {
+		if err := exitRowMode(old); err != nil {
+			fmt.Fprintln(c.Err, err)
+		}
+	}()
+	r, end, err := g.Read()
+	// Make a newline before error handling.
+	c.Out.Write([]byte{'\n'})
+	if err != nil {
+		return nil, false, err
+	}
+	return r, end, nil
 }
 
 func (c *CLI) writeHistory(r []rune) {
