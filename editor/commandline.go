@@ -43,6 +43,8 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	}
 	switch r {
 	case CharCtrlM:
+	case CharEscape:
+		return end, modeNormal, err
 	case CharBackspace, CharCtrlH:
 		e.basic.delete(e.basic.pos-1, e.basic.pos)
 	default:
