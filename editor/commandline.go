@@ -19,6 +19,8 @@ var exCommands = []exCommand{
 type commandline struct {
 	streamSet
 	*editor
+
+	basic *basic
 }
 
 func (e *commandline) Mode() mode {
@@ -34,24 +36,24 @@ func (e *commandline) Runes() []rune {
 }
 
 func (e *commandline) Run() (end continuity, next mode, err error) {
-	next = modeNormal
-	var r rune
-	rs := make([]rune, 0, 4)
-	for {
-		r, _, err = e.streamSet.in.ReadRune()
-		if err != nil {
-			return
-		}
-		if r == CharCtrlM {
-			break
-		}
-		rs = append(rs, r)
+	next = modeCommandline
+	r, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return end, next, err
 	}
-	s := string(rs)
-	if s == "" {
+	switch r {
+	case CharCtrlM:
+	case CharBackspace, CharCtrlH:
+		e.basic.delete(e.basic.pos-1, e.basic.pos)
+	default:
+		e.basic.insert([]rune{r}, e.basic.pos)
+	}
+	if r != CharCtrlM {
 		return
 	}
+	next = modeNormal
 	var candidate exCommand
+	s := string(e.basic.buf)
 	for _, cmd := range exCommands {
 		if !strings.HasPrefix(cmd.name, s) {
 			continue

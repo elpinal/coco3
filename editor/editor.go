@@ -111,6 +111,7 @@ func (b *balancer) enter(m mode) moder {
 		return &commandline{
 			streamSet: b.streamSet,
 			editor:    b.editor,
+			basic:     &basic{},
 		}
 	}
 	return &insert{streamSet: b.streamSet}
