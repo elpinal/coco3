@@ -65,22 +65,18 @@ func (b *balancer) Read() ([]rune, bool, error) {
 		if end == exit {
 			return nil, true, nil
 		}
-		var msg string
-		if end != execute && next == modeInsert {
-			msg = "-- INSERT --"
-		}
-		if end != execute && next == modeReplace {
-			msg = "-- REPLACE --"
-		}
-		b.s.SetLastLine(msg)
-		b.s.Refresh(b.conf, m.Runes(), m.Position())
 		if end == execute {
+			b.s.SetLastLine("")
+			b.s.Refresh(b.conf, m.Runes(), m.Position())
 			return m.Runes(), false, nil
 		}
 		if prev != next {
 			m = b.enter(next)
 		}
 		prev = next
+		msg := string(m.Message())
+		b.s.SetLastLine(msg)
+		b.s.Refresh(b.conf, m.Runes(), m.Position())
 	}
 }
 

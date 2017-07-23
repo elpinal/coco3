@@ -35,6 +35,10 @@ func (e *commandline) Runes() []rune {
 	return e.buf
 }
 
+func (e *commandline) Message() []rune {
+	return e.basic.buf
+}
+
 func (e *commandline) Run() (end continuity, next mode, err error) {
 	next = modeCommandline
 	r, _, err := e.streamSet.in.ReadRune()

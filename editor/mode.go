@@ -23,4 +23,5 @@ type moder interface {
 	Run() (end continuity, next mode, err error)
 	Runes() []rune
 	Position() int
+	Message() []rune
 }

@@ -73,6 +73,10 @@ func (e *normal) Position() int {
 	return e.editor.pos
 }
 
+func (e *normal) Message() []rune {
+	return nil
+}
+
 type normalCommand = func(*normal, rune) mode
 
 var normalCommands = map[rune]normalCommand{

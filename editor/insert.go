@@ -83,6 +83,13 @@ func (e *insert) Position() int {
 	return e.editor.pos
 }
 
+func (e *insert) Message() []rune {
+	if e.replaceMode {
+		return []rune("-- REPLACE --")
+	}
+	return []rune("-- INSERT --")
+}
+
 func (e *insert) ctrlX(r rune) (rune, error) {
 	var f func([]rune, int) ([]string, error)
 	switch r {
