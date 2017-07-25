@@ -28,7 +28,7 @@ func (e *commandline) Mode() mode {
 }
 
 func (e *commandline) Position() int {
-	return e.pos
+	return e.basic.pos + 1
 }
 
 func (e *commandline) Runes() []rune {
@@ -36,7 +36,7 @@ func (e *commandline) Runes() []rune {
 }
 
 func (e *commandline) Message() []rune {
-	return e.basic.buf
+	return append([]rune{':'}, e.basic.buf...)
 }
 
 func (e *commandline) Run() (end continuity, next mode, err error) {

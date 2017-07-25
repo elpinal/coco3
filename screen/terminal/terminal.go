@@ -14,8 +14,9 @@ import (
 )
 
 type Terminal struct {
-	w   *bufio.Writer
-	msg string
+	w              *bufio.Writer
+	msg            string
+	lastCursorLine int
 }
 
 func New(w io.Writer) *Terminal {
@@ -32,15 +33,15 @@ func getwd() string {
 	return wd
 }
 
-func (t *Terminal) Start(conf *config.Config, s []rune, pos int) {
-	t.draw(conf, s, pos, false)
+func (t *Terminal) Start(conf *config.Config, inCommandline bool, s []rune, pos int) {
+	t.draw(conf, inCommandline, s, pos, false)
 }
 
-func (t *Terminal) Refresh(conf *config.Config, s []rune, pos int) {
-	t.draw(conf, s, pos, true)
+func (t *Terminal) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int) {
+	t.draw(conf, inCommandline, s, pos, true)
 }
 
-func (t *Terminal) draw(conf *config.Config, s []rune, pos int, refresh bool) {
+func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos int, refresh bool) {
 	prompt := conf.Prompt
 	if conf.PromptTmpl != nil {
 		var buf bytes.Buffer
@@ -48,13 +49,17 @@ func (t *Terminal) draw(conf *config.Config, s []rune, pos int, refresh bool) {
 		prompt = buf.String()
 	}
 	if refresh {
-		count := strings.Count(prompt, "\n")
-		if count > 0 {
+		if t.lastCursorLine > 0 {
 			t.w.WriteString("\033[")
-			t.w.WriteString(strconv.Itoa(count))
+			t.w.WriteString(strconv.Itoa(t.lastCursorLine))
 			t.w.WriteString("A")
 		}
 	}
+	count := strings.Count(prompt, "\n")
+	if inCommandline {
+		count += 1
+	}
+	t.lastCursorLine = count
 	t.w.WriteString("\r\033[J")
 	t.w.WriteString(prompt)
 	i := strings.LastIndex(prompt, "\n") + 1
@@ -63,10 +68,18 @@ func (t *Terminal) draw(conf *config.Config, s []rune, pos int, refresh bool) {
 	if t.msg != "" {
 		t.w.WriteString("\n")
 		t.w.WriteString(t.msg)
-		t.w.WriteString("\033[A")
+		if !inCommandline {
+			t.w.WriteString("\033[A")
+		}
+	}
+	var drawPos int
+	if inCommandline {
+		drawPos = runewidth.StringWidth(t.msg[:pos])
+	} else {
+		drawPos = promptWidth + runesWidth(s[:pos])
 	}
 	t.w.WriteString("\033[")
-	t.w.WriteString(strconv.Itoa(promptWidth + runesWidth(s[:pos]) + 1))
+	t.w.WriteString(strconv.Itoa(drawPos + 1))
 	t.w.WriteString("G")
 	t.w.Flush()
 }
