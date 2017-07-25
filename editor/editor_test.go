@@ -12,10 +12,10 @@ import (
 type testScreen struct {
 }
 
-func (ts *testScreen) Start(conf *config.Config, s []rune, pos int) {
+func (ts *testScreen) Start(conf *config.Config, inCommandline bool, s []rune, pos int) {
 }
 
-func (ts *testScreen) Refresh(conf *config.Config, s []rune, pos int) {
+func (ts *testScreen) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int) {
 }
 
 func (ts *testScreen) SetLastLine(msg string) {
