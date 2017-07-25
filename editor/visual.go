@@ -35,11 +35,19 @@ func (v *visual) Run() (end continuity, next mode, err error) {
 	if err != nil {
 		return end, next, err
 	}
+	if v.count == 0 {
+		v.count = 1
+	}
 	cmd, ok := visualCommands[r]
 	if !ok {
 		return
 	}
-	next = cmd(v, r)
+	if m := cmd(v, r); m != 0 {
+		next = m
+	}
+	if next != modeInsert && v.pos == len(v.buf) {
+		v.move(v.pos - 1)
+	}
 	return
 }
 

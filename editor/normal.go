@@ -67,7 +67,9 @@ func (e *normal) Run() (end continuity, next mode, err error) {
 		e.regName = register.Unnamed
 	}
 	if cmd, ok := normalCommands[r]; ok {
-		next = cmd(e, r)
+		if m := cmd(e, r); m != 0 {
+			next = m
+		}
 		if n := e.doPendingOperator(); n != 0 {
 			next = n
 		}
@@ -131,17 +133,17 @@ var normalCommands = map[rune]normalCommand{
 	'y':       (*normal).operator1,
 }
 
-func (e *nvCommon) endline(r rune) mode {
+func (e *nvCommon) endline(r rune) (next mode) {
 	e.move(len(e.buf))
-	return modeNormal
+	return
 }
 
-func (e *nvCommon) beginline(r rune) mode {
+func (e *nvCommon) beginline(r rune) (next mode) {
 	e.move(0)
-	return modeNormal
+	return
 }
 
-func (e *nvCommon) wordBack(r rune) mode {
+func (e *nvCommon) wordBack(r rune) (next mode) {
 	for i := 0; i < e.count; i++ {
 		switch r {
 		case 'b':
@@ -150,7 +152,7 @@ func (e *nvCommon) wordBack(r rune) mode {
 			e.wordBackwardNonBlank()
 		}
 	}
-	return modeNormal
+	return
 }
 
 func (e *normal) operator1(r rune) mode {
@@ -169,9 +171,9 @@ func (e *normal) operator(s string) mode {
 	return modeNormal
 }
 
-func (e *nvCommon) left(r rune) mode {
+func (e *nvCommon) left(r rune) (next mode) {
 	e.move(e.pos - e.count)
-	return modeNormal
+	return
 }
 
 func (e *normal) edit(r rune) mode {
@@ -240,9 +242,9 @@ func (e *normal) up(r rune) mode {
 	return modeNormal
 }
 
-func (e *nvCommon) right(r rune) mode {
+func (e *nvCommon) right(r rune) (next mode) {
 	e.move(e.pos + e.count)
-	return modeNormal
+	return
 }
 
 func (e *normal) put1(r rune) mode {
@@ -340,38 +342,38 @@ func (e *normal) abbrev(r rune) mode {
 	return modeNormal
 }
 
-func (e *nvCommon) search(r rune) mode {
+func (e *nvCommon) search(r rune) (next mode) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
-		return modeNormal
+		return
 	}
 	pos := e.pos
 	for i := 0; i < e.count; i++ {
 		i, err := e.charSearch(r1)
 		if err != nil {
 			e.move(pos)
-			return modeNormal
+			return
 		}
 		e.move(i)
 	}
-	return modeNormal
+	return
 }
 
-func (e *nvCommon) searchBackward(r rune) mode {
+func (e *nvCommon) searchBackward(r rune) (next mode) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
-		return modeNormal
+		return
 	}
 	pos := e.pos
 	for i := 0; i < e.count; i++ {
 		i, err := e.charSearchBackward(r1)
 		if err != nil {
 			e.move(pos)
-			return modeNormal
+			return
 		}
 		e.move(i)
 	}
-	return modeNormal
+	return
 }
 
 func (e *normal) gCmd(r rune) mode {
