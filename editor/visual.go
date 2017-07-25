@@ -35,6 +35,14 @@ func (v *visual) Run() (end continuity, next mode, err error) {
 	if err != nil {
 		return end, next, err
 	}
+	for ('1' <= r && r <= '9') || (v.count != 0 && r == '0') {
+		v.count = v.count*10 + int(r-'0')
+		r1, _, err := v.streamSet.in.ReadRune()
+		if err != nil {
+			return end, next, err
+		}
+		r = r1
+	}
 	if v.count == 0 {
 		v.count = 1
 	}
@@ -48,6 +56,7 @@ func (v *visual) Run() (end continuity, next mode, err error) {
 	if next != modeInsert && v.pos == len(v.buf) {
 		v.move(v.pos - 1)
 	}
+	v.count = 0
 	return
 }
 
