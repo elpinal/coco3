@@ -1,6 +1,9 @@
 package editor
 
-import "github.com/elpinal/coco3/editor/register"
+import (
+	"github.com/elpinal/coco3/editor/register"
+	"github.com/elpinal/coco3/screen"
+)
 
 type opArg struct {
 	opType     int // current operator type
@@ -33,7 +36,7 @@ func newNormal(s streamSet, e *editor) *normal {
 	return &normal{
 		nvCommon: nvCommon{
 			streamSet: s,
-			editor: e,
+			editor:    e,
 		},
 	}
 }
@@ -90,6 +93,10 @@ func (e *normal) Position() int {
 }
 
 func (e *normal) Message() []rune {
+	return nil
+}
+
+func (e *normal) Highlight() *screen.Hi {
 	return nil
 }
 

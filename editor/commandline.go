@@ -3,6 +3,8 @@ package editor
 import (
 	"fmt"
 	"strings"
+
+	"github.com/elpinal/coco3/screen"
 )
 
 type exCommand struct {
@@ -37,6 +39,10 @@ func (e *commandline) Runes() []rune {
 
 func (e *commandline) Message() []rune {
 	return append([]rune{':'}, e.basic.buf...)
+}
+
+func (e *commandline) Highlight() *screen.Hi {
+	return nil
 }
 
 func (e *commandline) Run() (end continuity, next mode, err error) {

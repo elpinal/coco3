@@ -1,5 +1,7 @@
 package editor
 
+import "github.com/elpinal/coco3/screen"
+
 type mode int
 
 const (
@@ -24,4 +26,5 @@ type moder interface {
 	Runes() []rune
 	Position() int
 	Message() []rune
+	Highlight() *screen.Hi
 }

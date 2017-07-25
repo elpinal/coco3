@@ -1,7 +1,11 @@
 package editor
 
+import "github.com/elpinal/coco3/screen"
+
 type visual struct {
 	nvCommon
+
+	start int
 }
 
 func newVisual(s streamSet, e *editor) *visual {
@@ -10,6 +14,8 @@ func newVisual(s streamSet, e *editor) *visual {
 			streamSet: s,
 			editor:    e,
 		},
+
+		start: e.pos,
 	}
 }
 
@@ -27,6 +33,13 @@ func (v *visual) Position() int {
 
 func (v *visual) Message() []rune {
 	return []rune("-- VISUAL --")
+}
+
+func (v *visual) Highlight() *screen.Hi {
+	return &screen.Hi{
+		Left:  min(v.start, v.pos),
+		Right: max(v.start, v.pos),
+	}
 }
 
 func (v *visual) Run() (end continuity, next mode, err error) {

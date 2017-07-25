@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/elpinal/coco3/config"
+	"github.com/elpinal/coco3/screen"
 
 	"github.com/mattn/go-runewidth"
 )
@@ -33,15 +34,15 @@ func getwd() string {
 	return wd
 }
 
-func (t *Terminal) Start(conf *config.Config, inCommandline bool, s []rune, pos int) {
-	t.draw(conf, inCommandline, s, pos, false)
+func (t *Terminal) Start(conf *config.Config, inCommandline bool, s []rune, pos int, hi *screen.Hi) {
+	t.draw(conf, inCommandline, s, pos, false, hi)
 }
 
-func (t *Terminal) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int) {
-	t.draw(conf, inCommandline, s, pos, true)
+func (t *Terminal) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int, hi *screen.Hi) {
+	t.draw(conf, inCommandline, s, pos, true, hi)
 }
 
-func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos int, refresh bool) {
+func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos int, refresh bool, hi *screen.Hi) {
 	prompt := conf.Prompt
 	if conf.PromptTmpl != nil {
 		var buf bytes.Buffer
@@ -64,7 +65,15 @@ func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos i
 	t.w.WriteString(prompt)
 	i := strings.LastIndex(prompt, "\n") + 1
 	promptWidth := runewidth.StringWidth(prompt[i:])
-	t.w.WriteString(string(s))
+	if hi == nil {
+		t.w.WriteString(string(s))
+	} else {
+		t.w.WriteString(string(s[:hi.Left]))
+		t.w.WriteString("\033[7m")
+		t.w.WriteString(string(s[hi.Left:hi.Right]))
+		t.w.WriteString("\033[0m")
+		t.w.WriteString(string(s[hi.Right:]))
+	}
 	if t.msg != "" {
 		t.w.WriteString("\n")
 		t.w.WriteString(t.msg)

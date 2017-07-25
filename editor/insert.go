@@ -90,6 +90,10 @@ func (e *insert) Message() []rune {
 	return []rune("-- INSERT --")
 }
 
+func (e *insert) Highlight() *screen.Hi {
+	return nil
+}
+
 func (e *insert) ctrlX(r rune) (rune, error) {
 	var f func([]rune, int) ([]string, error)
 	switch r {
@@ -108,7 +112,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 	e.needSave = true
 	n := 0
 	for {
-		e.s.Refresh(e.conf, false, e.buf, e.pos)
+		e.s.Refresh(e.conf, false, e.buf, e.pos, e.Highlight())
 		r1, _, err := e.streamSet.in.ReadRune()
 		if err != nil {
 			return 0, err
@@ -130,7 +134,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 			return r2, err
 		case CharCtrlE:
 			e.delete(e.pos, e.pos-len(list[n1]))
-			e.s.Refresh(e.conf, false, e.buf, e.pos)
+			e.s.Refresh(e.conf, false, e.buf, e.pos, e.Highlight())
 			r2, _, err := e.streamSet.in.ReadRune()
 			return r2, err
 		default:
