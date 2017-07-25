@@ -13,15 +13,29 @@ type opArg struct {
 type normalSet struct {
 	opArg
 	finishOp bool
-	count    int
 	regName  rune
 }
 
-type normal struct {
+type nvCommon struct {
 	streamSet
 	*editor
 
+	count int
+}
+
+type normal struct {
+	nvCommon
+
 	normalSet
+}
+
+func newNormal(s streamSet, e *editor) *normal {
+	return &normal{
+		nvCommon: nvCommon{
+			streamSet: s,
+			editor: e,
+		},
+	}
 }
 
 func (e *normal) Mode() mode {
@@ -111,22 +125,23 @@ var normalCommands = map[rune]normalCommand{
 	'p':       (*normal).put1,
 	'r':       (*normal).replace,
 	'u':       (*normal).undoCmd,
+	'v':       (*normal).visual,
 	'w':       (*normal).word,
 	'x':       (*normal).abbrev,
 	'y':       (*normal).operator1,
 }
 
-func (e *normal) endline(r rune) mode {
+func (e *nvCommon) endline(r rune) mode {
 	e.move(len(e.buf))
 	return modeNormal
 }
 
-func (e *normal) beginline(r rune) mode {
+func (e *nvCommon) beginline(r rune) mode {
 	e.move(0)
 	return modeNormal
 }
 
-func (e *normal) wordBack(r rune) mode {
+func (e *nvCommon) wordBack(r rune) mode {
 	for i := 0; i < e.count; i++ {
 		switch r {
 		case 'b':
@@ -154,7 +169,7 @@ func (e *normal) operator(s string) mode {
 	return modeNormal
 }
 
-func (e *normal) left(r rune) mode {
+func (e *nvCommon) left(r rune) mode {
 	e.move(e.pos - e.count)
 	return modeNormal
 }
@@ -225,7 +240,7 @@ func (e *normal) up(r rune) mode {
 	return modeNormal
 }
 
-func (e *normal) right(r rune) mode {
+func (e *nvCommon) right(r rune) mode {
 	e.move(e.pos + e.count)
 	return modeNormal
 }
@@ -325,7 +340,7 @@ func (e *normal) abbrev(r rune) mode {
 	return modeNormal
 }
 
-func (e *normal) search(r rune) mode {
+func (e *nvCommon) search(r rune) mode {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return modeNormal
@@ -342,7 +357,7 @@ func (e *normal) search(r rune) mode {
 	return modeNormal
 }
 
-func (e *normal) searchBackward(r rune) mode {
+func (e *nvCommon) searchBackward(r rune) mode {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return modeNormal
@@ -399,4 +414,8 @@ func (e *normal) handleRegister(r rune) mode {
 
 func (e *normal) commandline(r rune) mode {
 	return modeCommandline
+}
+
+func (e *normal) visual(r rune) mode {
+	return modeVisual
 }

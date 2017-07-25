@@ -90,10 +90,15 @@ func (b *balancer) enter(m mode) moder {
 			conf:      b.conf,
 		}
 	case modeNormal:
-		return &normal{
-			streamSet: b.streamSet,
-			editor:    b.editor,
-		}
+		return newNormal(
+			b.streamSet,
+			b.editor,
+		)
+	case modeVisual:
+		return newVisual(
+			b.streamSet,
+			b.editor,
+		)
 	case modeReplace:
 		buf := b.buf
 		b.buf = nil
