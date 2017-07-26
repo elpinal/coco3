@@ -82,6 +82,7 @@ var visualCommands = map[rune]visualCommand{
 	'B':        (*visual).wordBack,
 	'F':        (*visual).searchBackward,
 	'b':        (*visual).wordBack,
+	'c':        (*visual).change,
 	'd':        (*visual).delete,
 	'f':        (*visual).search,
 	'h':        (*visual).left,
@@ -96,4 +97,9 @@ func (v *visual) delete(_ rune) mode {
 	hi := v.Highlight()
 	v.nvCommon.delete(hi.Left, hi.Right)
 	return modeNormal
+}
+
+func (v *visual) change(r rune) mode {
+	_ = v.delete(r)
+	return modeInsert
 }
