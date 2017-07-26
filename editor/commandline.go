@@ -56,6 +56,10 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	case CharEscape:
 		return end, modeNormal, err
 	case CharBackspace, CharCtrlH:
+		if len(e.basic.buf) == 0 {
+			next = modeNormal
+			return
+		}
 		e.basic.delete(e.basic.pos-1, e.basic.pos)
 	default:
 		e.basic.insert([]rune{r}, e.basic.pos)
