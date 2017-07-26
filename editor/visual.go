@@ -85,6 +85,7 @@ var visualCommands = map[rune]visualCommand{
 	'B':        (*visual).wordBack,
 	'F':        (*visual).searchBackward,
 	'U':        (*visual).toUpper,
+	'W':        (*visual).word,
 	'b':        (*visual).wordBack,
 	'c':        (*visual).change,
 	'd':        (*visual).delete,
@@ -94,6 +95,7 @@ var visualCommands = map[rune]visualCommand{
 	'r':        (*visual).replace,
 	'o':        (*visual).swap,
 	'u':        (*visual).toLower,
+	'w':        (*visual).word,
 	'y':        (*visual).yank,
 }
 
@@ -145,4 +147,18 @@ func (v *visual) toLower(_ rune) mode {
 	hi := v.Highlight()
 	v.nvCommon.toLower(hi.Left, hi.Right)
 	return modeNormal
+}
+
+func (v *visual) word(r rune) (_ mode) {
+	var f func()
+	switch r {
+	case 'w':
+		f = v.nvCommon.wordForward
+	case 'W':
+		f = v.nvCommon.wordForwardNonBlank
+	}
+	for i := 0; i < v.count; i++ {
+		f()
+	}
+	return
 }
