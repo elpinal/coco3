@@ -74,6 +74,9 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	next = modeNormal
 	var candidate exCommand
 	s := string(e.basic.buf)
+	if s == "" {
+		return
+	}
 	for _, cmd := range exCommands {
 		if !strings.HasPrefix(cmd.name, s) {
 			continue
