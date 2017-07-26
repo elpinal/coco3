@@ -67,6 +67,15 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 		e.basic.move(len(e.basic.buf))
 	case CharCtrlU:
 		e.basic.delete(0, e.basic.pos)
+	case CharCtrlW:
+		// FIXME: It's redundant.
+		ed := newEditor()
+		ed.pos = e.basic.pos
+		ed.buf = e.basic.buf
+		pos := ed.pos
+		ed.wordBackward()
+		e.basic.delete(pos, ed.pos)
+		return
 	default:
 		e.basic.insert([]rune{r}, e.basic.pos)
 	}
