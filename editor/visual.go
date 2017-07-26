@@ -83,12 +83,14 @@ var visualCommands = map[rune]visualCommand{
 	'$':        (*visual).endline,
 	'0':        (*visual).beginline,
 	'B':        (*visual).wordBack,
+	'E':        (*visual).word,
 	'F':        (*visual).searchBackward,
 	'U':        (*visual).toUpper,
 	'W':        (*visual).word,
 	'b':        (*visual).wordBack,
 	'c':        (*visual).change,
 	'd':        (*visual).delete,
+	'e':        (*visual).word,
 	'f':        (*visual).search,
 	'h':        (*visual).left,
 	'l':        (*visual).right,
@@ -156,6 +158,10 @@ func (v *visual) word(r rune) (_ mode) {
 		f = v.nvCommon.wordForward
 	case 'W':
 		f = v.nvCommon.wordForwardNonBlank
+	case 'e':
+		f = v.nvCommon.wordEnd
+	case 'E':
+		f = v.nvCommon.wordEndNonBlank
 	}
 	for i := 0; i < v.count; i++ {
 		f()
