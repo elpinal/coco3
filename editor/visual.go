@@ -1,6 +1,9 @@
 package editor
 
-import "github.com/elpinal/coco3/screen"
+import (
+	"github.com/elpinal/coco3/editor/register"
+	"github.com/elpinal/coco3/screen"
+)
 
 type visual struct {
 	nvCommon
@@ -88,6 +91,7 @@ var visualCommands = map[rune]visualCommand{
 	'h':        (*visual).left,
 	'l':        (*visual).right,
 	'o':        (*visual).swap,
+	'y':        (*visual).yank,
 }
 
 func (v *visual) escape(_ rune) mode {
@@ -108,4 +112,11 @@ func (v *visual) change(r rune) mode {
 func (v *visual) swap(_ rune) (_ mode) {
 	v.start, v.pos = v.pos, v.start
 	return
+}
+
+func (v *visual) yank(_ rune) mode {
+	hi := v.Highlight()
+	v.nvCommon.yank(register.Unnamed, hi.Left, hi.Right)
+	v.move(hi.Left)
+	return modeNormal
 }
