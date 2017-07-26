@@ -38,7 +38,7 @@ func (v *visual) Message() []rune {
 func (v *visual) Highlight() *screen.Hi {
 	return &screen.Hi{
 		Left:  min(v.start, v.pos),
-		Right: max(v.start, v.pos),
+		Right: constrain(max(v.start, v.pos)+1, 0, len(v.buf)),
 	}
 }
 
