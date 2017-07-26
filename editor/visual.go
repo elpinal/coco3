@@ -87,6 +87,7 @@ var visualCommands = map[rune]visualCommand{
 	'f':        (*visual).search,
 	'h':        (*visual).left,
 	'l':        (*visual).right,
+	'o':        (*visual).swap,
 }
 
 func (v *visual) escape(_ rune) mode {
@@ -102,4 +103,9 @@ func (v *visual) delete(_ rune) mode {
 func (v *visual) change(r rune) mode {
 	_ = v.delete(r)
 	return modeInsert
+}
+
+func (v *visual) swap(_ rune) (_ mode) {
+	v.start, v.pos = v.pos, v.start
+	return
 }
