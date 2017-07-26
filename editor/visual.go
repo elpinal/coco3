@@ -90,6 +90,7 @@ var visualCommands = map[rune]visualCommand{
 	'f':        (*visual).search,
 	'h':        (*visual).left,
 	'l':        (*visual).right,
+	'r':        (*visual).replace,
 	'o':        (*visual).swap,
 	'y':        (*visual).yank,
 }
@@ -118,5 +119,16 @@ func (v *visual) yank(_ rune) mode {
 	hi := v.Highlight()
 	v.nvCommon.yank(register.Unnamed, hi.Left, hi.Right)
 	v.move(hi.Left)
+	return modeNormal
+}
+
+func (v *visual) replace(_ rune) mode {
+	r, _, _ := v.in.ReadRune()
+	hi := v.Highlight()
+	rs := make([]rune, hi.Right-hi.Left)
+	for i := range rs {
+		rs[i] = r
+	}
+	v.nvCommon.replace(rs, hi.Left)
 	return modeNormal
 }
