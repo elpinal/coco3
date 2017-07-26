@@ -84,6 +84,7 @@ var visualCommands = map[rune]visualCommand{
 	'0':        (*visual).beginline,
 	'B':        (*visual).wordBack,
 	'F':        (*visual).searchBackward,
+	'U':        (*visual).toUpper,
 	'b':        (*visual).wordBack,
 	'c':        (*visual).change,
 	'd':        (*visual).delete,
@@ -92,6 +93,7 @@ var visualCommands = map[rune]visualCommand{
 	'l':        (*visual).right,
 	'r':        (*visual).replace,
 	'o':        (*visual).swap,
+	'u':        (*visual).toLower,
 	'y':        (*visual).yank,
 }
 
@@ -130,5 +132,17 @@ func (v *visual) replace(_ rune) mode {
 		rs[i] = r
 	}
 	v.nvCommon.replace(rs, hi.Left)
+	return modeNormal
+}
+
+func (v *visual) toUpper(_ rune) mode {
+	hi := v.Highlight()
+	v.nvCommon.toUpper(hi.Left, hi.Right)
+	return modeNormal
+}
+
+func (v *visual) toLower(_ rune) mode {
+	hi := v.Highlight()
+	v.nvCommon.toLower(hi.Left, hi.Right)
 	return modeNormal
 }
