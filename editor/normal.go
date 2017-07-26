@@ -106,6 +106,7 @@ var normalCommands = map[rune]normalCommand{
 	CharCtrlR: (*normal).redoCmd,
 	'"':       (*normal).handleRegister,
 	':':       (*normal).commandline,
+	'|':       (*normal).column,
 	'$':       (*normal).endline,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
@@ -427,4 +428,9 @@ func (e *normal) commandline(r rune) mode {
 
 func (e *normal) visual(r rune) mode {
 	return modeVisual
+}
+
+func (e *nvCommon) column(_ rune) (_ mode) {
+	e.move(constrain(e.count-1, 0, len(e.buf)))
+	return
 }
