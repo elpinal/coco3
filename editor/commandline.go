@@ -52,7 +52,7 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 		return end, next, err
 	}
 	switch r {
-	case CharCtrlM:
+	case CharCtrlM, CharCtrlJ:
 	case CharEscape, CharCtrlC:
 		return end, modeNormal, err
 	case CharBackspace, CharCtrlH:
@@ -68,7 +68,7 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	default:
 		e.basic.insert([]rune{r}, e.basic.pos)
 	}
-	if r != CharCtrlM {
+	if r != CharCtrlM && r != CharCtrlJ {
 		return
 	}
 	next = modeNormal
