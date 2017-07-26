@@ -97,6 +97,7 @@ var visualCommands = map[rune]visualCommand{
 	'r':        (*visual).replace,
 	'o':        (*visual).swap,
 	'u':        (*visual).toLower,
+	'v':        (*visual).escape,
 	'w':        (*visual).word,
 	'y':        (*visual).yank,
 }
