@@ -65,6 +65,8 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 		e.basic.move(0)
 	case CharCtrlE:
 		e.basic.move(len(e.basic.buf))
+	case CharCtrlU:
+		e.basic.delete(0, e.basic.pos)
 	default:
 		e.basic.insert([]rune{r}, e.basic.pos)
 	}
