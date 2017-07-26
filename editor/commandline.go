@@ -53,7 +53,7 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	}
 	switch r {
 	case CharCtrlM:
-	case CharEscape:
+	case CharEscape, CharCtrlC:
 		return end, modeNormal, err
 	case CharBackspace, CharCtrlH:
 		if len(e.basic.buf) == 0 {

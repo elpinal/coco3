@@ -33,7 +33,7 @@ func (e *insert) Run() (end continuity, next mode, err error) {
 	}
 start:
 	switch r {
-	case CharEscape:
+	case CharEscape, CharCtrlC:
 		if e.replaceMode {
 			e.buf = e.overwrite(e.replacedBuf, e.buf, e.pos-len(e.buf))
 		}

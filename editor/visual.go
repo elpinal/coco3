@@ -80,6 +80,7 @@ type visualCommand = func(*visual, rune) mode
 
 var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
+	CharCtrlC:  (*visual).escape,
 	'$':        (*visual).endline,
 	'0':        (*visual).beginline,
 	'B':        (*visual).wordBack,
