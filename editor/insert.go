@@ -45,7 +45,7 @@ start:
 	case CharBackspace, CharCtrlH:
 		e.deleteChar()
 		e.needSave = true
-	case CharCtrlM:
+	case CharCtrlM, CharCtrlJ:
 		end = execute
 		e.needSave = true
 	case CharCtrlX:
