@@ -133,6 +133,7 @@ var normalCommands = map[rune]normalCommand{
 	'j':       (*normal).down,
 	'k':       (*normal).up,
 	'l':       (*normal).right,
+	'n':       (*normal).next,
 	'p':       (*normal).put1,
 	'r':       (*normal).replace,
 	'u':       (*normal).undoCmd,
@@ -438,4 +439,9 @@ func (e *nvCommon) column(_ rune) (_ mode) {
 
 func (e *normal) search(_ rune) mode {
 	return modeSearch
+}
+
+func (e *normal) next(_ rune) (_ mode) {
+	e.move(e.nvCommon.next())
+	return
 }

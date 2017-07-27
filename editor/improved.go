@@ -27,6 +27,7 @@ func newEditor() *editor {
 	return &editor{
 		undoTree:  newUndoTree(),
 		Registers: r,
+		sr:        make([][2]int, 2),
 	}
 }
 
@@ -402,4 +403,14 @@ func (e *editor) search(s string) (found bool) {
 		e.sr = append(e.sr, [2]int{off + i, off + i + len(s)})
 		off += i + len(s)
 	}
+}
+
+func (e *editor) next() int {
+	for _, sr := range e.sr {
+		i := sr[0]
+		if i > e.pos {
+			return i
+		}
+	}
+	return e.sr[0][0]
 }

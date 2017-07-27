@@ -93,14 +93,8 @@ func (se *search) Run() (end continuity, next mode, err error) {
 
 func (se *search) search(s string) (int, error) {
 	found := se.editor.search(s)
-	if !found || se.sr == nil {
+	if !found {
 		return 0, fmt.Errorf("pattern not found: %q", s)
 	}
-	for _, sr := range se.sr {
-		i := sr[0]
-		if i > se.pos {
-			return i, nil
-		}
-	}
-	return se.sr[0][0], nil
+	return se.next(), nil
 }
