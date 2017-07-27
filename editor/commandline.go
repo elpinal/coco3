@@ -25,6 +25,14 @@ type commandline struct {
 	basic *basic
 }
 
+func newCommandline(s streamSet, e *editor) *commandline {
+	return &commandline{
+		streamSet: s,
+		editor:    e,
+		basic:     &basic{},
+	}
+}
+
 func (e *commandline) Mode() mode {
 	return modeCommandline
 }
@@ -45,8 +53,7 @@ func (e *commandline) Highlight() *screen.Hi {
 	return nil
 }
 
-func (e *commandline) Run() (end continuity, next mode, err error) {
-	next = modeCommandline
+func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -54,10 +61,11 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	switch r {
 	case CharCtrlM, CharCtrlJ:
 	case CharEscape, CharCtrlC:
-		return end, modeNormal, err
+		next = norm()
+		return end, next, err
 	case CharBackspace, CharCtrlH:
 		if len(e.basic.buf) == 0 {
-			next = modeNormal
+			next = norm()
 			return
 		}
 		e.basic.delete(e.basic.pos-1, e.basic.pos)
@@ -82,7 +90,7 @@ func (e *commandline) Run() (end continuity, next mode, err error) {
 	if r != CharCtrlM && r != CharCtrlJ {
 		return
 	}
-	next = modeNormal
+	next = norm()
 	var candidate exCommand
 	s := string(e.basic.buf)
 	if s == "" {

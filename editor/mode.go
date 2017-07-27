@@ -29,7 +29,7 @@ const (
 
 type moder interface {
 	Mode() mode
-	Run() (end continuity, next mode, err error)
+	Run() (end continuity, next modeChanger, err error)
 	Runes() []rune
 	Position() int
 	Message() []rune
@@ -67,3 +67,5 @@ func (m mode) String() string {
 	}
 	return fmt.Sprintf("number (%d)", m)
 }
+
+type modeChanger func(*balancer) (moder, error)

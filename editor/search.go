@@ -6,18 +6,29 @@ import (
 	"github.com/elpinal/coco3/screen"
 )
 
+type searchType int
+
+const (
+	searchForward searchType = iota
+	searchBackward
+	searchHistoryForward
+	searchHistoryBackward
+)
+
 type search struct {
 	streamSet
 	*editor
 
 	basic *basic
+	st    searchType
 }
 
-func newSearch(s streamSet, e *editor) *search {
+func newSearch(s streamSet, e *editor, st searchType) *search {
 	return &search{
 		streamSet: s,
 		editor:    e,
 		basic:     &basic{},
+		st:        st,
 	}
 }
 
@@ -41,8 +52,7 @@ func (se *search) Highlight() *screen.Hi {
 	return nil
 }
 
-func (se *search) Run() (end continuity, next mode, err error) {
-	next = modeSearch
+func (se *search) Run() (end continuity, next modeChanger, err error) {
 	r, _, err := se.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -50,10 +60,11 @@ func (se *search) Run() (end continuity, next mode, err error) {
 	switch r {
 	case CharCtrlM, CharCtrlJ:
 	case CharEscape, CharCtrlC:
-		return end, modeNormal, err
+		next = norm()
+		return end, next, err
 	case CharBackspace, CharCtrlH:
 		if len(se.basic.buf) == 0 {
-			next = modeNormal
+			next = norm()
 			return
 		}
 		se.basic.delete(se.basic.pos-1, se.basic.pos)
@@ -78,7 +89,7 @@ func (se *search) Run() (end continuity, next mode, err error) {
 	if r != CharCtrlM && r != CharCtrlJ {
 		return
 	}
-	next = modeNormal
+	next = norm()
 	s := string(se.basic.buf)
 	if s == "" {
 		return

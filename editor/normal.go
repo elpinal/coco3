@@ -41,12 +41,17 @@ func newNormal(s streamSet, e *editor) *normal {
 	}
 }
 
+func norm() modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newNormal(b.streamSet, b.editor), nil
+	}
+}
+
 func (e *normal) Mode() mode {
 	return modeNormal
 }
 
-func (e *normal) Run() (end continuity, next mode, err error) {
-	next = modeNormal
+func (e *normal) Run() (end continuity, next modeChanger, err error) {
 	e.finishOp = e.opType != OpNop
 	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
@@ -70,18 +75,18 @@ func (e *normal) Run() (end continuity, next mode, err error) {
 		e.regName = register.Unnamed
 	}
 	if cmd, ok := normalCommands[r]; ok {
-		if m := cmd(e, r); m != 0 {
+		if m := cmd(e, r); m != nil {
 			next = m
 		}
-		if n := e.doPendingOperator(); n != 0 {
+		if n := e.doPendingOperator(); n != nil {
 			next = n
 		}
 		e.count = 0
-		if next != modeInsert && e.pos == len(e.buf) {
+		if e.pos == len(e.buf) {
 			e.move(e.pos - 1)
 		}
 	}
-	return end, next, err
+	return
 }
 
 func (e *normal) Runes() []rune {
@@ -100,7 +105,7 @@ func (e *normal) Highlight() *screen.Hi {
 	return nil
 }
 
-type normalCommand = func(*normal, rune) mode
+type normalCommand = func(*normal, rune) modeChanger
 
 var normalCommands = map[rune]normalCommand{
 	CharCtrlR: (*normal).redoCmd,
@@ -144,17 +149,17 @@ var normalCommands = map[rune]normalCommand{
 	'y':       (*normal).operator1,
 }
 
-func (e *nvCommon) endline(r rune) (next mode) {
+func (e *nvCommon) endline(r rune) (_ modeChanger) {
 	e.move(len(e.buf))
 	return
 }
 
-func (e *nvCommon) beginline(r rune) (next mode) {
+func (e *nvCommon) beginline(r rune) (_ modeChanger) {
 	e.move(0)
 	return
 }
 
-func (e *nvCommon) wordBack(r rune) (next mode) {
+func (e *nvCommon) wordBack(r rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		switch r {
 		case 'b':
@@ -166,11 +171,11 @@ func (e *nvCommon) wordBack(r rune) (next mode) {
 	return
 }
 
-func (e *normal) operator1(r rune) mode {
+func (e *normal) operator1(r rune) modeChanger {
 	return e.operator(string(r))
 }
 
-func (e *normal) operator(s string) mode {
+func (e *normal) operator(s string) (_ modeChanger) {
 	op := opChars[s]
 	if op == e.opType { // double operator
 		e.motionType = mline
@@ -179,18 +184,28 @@ func (e *normal) operator(s string) mode {
 		e.opType = op
 		e.opCount = e.count
 	}
-	return modeNormal
+	return
 }
 
-func (e *nvCommon) left(r rune) (next mode) {
+func (e *nvCommon) left(r rune) (_ modeChanger) {
 	e.move(e.pos - e.count)
 	return
 }
 
-func (e *normal) edit(r rune) mode {
+func ins(rightmost bool) modeChanger {
+	return func(b *balancer) (moder, error) {
+		if rightmost {
+			// Revert to the rightmost position.
+			b.pos = len(b.buf)
+		}
+		return newInsert(b.streamSet, b.editor, b.s, b.conf), nil
+	}
+}
+
+func (e *normal) edit(r rune) modeChanger {
 	if (r == 'a' || r == 'i') && e.opType != OpNop {
 		e.object(r)
-		return modeNormal
+		return nil
 	}
 	switch r {
 	case 'A':
@@ -200,7 +215,7 @@ func (e *normal) edit(r rune) mode {
 	case 'a':
 		e.move(e.pos + 1)
 	}
-	return modeInsert
+	return ins(e.pos == len(e.buf))
 }
 
 func (e *normal) object(r rune) {
@@ -227,20 +242,20 @@ func (e *normal) object(r rune) {
 	e.pos = to
 }
 
-func (e *normal) down(r rune) mode {
+func (e *normal) down(r rune) (_ modeChanger) {
 	if e.age >= len(e.history)-1 {
-		return modeNormal
+		return
 	}
 	e.history[e.age] = e.buf
 	e.age++
 	e.buf = e.history[e.age]
 	e.pos = len(e.buf)
-	return modeNormal
+	return
 }
 
-func (e *normal) up(r rune) mode {
+func (e *normal) up(r rune) (_ modeChanger) {
 	if e.age <= 0 {
-		return modeNormal
+		return
 	}
 	if e.age == len(e.history) {
 		e.history = append(e.history, e.buf)
@@ -250,23 +265,23 @@ func (e *normal) up(r rune) mode {
 	e.age--
 	e.buf = e.history[e.age]
 	e.pos = len(e.buf)
-	return modeNormal
+	return
 }
 
-func (e *nvCommon) right(r rune) (next mode) {
+func (e *nvCommon) right(r rune) (_ modeChanger) {
 	e.move(e.pos + e.count)
 	return
 }
 
-func (e *normal) put1(r rune) mode {
+func (e *normal) put1(r rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.put(e.regName, e.pos+1)
 	}
 	e.undoTree.add(e.buf)
-	return modeNormal
+	return
 }
 
-func (e *normal) replace(r rune) mode {
+func (e *normal) replace(r rune) (_ modeChanger) {
 	r1, _, _ := e.streamSet.in.ReadRune()
 	s := make([]rune, e.count)
 	for i := 0; i < e.count; i++ {
@@ -275,10 +290,10 @@ func (e *normal) replace(r rune) mode {
 	e.editor.replace(s, e.pos)
 	e.move(e.pos + e.count - 1)
 	e.undoTree.add(e.buf)
-	return modeNormal
+	return
 }
 
-func (e *normal) word(r rune) mode {
+func (e *normal) word(r rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		switch r {
 		case 'w':
@@ -293,12 +308,12 @@ func (e *normal) word(r rune) mode {
 			e.wordEndNonBlank()
 		}
 	}
-	return modeNormal
+	return
 }
 
-func (e *normal) doPendingOperator() mode {
+func (e *normal) doPendingOperator() (_ modeChanger) {
 	if !e.finishOp {
-		return 0
+		return
 	}
 	from := e.opStart
 	to := e.pos
@@ -320,7 +335,7 @@ func (e *normal) doPendingOperator() mode {
 		e.yank(e.regName, from, to)
 		e.delete(from, to)
 		e.undoTree.add(e.buf)
-		return modeInsert
+		return ins(e.pos == len(e.buf))
 	case OpLower:
 		e.toLower(from, to)
 		e.undoTree.add(e.buf)
@@ -333,14 +348,14 @@ func (e *normal) doPendingOperator() mode {
 	}
 	e.clearOp()
 	e.move(min(from, to))
-	return modeNormal
+	return
 }
 
 func (e *normal) clearOp() {
 	e.opArg = opArg{}
 }
 
-func (e *normal) abbrev(r rune) mode {
+func (e *normal) abbrev(r rune) (_ modeChanger) {
 	amap := map[rune][]rune{
 		'x': []rune("dl"),
 		'X': []rune("dh"),
@@ -350,10 +365,10 @@ func (e *normal) abbrev(r rune) mode {
 	}
 	e.streamSet.in.Add(amap[r])
 	e.opCount = e.count
-	return modeNormal
+	return
 }
 
-func (e *nvCommon) searchCharacter(r rune) (next mode) {
+func (e *nvCommon) searchCharacter(r rune) (_ modeChanger) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
@@ -370,7 +385,7 @@ func (e *nvCommon) searchCharacter(r rune) (next mode) {
 	return
 }
 
-func (e *nvCommon) searchCharacterBackward(r rune) (next mode) {
+func (e *nvCommon) searchCharacterBackward(r rune) (_ modeChanger) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
@@ -387,67 +402,81 @@ func (e *nvCommon) searchCharacterBackward(r rune) (next mode) {
 	return
 }
 
-func (e *normal) gCmd(r rune) mode {
+func (e *normal) gCmd(r rune) (_ modeChanger) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
-		return modeNormal
+		return
 	}
 	switch r1 {
 	case 'u', 'U', '~':
 		return e.operator(string([]rune{r, r1}))
+	case '/':
+		return e.searchHistory(r)
 	}
-	return modeNormal
+	return
 }
 
-func (e *normal) undoCmd(r rune) mode {
+func (e *normal) undoCmd(r rune) (_ modeChanger) {
 	e.undo()
-	return modeNormal
+	return
 }
 
-func (e *normal) redoCmd(r rune) mode {
+func (e *normal) redoCmd(r rune) (_ modeChanger) {
 	e.redo()
-	return modeNormal
+	return
 }
 
-func (e *normal) replaceMode(r rune) mode {
-	return modeReplace
+func (e *normal) replaceMode(r rune) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newReplace(b.streamSet, b.editor), nil
+	}
 }
 
-func (e *normal) handleRegister(r rune) mode {
+func (e *normal) handleRegister(r rune) (_ modeChanger) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
-		return modeNormal
+		return
 	}
 	if !register.IsValid(r1) {
-		return modeNormal
+		return
 	}
 	e.regName = r1
-	return modeNormal
+	return
 }
 
-func (e *normal) commandline(r rune) mode {
-	return modeCommandline
+func (e *normal) commandline(r rune) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newCommandline(b.streamSet, b.editor), nil
+	}
 }
 
-func (e *normal) visual(r rune) mode {
-	return modeVisual
+func (e *normal) visual(r rune) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newVisual(b.streamSet, b.editor), nil
+	}
 }
 
-func (e *nvCommon) column(_ rune) (_ mode) {
+func (e *nvCommon) column(_ rune) (_ modeChanger) {
 	e.move(constrain(e.count-1, 0, len(e.buf)))
 	return
 }
 
-func (e *normal) search(_ rune) mode {
-	return modeSearch
+func (e *normal) search(_ rune) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newSearch(b.streamSet, b.editor, searchForward), nil
+	}
 }
 
-func (e *normal) next(_ rune) (_ mode) {
+func (e *normal) next(_ rune) (_ modeChanger) {
 	e.move(e.nvCommon.next())
 	return
 }
 
-func (e *normal) previous(_ rune) (_ mode) {
+func (e *normal) previous(_ rune) (_ modeChanger) {
 	e.move(e.nvCommon.previous())
+	return
+}
+
+func (e *normal) searchHistory(_ rune) (_ modeChanger) {
 	return
 }

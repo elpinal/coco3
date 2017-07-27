@@ -18,15 +18,31 @@ type insert struct {
 	replacedBuf []rune
 }
 
+func newInsert(ss streamSet, e *editor, s screen.Screen, conf *config.Config) *insert {
+	return &insert{
+		streamSet: ss,
+		editor:    e,
+		s:         s,
+		conf:      conf,
+	}
+}
+
+func newReplace(s streamSet, e *editor) *insert {
+	buf := e.buf
+	e.buf = nil
+	return &insert{
+		streamSet:   s,
+		editor:      e,
+		replaceMode: true,
+		replacedBuf: buf,
+	}
+}
+
 func (e *insert) Mode() mode {
 	return modeInsert
 }
 
-func (e *insert) Run() (end continuity, next mode, err error) {
-	next = modeInsert
-	if e.replaceMode {
-		next = modeReplace
-	}
+func (e *insert) Run() (end continuity, next modeChanger, err error) {
 	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -38,7 +54,7 @@ start:
 			e.buf = e.overwrite(e.replacedBuf, e.buf, e.pos-len(e.buf))
 		}
 		e.move(e.pos - 1)
-		next = modeNormal
+		next = norm()
 		if e.needSave {
 			e.undoTree.add(e.buf)
 		}
@@ -69,7 +85,7 @@ start:
 		e.insert([]rune{r}, e.pos)
 		e.needSave = true
 	}
-	return end, next, err
+	return
 }
 
 func (e *insert) Runes() []rune {

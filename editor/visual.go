@@ -45,8 +45,7 @@ func (v *visual) Highlight() *screen.Hi {
 	}
 }
 
-func (v *visual) Run() (end continuity, next mode, err error) {
-	next = modeVisual
+func (v *visual) Run() (end continuity, next modeChanger, err error) {
 	r, _, err := v.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -66,17 +65,17 @@ func (v *visual) Run() (end continuity, next mode, err error) {
 	if !ok {
 		return
 	}
-	if m := cmd(v, r); m != 0 {
+	if m := cmd(v, r); m != nil {
 		next = m
 	}
-	if next != modeInsert && v.pos == len(v.buf) {
+	if v.pos == len(v.buf) {
 		v.move(v.pos - 1)
 	}
 	v.count = 0
 	return
 }
 
-type visualCommand = func(*visual, rune) mode
+type visualCommand = func(*visual, rune) modeChanger
 
 var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
@@ -103,34 +102,34 @@ var visualCommands = map[rune]visualCommand{
 	'y':        (*visual).yank,
 }
 
-func (v *visual) escape(_ rune) mode {
-	return modeNormal
+func (v *visual) escape(_ rune) modeChanger {
+	return norm()
 }
 
-func (v *visual) delete(_ rune) mode {
+func (v *visual) delete(_ rune) modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.delete(hi.Left, hi.Right)
-	return modeNormal
+	return norm()
 }
 
-func (v *visual) change(r rune) mode {
+func (v *visual) change(r rune) modeChanger {
 	_ = v.delete(r)
-	return modeInsert
+	return ins(v.pos == len(v.buf))
 }
 
-func (v *visual) swap(_ rune) (_ mode) {
+func (v *visual) swap(_ rune) (_ modeChanger) {
 	v.start, v.pos = v.pos, v.start
 	return
 }
 
-func (v *visual) yank(_ rune) mode {
+func (v *visual) yank(_ rune) modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.yank(register.Unnamed, hi.Left, hi.Right)
 	v.move(hi.Left)
-	return modeNormal
+	return norm()
 }
 
-func (v *visual) replace(_ rune) mode {
+func (v *visual) replace(_ rune) modeChanger {
 	r, _, _ := v.in.ReadRune()
 	hi := v.Highlight()
 	rs := make([]rune, hi.Right-hi.Left)
@@ -138,22 +137,22 @@ func (v *visual) replace(_ rune) mode {
 		rs[i] = r
 	}
 	v.nvCommon.replace(rs, hi.Left)
-	return modeNormal
+	return norm()
 }
 
-func (v *visual) toUpper(_ rune) mode {
+func (v *visual) toUpper(_ rune) modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.toUpper(hi.Left, hi.Right)
-	return modeNormal
+	return norm()
 }
 
-func (v *visual) toLower(_ rune) mode {
+func (v *visual) toLower(_ rune) modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.toLower(hi.Left, hi.Right)
-	return modeNormal
+	return norm()
 }
 
-func (v *visual) word(r rune) (_ mode) {
+func (v *visual) word(r rune) (_ modeChanger) {
 	var f func()
 	switch r {
 	case 'w':

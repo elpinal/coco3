@@ -3,7 +3,6 @@ package editor
 import (
 	"bufio"
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/elpinal/coco3/config"
@@ -56,11 +55,7 @@ type balancer struct {
 func (b *balancer) Read() ([]rune, bool, error) {
 	b.s.SetLastLine("-- INSERT --")
 	b.s.Start(b.conf, false, nil, 0, nil)
-	prev := modeInsert
-	m, err := b.enter(prev)
-	if err != nil {
-		return nil, false, err
-	}
+	var m moder = newInsert(b.streamSet, b.editor, b.s, b.conf)
 	for {
 		end, next, err := m.Run()
 		if err != nil {
@@ -74,57 +69,16 @@ func (b *balancer) Read() ([]rune, bool, error) {
 			b.s.Refresh(b.conf, m.Mode() == modeCommandline || m.Mode() == modeSearch, m.Runes(), m.Position(), m.Highlight())
 			return m.Runes(), false, nil
 		}
-		if prev != next {
-			m, err = b.enter(next)
+		if next != nil {
+			m, err = next(b)
 			if err != nil {
 				return nil, false, err
 			}
 		}
-		prev = next
 		msg := string(m.Message())
 		b.s.SetLastLine(msg)
 		b.s.Refresh(b.conf, m.Mode() == modeCommandline || m.Mode() == modeSearch, m.Runes(), m.Position(), m.Highlight())
 	}
-}
-
-func (b *balancer) enter(m mode) (moder, error) {
-	switch m {
-	case modeInsert:
-		return &insert{
-			streamSet: b.streamSet,
-			editor:    b.editor,
-			s:         b.s,
-			conf:      b.conf,
-		}, nil
-	case modeNormal:
-		return newNormal(
-			b.streamSet,
-			b.editor,
-		), nil
-	case modeVisual:
-		return newVisual(
-			b.streamSet,
-			b.editor,
-		), nil
-	case modeReplace:
-		buf := b.buf
-		b.buf = nil
-		return &insert{
-			streamSet:   b.streamSet,
-			editor:      b.editor,
-			replaceMode: true,
-			replacedBuf: buf,
-		}, nil
-	case modeCommandline:
-		return &commandline{
-			streamSet: b.streamSet,
-			editor:    b.editor,
-			basic:     &basic{},
-		}, nil
-	case modeSearch:
-		return newSearch(b.streamSet, b.editor), nil
-	}
-	return nil, fmt.Errorf("no such mode: %v", m)
 }
 
 func (b *balancer) Clear() {
