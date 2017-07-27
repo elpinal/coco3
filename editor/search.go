@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/elpinal/coco3/screen"
 )
@@ -93,9 +92,15 @@ func (se *search) Run() (end continuity, next mode, err error) {
 }
 
 func (se *search) search(s string) (int, error) {
-	i := strings.Index(string(se.slice(se.pos+1, len(se.buf))), s)
-	if i < 0 {
+	found := se.editor.search(s)
+	if !found || se.sr == nil {
 		return 0, fmt.Errorf("pattern not found: %q", s)
 	}
-	return i + se.pos + 1, nil
+	for _, sr := range se.sr {
+		i := sr[0]
+		if i > se.pos {
+			return i, nil
+		}
+	}
+	return se.sr[0][0], nil
 }
