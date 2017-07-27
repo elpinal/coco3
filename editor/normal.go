@@ -488,6 +488,8 @@ func (e *normal) previous(_ rune) (_ modeChanger) {
 }
 
 func (e *normal) searchHistory(_ rune) (_ modeChanger) {
+	return func(b *balancer) (moder, error) {
+		return newSearch(b.streamSet, b.editor, searchHistoryForward), nil
 	}
 }
 
