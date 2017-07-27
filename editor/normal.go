@@ -1,6 +1,8 @@
 package editor
 
 import (
+	"fmt"
+
 	"github.com/elpinal/coco3/editor/register"
 	"github.com/elpinal/coco3/screen"
 )
@@ -114,6 +116,7 @@ var normalCommands = map[rune]normalCommand{
 	'|':       (*normal).column,
 	'/':       (*normal).search,
 	'?':       (*normal).searchBackward,
+	'+':       (*normal).increment,
 	'$':       (*normal).endline,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
@@ -485,5 +488,38 @@ func (e *normal) previous(_ rune) (_ modeChanger) {
 }
 
 func (e *normal) searchHistory(_ rune) (_ modeChanger) {
+	}
+}
+
+func (e *normal) indexNumber() int {
+	for i, r := range e.buf[e.pos:] {
+		if '0' <= r && r <= '9' {
+			return i + e.pos
+		}
+	}
+	return -1
+}
+
+func (e *normal) parseNumber(i int) (a int, l int) {
+	for n := i; n < len(e.buf); n++ {
+		r := int(e.buf[n])
+		if '0' <= r && r <= '9' {
+			a = 10*a + r - '0'
+			continue
+		}
+		return a, n - i
+	}
+	return a, len(e.buf) - i
+}
+
+func (e *normal) increment(_ rune) (_ modeChanger) {
+	i := e.indexNumber()
+	if i < 0 {
+		return
+	}
+	n, l := e.parseNumber(i)
+	e.delete(i, i+l)
+	e.insert([]rune(fmt.Sprint(n+1)), i)
+	e.move(i)
 	return
 }
