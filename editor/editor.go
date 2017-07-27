@@ -3,6 +3,7 @@ package editor
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/elpinal/coco3/config"
@@ -56,7 +57,10 @@ func (b *balancer) Read() ([]rune, bool, error) {
 	b.s.SetLastLine("-- INSERT --")
 	b.s.Start(b.conf, false, nil, 0, nil)
 	prev := modeInsert
-	m := b.enter(prev)
+	m, err := b.enter(prev)
+	if err != nil {
+		return nil, false, err
+	}
 	for {
 		end, next, err := m.Run()
 		if err != nil {
@@ -71,7 +75,10 @@ func (b *balancer) Read() ([]rune, bool, error) {
 			return m.Runes(), false, nil
 		}
 		if prev != next {
-			m = b.enter(next)
+			m, err = b.enter(next)
+			if err != nil {
+				return nil, false, err
+			}
 		}
 		prev = next
 		msg := string(m.Message())
@@ -80,7 +87,7 @@ func (b *balancer) Read() ([]rune, bool, error) {
 	}
 }
 
-func (b *balancer) enter(m mode) moder {
+func (b *balancer) enter(m mode) (moder, error) {
 	switch m {
 	case modeInsert:
 		return &insert{
@@ -88,17 +95,17 @@ func (b *balancer) enter(m mode) moder {
 			editor:    b.editor,
 			s:         b.s,
 			conf:      b.conf,
-		}
+		}, nil
 	case modeNormal:
 		return newNormal(
 			b.streamSet,
 			b.editor,
-		)
+		), nil
 	case modeVisual:
 		return newVisual(
 			b.streamSet,
 			b.editor,
-		)
+		), nil
 	case modeReplace:
 		buf := b.buf
 		b.buf = nil
@@ -107,15 +114,15 @@ func (b *balancer) enter(m mode) moder {
 			editor:      b.editor,
 			replaceMode: true,
 			replacedBuf: buf,
-		}
+		}, nil
 	case modeCommandline:
 		return &commandline{
 			streamSet: b.streamSet,
 			editor:    b.editor,
 			basic:     &basic{},
-		}
+		}, nil
 	}
-	return &insert{streamSet: b.streamSet}
+	return nil, fmt.Errorf("no such mode: %v", m)
 }
 
 func (b *balancer) Clear() {
