@@ -82,6 +82,9 @@ start:
 		e.deleteToBeginning()
 		e.needSave = true
 	default:
+		if r <= CharCtrlZ {
+			return
+		}
 		e.insert([]rune{r}, e.pos)
 		e.needSave = true
 	}
