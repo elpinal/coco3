@@ -93,9 +93,9 @@ func (se *search) Run() (end continuity, next mode, err error) {
 }
 
 func (se *search) search(s string) (int, error) {
-	i := strings.Index(string(se.buf[se.pos:]), s)
+	i := strings.Index(string(se.slice(se.pos+1, len(se.buf))), s)
 	if i < 0 {
 		return 0, fmt.Errorf("pattern not found: %q", s)
 	}
-	return i+se.pos, nil
+	return i + se.pos + 1, nil
 }
