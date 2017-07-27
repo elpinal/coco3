@@ -37,15 +37,30 @@ func (se *search) Mode() mode {
 }
 
 func (se *search) Position() int {
-	return se.basic.pos + 1
+	return se.basic.pos + len(se.prompt())
 }
 
 func (se *search) Runes() []rune {
 	return se.buf
 }
 
+func (se *search) prompt() []rune {
+	var prompt string
+	switch se.st {
+	case searchForward:
+		prompt = "/"
+	case searchBackward:
+		prompt = "?"
+	case searchHistoryForward:
+		prompt = "g/"
+	case searchHistoryBackward:
+		prompt = "g?"
+	}
+	return []rune(prompt)
+}
+
 func (se *search) Message() []rune {
-	return append([]rune{'/'}, se.basic.buf...)
+	return append(se.prompt(), se.basic.buf...)
 }
 
 func (se *search) Highlight() *screen.Hi {
