@@ -7,15 +7,16 @@ import (
 	"testing"
 
 	"github.com/elpinal/coco3/config"
+	"github.com/elpinal/coco3/screen"
 )
 
 type testScreen struct {
 }
 
-func (ts *testScreen) Start(conf *config.Config, inCommandline bool, s []rune, pos int) {
+func (ts *testScreen) Start(conf *config.Config, inCommandline bool, s []rune, pos int, _ *screen.Hi) {
 }
 
-func (ts *testScreen) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int) {
+func (ts *testScreen) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int, _ *screen.Hi) {
 }
 
 func (ts *testScreen) SetLastLine(msg string) {
