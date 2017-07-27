@@ -8,6 +8,8 @@ import (
 	"github.com/elpinal/coco3/editor/register"
 )
 
+type searchRange [][2]int
+
 type editor struct {
 	basic
 	register.Registers
@@ -15,6 +17,8 @@ type editor struct {
 
 	history [][]rune
 	age     int
+
+	sr searchRange
 }
 
 func newEditor() *editor {
@@ -382,4 +386,20 @@ func (e *editor) overwrite(base []rune, cover []rune, at int) []rune {
 		copy(s[n+len(cover):], base[n+len(cover):])
 	}
 	return s
+}
+
+func (e *editor) search(s string) (found bool) {
+	e.sr = e.sr[:0]
+	if s == "" {
+		return false
+	}
+	off := 0
+	for {
+		i := strings.Index(string(e.buf[off:]), s)
+		if i < 0 {
+			return len(e.sr) > 0
+		}
+		e.sr = append(e.sr, [2]int{off + i, off + i + len(s)})
+		off += i + len(s)
+	}
 }

@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/elpinal/coco3/editor/register"
@@ -429,6 +430,62 @@ func TestCurrentQuote(t *testing.T) {
 		}
 		if to != test.to {
 			t.Errorf("currentQuote/%v (to): got %v, want %v", i, to, test.to)
+		}
+	}
+}
+
+func TestSearch(t *testing.T) {
+	tests := []struct {
+		buf   string
+		pos   int
+		query string
+		found bool
+		sr    searchRange
+	}{
+		{
+			buf:   "",
+			pos:   0,
+			query: "",
+			found: false,
+			sr:    nil,
+		},
+		{
+			buf:   "",
+			pos:   0,
+			query: "aaa",
+			found: false,
+			sr:    nil,
+		},
+		{
+			buf:   "aaabbb",
+			pos:   0,
+			query: "a",
+			found: true,
+			sr: [][2]int{
+				{0, 1},
+				{1, 2},
+				{2, 3},
+			},
+		},
+		{
+			buf:   "aaabbb xy cccddd xy abcd",
+			pos:   10,
+			query: "xy",
+			found: true,
+			sr: [][2]int{
+				{7, 9},
+				{17, 19},
+			},
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: []rune(test.buf), pos: test.pos}}
+		found := e.search(test.query)
+		if found != test.found {
+			t.Errorf("search/%v (found): got %v, want %v", i, found, test.found)
+		}
+		if !reflect.DeepEqual(e.sr, test.sr) {
+			t.Errorf("search/%v (searchRange): got %v, want %v", i, e.sr, test.sr)
 		}
 	}
 }
