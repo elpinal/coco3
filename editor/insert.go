@@ -81,6 +81,13 @@ start:
 	case CharCtrlU:
 		e.deleteToBeginning()
 		e.needSave = true
+	case CharCtrlR:
+		r1, _, err := e.in.ReadRune()
+		if err != nil {
+			return end, next, err
+		}
+		e.put(r1, e.pos)
+		e.needSave = true
 	default:
 		if r <= CharCtrlZ {
 			return
