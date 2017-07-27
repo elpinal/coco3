@@ -117,6 +117,7 @@ var normalCommands = map[rune]normalCommand{
 	'E':       (*normal).word,
 	'F':       (*normal).searchCharacterBackward,
 	'I':       (*normal).edit,
+	'N':       (*normal).previous,
 	'R':       (*normal).replaceMode,
 	'W':       (*normal).word,
 	'X':       (*normal).abbrev,
@@ -443,5 +444,10 @@ func (e *normal) search(_ rune) mode {
 
 func (e *normal) next(_ rune) (_ mode) {
 	e.move(e.nvCommon.next())
+	return
+}
+
+func (e *normal) previous(_ rune) (_ mode) {
+	e.move(e.nvCommon.previous())
 	return
 }

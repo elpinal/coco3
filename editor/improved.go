@@ -414,3 +414,13 @@ func (e *editor) next() int {
 	}
 	return e.sr[0][0]
 }
+
+func (e *editor) previous() int {
+	for n := len(e.sr) - 1; 0 <= n; n-- {
+		i := e.sr[n][0]
+		if e.pos > i {
+			return i
+		}
+	}
+	return e.sr[len(e.sr)-1][0]
+}
