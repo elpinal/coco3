@@ -43,7 +43,7 @@ func (e *insert) Mode() mode {
 }
 
 func (e *insert) Run() (end continuity, next modeChanger, err error) {
-	r, _, err := e.streamSet.in.ReadRune()
+	r, _, err := e.in.ReadRune()
 	if err != nil {
 		return end, next, err
 	}
@@ -65,7 +65,7 @@ start:
 		end = execute
 		e.needSave = true
 	case CharCtrlX:
-		r1, _, err := e.streamSet.in.ReadRune()
+		r1, _, err := e.in.ReadRune()
 		if err != nil {
 			return end, next, err
 		}
@@ -139,7 +139,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 	n := 0
 	for {
 		e.s.Refresh(e.conf, false, e.buf, e.pos, e.Highlight())
-		r1, _, err := e.streamSet.in.ReadRune()
+		r1, _, err := e.in.ReadRune()
 		if err != nil {
 			return 0, err
 		}
@@ -156,12 +156,12 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 				n = len(list) - 1
 			}
 		case CharCtrlY:
-			r2, _, err := e.streamSet.in.ReadRune()
+			r2, _, err := e.in.ReadRune()
 			return r2, err
 		case CharCtrlE:
 			e.delete(e.pos, e.pos-len(list[n1]))
 			e.s.Refresh(e.conf, false, e.buf, e.pos, e.Highlight())
-			r2, _, err := e.streamSet.in.ReadRune()
+			r2, _, err := e.in.ReadRune()
 			return r2, err
 		default:
 			return r1, nil
