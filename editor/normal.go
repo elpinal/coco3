@@ -114,7 +114,7 @@ var normalCommands = map[rune]normalCommand{
 	'C':       (*normal).abbrev,
 	'D':       (*normal).abbrev,
 	'E':       (*normal).word,
-	'F':       (*normal).searchBackward,
+	'F':       (*normal).searchCharacterBackward,
 	'I':       (*normal).edit,
 	'R':       (*normal).replaceMode,
 	'W':       (*normal).word,
@@ -125,7 +125,7 @@ var normalCommands = map[rune]normalCommand{
 	'c':       (*normal).operator1,
 	'd':       (*normal).operator1,
 	'e':       (*normal).word,
-	'f':       (*normal).search,
+	'f':       (*normal).searchCharacter,
 	'g':       (*normal).gCmd,
 	'h':       (*normal).left,
 	'i':       (*normal).edit,
@@ -350,7 +350,7 @@ func (e *normal) abbrev(r rune) mode {
 	return modeNormal
 }
 
-func (e *nvCommon) search(r rune) (next mode) {
+func (e *nvCommon) searchCharacter(r rune) (next mode) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
@@ -367,7 +367,7 @@ func (e *nvCommon) search(r rune) (next mode) {
 	return
 }
 
-func (e *nvCommon) searchBackward(r rune) (next mode) {
+func (e *nvCommon) searchCharacterBackward(r rune) (next mode) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
