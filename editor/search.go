@@ -107,5 +107,8 @@ func (se *search) search(s string) (int, error) {
 	if !found {
 		return 0, fmt.Errorf("pattern not found: %q", s)
 	}
+	if se.st == searchBackward {
+		return se.previous(), nil
+	}
 	return se.next(), nil
 }

@@ -113,6 +113,7 @@ var normalCommands = map[rune]normalCommand{
 	':':       (*normal).commandline,
 	'|':       (*normal).column,
 	'/':       (*normal).search,
+	'?':       (*normal).searchBackward,
 	'$':       (*normal).endline,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
@@ -464,6 +465,12 @@ func (e *nvCommon) column(_ rune) (_ modeChanger) {
 func (e *normal) search(_ rune) modeChanger {
 	return func(b *balancer) (moder, error) {
 		return newSearch(b.streamSet, b.editor, searchForward), nil
+	}
+}
+
+func (e *normal) searchBackward(_ rune) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newSearch(b.streamSet, b.editor, searchBackward), nil
 	}
 }
 
