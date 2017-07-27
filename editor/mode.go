@@ -1,6 +1,10 @@
 package editor
 
-import "github.com/elpinal/coco3/screen"
+import (
+	"fmt"
+
+	"github.com/elpinal/coco3/screen"
+)
 
 type mode int
 
@@ -27,4 +31,34 @@ type moder interface {
 	Position() int
 	Message() []rune
 	Highlight() *screen.Hi
+}
+
+func (m mode) String() string {
+	switch m {
+	case modeNormal:
+		return "normal"
+	case modeVisual:
+		return "visual"
+	case modeSelect:
+		return "select"
+	case modeInsert:
+		return "insert"
+	case modeCommandline:
+		return "command-line"
+	case modeEx:
+		return "ex"
+	case modeOperatorPending:
+		return "operator-pending"
+	case modeReplace:
+		return "replace"
+	case modeVirtualReplace:
+		return "virtual replace"
+	case modeInsertNormal:
+		return "insert normal"
+	case modeInsertVisual:
+		return "insert visual"
+	case modeInsertSelect:
+		return "insert select"
+	}
+	return fmt.Sprintf("number (%d)", m)
 }
