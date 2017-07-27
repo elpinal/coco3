@@ -97,5 +97,5 @@ func (se *search) search(s string) (int, error) {
 	if i < 0 {
 		return 0, fmt.Errorf("pattern not found: %q", s)
 	}
-	return i, nil
+	return i+se.pos, nil
 }
