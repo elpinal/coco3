@@ -117,6 +117,7 @@ var normalCommands = map[rune]normalCommand{
 	'/':       (*normal).search,
 	'?':       (*normal).searchBackward,
 	'+':       (*normal).increment,
+	'-':       (*normal).decrement,
 	'$':       (*normal).endline,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
@@ -522,6 +523,18 @@ func (e *normal) increment(_ rune) (_ modeChanger) {
 	n, l := e.parseNumber(i)
 	e.delete(i, i+l)
 	e.insert([]rune(fmt.Sprint(n+1)), i)
+	e.move(i)
+	return
+}
+
+func (e *normal) decrement(_ rune) (_ modeChanger) {
+	i := e.indexNumber()
+	if i < 0 {
+		return
+	}
+	n, l := e.parseNumber(i)
+	e.delete(i, i+l)
+	e.insert([]rune(fmt.Sprint(n-1)), i)
 	e.move(i)
 	return
 }
