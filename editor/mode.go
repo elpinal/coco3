@@ -22,6 +22,9 @@ const (
 	modeInsertNormal
 	modeInsertVisual
 	modeInsertSelect
+
+	// Not in Vim
+	modeSearch
 )
 
 type moder interface {
@@ -59,6 +62,8 @@ func (m mode) String() string {
 		return "insert visual"
 	case modeInsertSelect:
 		return "insert select"
+	case modeSearch:
+		return "search"
 	}
 	return fmt.Sprintf("number (%d)", m)
 }

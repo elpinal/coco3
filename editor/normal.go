@@ -107,6 +107,7 @@ var normalCommands = map[rune]normalCommand{
 	'"':       (*normal).handleRegister,
 	':':       (*normal).commandline,
 	'|':       (*normal).column,
+	'/':       (*normal).search,
 	'$':       (*normal).endline,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
@@ -433,4 +434,8 @@ func (e *normal) visual(r rune) mode {
 func (e *nvCommon) column(_ rune) (_ mode) {
 	e.move(constrain(e.count-1, 0, len(e.buf)))
 	return
+}
+
+func (e *normal) search(_ rune) mode {
+	return modeSearch
 }

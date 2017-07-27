@@ -71,7 +71,7 @@ func (b *balancer) Read() ([]rune, bool, error) {
 		}
 		if end == execute {
 			b.s.SetLastLine("")
-			b.s.Refresh(b.conf, m.Mode() == modeCommandline, m.Runes(), m.Position(), m.Highlight())
+			b.s.Refresh(b.conf, m.Mode() == modeCommandline || m.Mode() == modeSearch, m.Runes(), m.Position(), m.Highlight())
 			return m.Runes(), false, nil
 		}
 		if prev != next {
@@ -83,7 +83,7 @@ func (b *balancer) Read() ([]rune, bool, error) {
 		prev = next
 		msg := string(m.Message())
 		b.s.SetLastLine(msg)
-		b.s.Refresh(b.conf, m.Mode() == modeCommandline, m.Runes(), m.Position(), m.Highlight())
+		b.s.Refresh(b.conf, m.Mode() == modeCommandline || m.Mode() == modeSearch, m.Runes(), m.Position(), m.Highlight())
 	}
 }
 
@@ -121,6 +121,8 @@ func (b *balancer) enter(m mode) (moder, error) {
 			editor:    b.editor,
 			basic:     &basic{},
 		}, nil
+	case modeSearch:
+		return newSearch(b.streamSet, b.editor), nil
 	}
 	return nil, fmt.Errorf("no such mode: %v", m)
 }
