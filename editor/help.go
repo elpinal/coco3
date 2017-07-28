@@ -31,4 +31,11 @@ var helpMap = map[string]string{
 
 	"-": "decrement the number at or after the cursor",
 	"+": "increment the number at or after the cursor",
+
+	"w": "N words forward",
+	"W": "N blank-separated WORDs forward",
+	"e": "forward to the end of the Nth word",
+	"E": "forward to the end of the Nth blank-separated WORD",
+	"b": "N words backward",
+	"B": "N blank-separated WORDs backward",
 }
