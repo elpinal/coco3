@@ -15,6 +15,7 @@ func help(w io.Writer) error {
 	return nil
 }
 
+// Reference: Vim's quickref.txt.
 var helpMap = map[string]string{
 	"h": "left",
 	"l": "right",
