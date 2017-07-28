@@ -21,4 +21,7 @@ var helpMap = map[string]string{
 	"0": "to first character in the line",
 	"^": "to first non-blank character in the line",
 	"$": "to the last character in the line",
+	"|": "to column N",
+	"f": "to the Nth occurrence of {char} to the right",
+	"F": "to the Nth occurrence of {char} to the left",
 }
