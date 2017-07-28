@@ -38,4 +38,10 @@ var helpMap = map[string]string{
 	"E": "forward to the end of the Nth blank-separated WORD",
 	"b": "N words backward",
 	"B": "N blank-separated WORDs backward",
+
+	"/": "search forward",
+	"?": "search backward",
+
+	"n": "repeat last search",
+	"N": "repeat last search, in opposite direction",
 }
