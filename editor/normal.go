@@ -225,6 +225,8 @@ func (e *normal) edit(r rune) modeChanger {
 	switch r {
 	case 'A':
 		e.move(len(e.buf))
+	case 'g': // "gI" command.
+		e.move(0)
 	case 'I':
 		_ = e.beginlineNonBlank(r)
 	case 'a':
@@ -427,6 +429,8 @@ func (e *normal) gCmd(r rune) (_ modeChanger) {
 		return e.operator(string([]rune{r, r1}))
 	case '/':
 		return e.searchHistory(r)
+	case 'I':
+		return e.edit(r)
 	}
 	return
 }
