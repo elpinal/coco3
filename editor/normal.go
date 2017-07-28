@@ -226,7 +226,7 @@ func (e *normal) edit(r rune) modeChanger {
 	case 'A':
 		e.move(len(e.buf))
 	case 'I':
-		e.move(0)
+		_ = e.beginlineNonBlank(r)
 	case 'a':
 		e.move(e.pos + 1)
 	}
