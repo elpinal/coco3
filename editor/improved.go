@@ -18,6 +18,7 @@ type editor struct {
 	history [][]rune
 	age     int
 
+	sp string // search pattern
 	sr searchRange
 }
 
@@ -390,6 +391,7 @@ func (e *editor) overwrite(base []rune, cover []rune, at int) []rune {
 }
 
 func (e *editor) search(s string) (found bool) {
+	e.sp = s
 	e.sr = e.sr[:0]
 	if s == "" {
 		return false
@@ -406,6 +408,10 @@ func (e *editor) search(s string) (found bool) {
 }
 
 func (e *editor) next() int {
+	found := e.search(e.sp)
+	if !found {
+		return e.pos
+	}
 	for _, sr := range e.sr {
 		i := sr[0]
 		if i > e.pos {
@@ -416,6 +422,10 @@ func (e *editor) next() int {
 }
 
 func (e *editor) previous() int {
+	found := e.search(e.sp)
+	if !found {
+		return e.pos
+	}
 	for n := len(e.sr) - 1; 0 <= n; n-- {
 		i := e.sr[n][0]
 		if e.pos > i {
