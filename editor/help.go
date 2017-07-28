@@ -6,7 +6,7 @@ import (
 )
 
 func help(w io.Writer) error {
-	for k, v := range helpMap {
+	for k, v := range quickref {
 		_, err := w.Write([]byte(fmt.Sprintf("%s   %s\n", k, v)))
 		if err != nil {
 			return err
@@ -16,7 +16,7 @@ func help(w io.Writer) error {
 }
 
 // Reference: Vim's quickref.txt.
-var helpMap = map[string]string{
+var quickref = map[string]string{
 	"h": "left",
 	"l": "right",
 	"0": "to first character in the line",
