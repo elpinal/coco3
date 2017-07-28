@@ -119,6 +119,7 @@ var normalCommands = map[rune]normalCommand{
 	'+':       (*normal).increment,
 	'-':       (*normal).decrement,
 	'$':       (*normal).endline,
+	'^':       (*normal).beginlineNonBlank,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
 	'B':       (*normal).wordBack,
@@ -161,6 +162,15 @@ func (e *nvCommon) endline(r rune) (_ modeChanger) {
 
 func (e *nvCommon) beginline(r rune) (_ modeChanger) {
 	e.move(0)
+	return
+}
+
+func (e *nvCommon) beginlineNonBlank(r rune) (_ modeChanger) {
+	i := e.indexFunc(isWhitespace, 0, false)
+	if i < 0 {
+		return e.endline(r)
+	}
+	e.move(i)
 	return
 }
 
