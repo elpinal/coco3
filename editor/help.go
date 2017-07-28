@@ -45,8 +45,9 @@ var quickref = map[string]string{
 	"n": "repeat last search",
 	"N": "repeat last search, in opposite direction",
 
-	"a": "append text after the cursor",
-	"A": "append text at the end of the line",
-	"i": "insert text before the cursor",
-	"I": "insert text before the first non-blank in the line",
+	"a":  "append text after the cursor",
+	"A":  "append text at the end of the line",
+	"i":  "insert text before the cursor",
+	"I":  "insert text before the first non-blank in the line",
+	"gI": "insert text in column 1",
 }
