@@ -25,4 +25,10 @@ var helpMap = map[string]string{
 	"|": "to column N",
 	"f": "to the Nth occurrence of {char} to the right",
 	"F": "to the Nth occurrence of {char} to the left",
+
+	"k": "go back history",
+	"j": "go forward history",
+
+	"-": "decrement the number at or after the cursor",
+	"+": "increment the number at or after the cursor",
 }
