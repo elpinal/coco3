@@ -178,9 +178,9 @@ func (e *nvCommon) wordBack(r rune) (_ modeChanger) {
 	var f func()
 	switch r {
 	case 'b':
-		f = e.wordBackward()
+		f = e.wordBackward
 	case 'B':
-		f = e.wordBackwardNonBlank()
+		f = e.wordBackwardNonBlank
 	}
 	for i := 0; i < e.count; i++ {
 		f()
@@ -316,15 +316,15 @@ func (e *normal) word(r rune) (_ modeChanger) {
 	var f func()
 	switch r {
 	case 'w':
-		f = e.wordForward()
+		f = e.wordForward
 	case 'W':
-		f = e.wordForwardNonBlank()
+		f = e.wordForwardNonBlank
 	case 'e':
 		e.inclusive = true
-		f = e.wordEnd()
+		f = e.wordEnd
 	case 'E':
 		e.inclusive = true
-		f = e.wordEndNonBlank()
+		f = e.wordEndNonBlank
 	}
 	for i := 0; i < e.count; i++ {
 		f()
