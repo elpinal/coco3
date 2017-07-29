@@ -124,7 +124,7 @@ var normalCommands = map[rune]normalCommand{
 	'A':       (*normal).edit,
 	'B':       (*normal).wordBackNonBlank,
 	'C':       (*normal).abbrev,
-	'D':       (*normal).abbrev,
+	'D':       (*normal).deleteToEnd,
 	'E':       (*normal).wordEndNonBlank,
 	'F':       (*normal).searchCharacterBackward,
 	'I':       (*normal).edit,
@@ -402,9 +402,16 @@ func (e *normal) deleteBefore(_ rune) (_ modeChanger) {
 	return
 }
 
+func (e *normal) deleteToEnd(_ rune) (_ modeChanger) {
+	from, to := e.pos, len(e.buf)
+	e.yank(e.regName, from, to)
+	e.delete(from, to)
+	e.undoTree.add(e.buf)
+	return
+}
+
 func (e *normal) abbrev(r rune) (_ modeChanger) {
 	abbrMap := map[rune][]rune{
-		'D': []rune("d$"),
 		'C': []rune("c$"),
 		'Y': []rune("y$"),
 	}
