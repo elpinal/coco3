@@ -83,14 +83,14 @@ var visualCommands = map[rune]visualCommand{
 	'$':        (*visual).endline,
 	'0':        (*visual).beginline,
 	'B':        (*visual).wordBack,
-	'E':        (*visual).word,
+	'E':        (*visual).wordEnd,
 	'F':        (*visual).searchCharacterBackward,
 	'U':        (*visual).toUpper,
-	'W':        (*visual).word,
+	'W':        (*visual).wordNonBlank,
 	'b':        (*visual).wordBack,
 	'c':        (*visual).change,
 	'd':        (*visual).delete,
-	'e':        (*visual).word,
+	'e':        (*visual).wordEnd,
 	'f':        (*visual).searchCharacter,
 	'h':        (*visual).left,
 	'l':        (*visual).right,
@@ -152,13 +152,9 @@ func (v *visual) toLower(_ rune) modeChanger {
 	return norm()
 }
 
-func (v *visual) word(r rune) (_ modeChanger) {
+func (v *visual) wordEnd(r rune) (_ modeChanger) {
 	var f func()
 	switch r {
-	case 'w':
-		f = v.nvCommon.wordForward
-	case 'W':
-		f = v.nvCommon.wordForwardNonBlank
 	case 'e':
 		f = v.nvCommon.wordEnd
 	case 'E':

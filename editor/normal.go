@@ -340,14 +340,14 @@ func (e *normal) replace(_ rune) (_ modeChanger) {
 	return
 }
 
-func (e *normal) word(_ rune) (_ modeChanger) {
+func (e *nvCommon) word(_ rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.wordForward()
 	}
 	return
 }
 
-func (e *normal) wordNonBlank(_ rune) (_ modeChanger) {
+func (e *nvCommon) wordNonBlank(_ rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.wordForwardNonBlank()
 	}
