@@ -135,8 +135,8 @@ var normalCommands = map[rune]normalCommand{
 	'Y':       (*normal).yankToEnd,
 	'a':       (*normal).appendAfter,
 	'b':       (*normal).wordBack,
-	'c':       (*normal).operator1,
-	'd':       (*normal).operator1,
+	'c':       (*normal).changeOp,
+	'd':       (*normal).deleteOp,
 	'e':       (*normal).wordEnd,
 	'f':       (*normal).searchCharacter,
 	'g':       (*normal).gCmd,
@@ -152,7 +152,7 @@ var normalCommands = map[rune]normalCommand{
 	'v':       (*normal).visual,
 	'w':       (*normal).word,
 	'x':       (*normal).deleteUnder,
-	'y':       (*normal).operator1,
+	'y':       (*normal).yankOp,
 }
 
 func (e *nvCommon) endline(_ rune) (_ modeChanger) {
@@ -188,12 +188,22 @@ func (e *nvCommon) wordBackNonBlank(_ rune) (_ modeChanger) {
 	return
 }
 
-func (e *normal) operator1(r rune) modeChanger {
-	return e.operator(string(r))
+func (e *normal) changeOp(_ rune) (_ modeChanger) {
+	e.operator(OpChange)
+	return
 }
 
-func (e *normal) operator(s string) (_ modeChanger) {
-	op := opChars[s]
+func (e *normal) deleteOp(_ rune) (_ modeChanger) {
+	e.operator(OpDelete)
+	return
+}
+
+func (e *normal) yankOp(_ rune) (_ modeChanger) {
+	e.operator(OpYank)
+	return
+}
+
+func (e *normal) operator(op int) {
 	if op == e.opType { // double operator
 		e.motionType = mline
 	} else {
@@ -201,7 +211,6 @@ func (e *normal) operator(s string) (_ modeChanger) {
 		e.opType = op
 		e.opCount = e.count
 	}
-	return
 }
 
 func (e *nvCommon) left(_ rune) (_ modeChanger) {
@@ -479,8 +488,12 @@ func (e *normal) gCmd(_ rune) (_ modeChanger) {
 		return
 	}
 	switch r1 {
-	case 'u', 'U', '~':
-		return e.operator(string([]rune{'g', r1}))
+	case 'u':
+		e.operator(OpLower)
+	case 'U':
+		e.operator(OpUpper)
+	case '~':
+		e.operator(OpTilde)
 	case '/':
 		return e.searchHistory(0)
 	case 'I':
