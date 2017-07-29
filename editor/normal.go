@@ -122,7 +122,7 @@ var normalCommands = map[rune]normalCommand{
 	'^':       (*normal).beginlineNonBlank,
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
-	'B':       (*normal).wordBack,
+	'B':       (*normal).wordBackNonBlank,
 	'C':       (*normal).abbrev,
 	'D':       (*normal).abbrev,
 	'E':       (*normal).word,
@@ -174,16 +174,16 @@ func (e *nvCommon) beginlineNonBlank(_ rune) (_ modeChanger) {
 	return
 }
 
-func (e *nvCommon) wordBack(r rune) (_ modeChanger) {
-	var f func()
-	switch r {
-	case 'b':
-		f = e.wordBackward
-	case 'B':
-		f = e.wordBackwardNonBlank
-	}
+func (e *nvCommon) wordBack(_ rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		f()
+		e.wordBackward()
+	}
+	return
+}
+
+func (e *nvCommon) wordBackNonBlank(_ rune) (_ modeChanger) {
+	for i := 0; i < e.count; i++ {
+		e.wordBackwardNonBlank()
 	}
 	return
 }
