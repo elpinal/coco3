@@ -127,7 +127,7 @@ var normalCommands = map[rune]normalCommand{
 	'D':       (*normal).deleteToEnd,
 	'E':       (*normal).wordEndNonBlank,
 	'F':       (*normal).searchCharacterBackward,
-	'I':       (*normal).edit,
+	'I':       (*normal).insertFirstNonBlank,
 	'N':       (*normal).previous,
 	'R':       (*normal).replaceMode,
 	'W':       (*normal).wordNonBlank,
@@ -235,14 +235,20 @@ func (e *normal) appendAtEnd(_ rune) modeChanger {
 	return ins(e.pos == len(e.buf))
 }
 
+func (e *normal) insertFirstNonBlank(_ rune) modeChanger {
+	if e.finishOp {
+		return nil
+	}
+	_ = e.beginlineNonBlank(0)
+	return ins(e.pos == len(e.buf))
+}
+
 func (e *normal) edit(r rune) modeChanger {
 	if (r == 'a' || r == 'i') && e.opType != OpNop {
 		e.object(r)
 		return nil
 	}
 	switch r {
-	case 'I':
-		_ = e.beginlineNonBlank(0)
 	case 'a':
 		e.move(e.pos + 1)
 	}
