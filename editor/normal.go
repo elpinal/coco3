@@ -473,16 +473,16 @@ func (e *nvCommon) searchCharacterBackward(_ rune) (_ modeChanger) {
 	return
 }
 
-func (e *normal) gCmd(r rune) (_ modeChanger) {
+func (e *normal) gCmd(_ rune) (_ modeChanger) {
 	r1, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
 	}
 	switch r1 {
 	case 'u', 'U', '~':
-		return e.operator(string([]rune{r, r1}))
+		return e.operator(string([]rune{'g', r1}))
 	case '/':
-		return e.searchHistory(r)
+		return e.searchHistory(0)
 	case 'I':
 		return e.insertFromBeginning(0)
 	}
