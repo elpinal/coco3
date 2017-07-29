@@ -245,7 +245,7 @@ func (e *normal) insertFirstNonBlank(_ rune) modeChanger {
 
 func (e *normal) appendAfter(_ rune) modeChanger {
 	if e.finishOp {
-		e.object('a')
+		e.object(true)
 		return nil
 	}
 	e.move(e.pos + 1)
@@ -254,26 +254,22 @@ func (e *normal) appendAfter(_ rune) modeChanger {
 
 func (e *normal) edit(_ rune) modeChanger {
 	if e.finishOp {
-		e.object('i')
+		e.object(false)
 		return nil
 	}
 	return ins(e.pos == len(e.buf))
 }
 
-func (e *normal) object(r rune) {
-	var include bool
-	if r == 'a' {
-		include = true
-	}
+func (e *normal) object(include bool) {
 	var from, to int
-	r1, _, _ := e.streamSet.in.ReadRune()
-	switch r1 {
+	r, _, _ := e.streamSet.in.ReadRune()
+	switch r {
 	case 'w':
 		from, to = e.currentWord(include)
 	case 'W':
 		from, to = e.currentWordNonBlank(include)
 	case '"', '\'', '`':
-		from, to = e.currentQuote(include, r1)
+		from, to = e.currentQuote(include, r)
 		if from < 0 || to < 0 {
 			return
 		}
