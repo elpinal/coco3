@@ -123,7 +123,7 @@ var normalCommands = map[rune]normalCommand{
 	'0':       (*normal).beginline,
 	'A':       (*normal).edit,
 	'B':       (*normal).wordBackNonBlank,
-	'C':       (*normal).abbrev,
+	'C':       (*normal).changeToEnd,
 	'D':       (*normal).deleteToEnd,
 	'E':       (*normal).wordEndNonBlank,
 	'F':       (*normal).searchCharacterBackward,
@@ -410,9 +410,13 @@ func (e *normal) deleteToEnd(_ rune) (_ modeChanger) {
 	return
 }
 
+func (e *normal) changeToEnd(_ rune) modeChanger {
+	_ = e.deleteToEnd(0)
+	return ins(e.pos == len(e.buf))
+}
+
 func (e *normal) abbrev(r rune) (_ modeChanger) {
 	abbrMap := map[rune][]rune{
-		'C': []rune("c$"),
 		'Y': []rune("y$"),
 	}
 	e.streamSet.in.Add(abbrMap[r])
