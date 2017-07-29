@@ -313,19 +313,21 @@ func (e *normal) replace(_ rune) (_ modeChanger) {
 }
 
 func (e *normal) word(r rune) (_ modeChanger) {
+	var f func()
+	switch r {
+	case 'w':
+		f = e.wordForward()
+	case 'W':
+		f = e.wordForwardNonBlank()
+	case 'e':
+		e.inclusive = true
+		f = e.wordEnd()
+	case 'E':
+		e.inclusive = true
+		f = e.wordEndNonBlank()
+	}
 	for i := 0; i < e.count; i++ {
-		switch r {
-		case 'w':
-			e.wordForward()
-		case 'W':
-			e.wordForwardNonBlank()
-		case 'e':
-			e.inclusive = true
-			e.wordEnd()
-		case 'E':
-			e.inclusive = true
-			e.wordEndNonBlank()
-		}
+		f()
 	}
 	return
 }
