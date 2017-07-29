@@ -132,7 +132,7 @@ var normalCommands = map[rune]normalCommand{
 	'R':       (*normal).replaceMode,
 	'W':       (*normal).wordNonBlank,
 	'X':       (*normal).deleteBefore,
-	'Y':       (*normal).abbrev,
+	'Y':       (*normal).yankToEnd,
 	'a':       (*normal).edit,
 	'b':       (*normal).wordBack,
 	'c':       (*normal).operator1,
@@ -415,12 +415,8 @@ func (e *normal) changeToEnd(_ rune) modeChanger {
 	return ins(e.pos == len(e.buf))
 }
 
-func (e *normal) abbrev(r rune) (_ modeChanger) {
-	abbrMap := map[rune][]rune{
-		'Y': []rune("y$"),
-	}
-	e.streamSet.in.Add(abbrMap[r])
-	e.opCount = e.count
+func (e *normal) yankToEnd(_ rune) (_ modeChanger) {
+	e.yank(e.regName, e.pos, len(e.buf))
 	return
 }
 
