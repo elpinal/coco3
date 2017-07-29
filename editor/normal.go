@@ -155,20 +155,20 @@ var normalCommands = map[rune]normalCommand{
 	'y':       (*normal).operator1,
 }
 
-func (e *nvCommon) endline(r rune) (_ modeChanger) {
+func (e *nvCommon) endline(_ rune) (_ modeChanger) {
 	e.move(len(e.buf))
 	return
 }
 
-func (e *nvCommon) beginline(r rune) (_ modeChanger) {
+func (e *nvCommon) beginline(_ rune) (_ modeChanger) {
 	e.move(0)
 	return
 }
 
-func (e *nvCommon) beginlineNonBlank(r rune) (_ modeChanger) {
+func (e *nvCommon) beginlineNonBlank(_ rune) (_ modeChanger) {
 	i := e.indexFunc(isWhitespace, 0, false)
 	if i < 0 {
-		return e.endline(r)
+		return e.endline(0)
 	}
 	e.move(i)
 	return
@@ -202,7 +202,7 @@ func (e *normal) operator(s string) (_ modeChanger) {
 	return
 }
 
-func (e *nvCommon) left(r rune) (_ modeChanger) {
+func (e *nvCommon) left(_ rune) (_ modeChanger) {
 	e.move(e.pos - e.count)
 	return
 }
@@ -228,7 +228,7 @@ func (e *normal) edit(r rune) modeChanger {
 	case 'g': // "gI" command.
 		e.move(0)
 	case 'I':
-		_ = e.beginlineNonBlank(r)
+		_ = e.beginlineNonBlank(0)
 	case 'a':
 		e.move(e.pos + 1)
 	}
