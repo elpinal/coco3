@@ -175,13 +175,15 @@ func (e *nvCommon) beginlineNonBlank(_ rune) (_ modeChanger) {
 }
 
 func (e *nvCommon) wordBack(r rune) (_ modeChanger) {
+	var f func()
+	switch r {
+	case 'b':
+		f = e.wordBackward()
+	case 'B':
+		f = e.wordBackwardNonBlank()
+	}
 	for i := 0; i < e.count; i++ {
-		switch r {
-		case 'b':
-			e.wordBackward()
-		case 'B':
-			e.wordBackwardNonBlank()
-		}
+		f()
 	}
 	return
 }
