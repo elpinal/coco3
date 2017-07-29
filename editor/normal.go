@@ -377,14 +377,14 @@ func (e *normal) clearOp() {
 }
 
 func (e *normal) abbrev(r rune) (_ modeChanger) {
-	amap := map[rune][]rune{
+	abbrMap := map[rune][]rune{
 		'x': []rune("dl"),
 		'X': []rune("dh"),
 		'D': []rune("d$"),
 		'C': []rune("c$"),
 		'Y': []rune("y$"),
 	}
-	e.streamSet.in.Add(amap[r])
+	e.streamSet.in.Add(abbrMap[r])
 	e.opCount = e.count
 	return
 }
