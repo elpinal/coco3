@@ -65,7 +65,7 @@ func (v *visual) Run() (end continuity, next modeChanger, err error) {
 	if !ok {
 		return
 	}
-	if m := cmd(v, r); m != nil {
+	if m := cmd(v); m != nil {
 		next = m
 	}
 	if v.pos == len(v.buf) {
@@ -75,7 +75,7 @@ func (v *visual) Run() (end continuity, next modeChanger, err error) {
 	return
 }
 
-type visualCommand = func(*visual, rune) modeChanger
+type visualCommand = func(*visual) modeChanger
 
 var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
@@ -102,34 +102,34 @@ var visualCommands = map[rune]visualCommand{
 	'y':        (*visual).yank,
 }
 
-func (v *visual) escape(_ rune) modeChanger {
+func (v *visual) escape() modeChanger {
 	return norm()
 }
 
-func (v *visual) delete(_ rune) modeChanger {
+func (v *visual) delete() modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.delete(hi.Left, hi.Right)
 	return norm()
 }
 
-func (v *visual) change(_ rune) modeChanger {
-	_ = v.delete(0)
+func (v *visual) change() modeChanger {
+	_ = v.delete()
 	return ins(v.pos == len(v.buf))
 }
 
-func (v *visual) swap(_ rune) (_ modeChanger) {
+func (v *visual) swap() (_ modeChanger) {
 	v.start, v.pos = v.pos, v.start
 	return
 }
 
-func (v *visual) yank(_ rune) modeChanger {
+func (v *visual) yank() modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.yank(register.Unnamed, hi.Left, hi.Right)
 	v.move(hi.Left)
 	return norm()
 }
 
-func (v *visual) replace(_ rune) modeChanger {
+func (v *visual) replace() modeChanger {
 	r, _, _ := v.in.ReadRune()
 	hi := v.Highlight()
 	rs := make([]rune, hi.Right-hi.Left)
@@ -140,26 +140,26 @@ func (v *visual) replace(_ rune) modeChanger {
 	return norm()
 }
 
-func (v *visual) toUpper(_ rune) modeChanger {
+func (v *visual) toUpper() modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.toUpper(hi.Left, hi.Right)
 	return norm()
 }
 
-func (v *visual) toLower(_ rune) modeChanger {
+func (v *visual) toLower() modeChanger {
 	hi := v.Highlight()
 	v.nvCommon.toLower(hi.Left, hi.Right)
 	return norm()
 }
 
-func (v *visual) wordEnd(_ rune) (_ modeChanger) {
+func (v *visual) wordEnd() (_ modeChanger) {
 	for i := 0; i < v.count; i++ {
 		v.nvCommon.wordEnd()
 	}
 	return
 }
 
-func (v *visual) wordEndNonBlank(_ rune) (_ modeChanger) {
+func (v *visual) wordEndNonBlank() (_ modeChanger) {
 	for i := 0; i < v.count; i++ {
 		v.nvCommon.wordEndNonBlank()
 	}
