@@ -219,6 +219,14 @@ func ins(rightmost bool) modeChanger {
 	}
 }
 
+func (e *normal) insertFromBeginning(_ rune) modeChanger {
+	if e.finishOp {
+		return nil
+	}
+	e.move(0)
+	return ins(e.pos == len(e.buf))
+}
+
 func (e *normal) edit(r rune) modeChanger {
 	if (r == 'a' || r == 'i') && e.opType != OpNop {
 		e.object(r)
@@ -227,8 +235,6 @@ func (e *normal) edit(r rune) modeChanger {
 	switch r {
 	case 'A':
 		e.move(len(e.buf))
-	case 'g': // "gI" command.
-		e.move(0)
 	case 'I':
 		_ = e.beginlineNonBlank(0)
 	case 'a':
@@ -465,7 +471,7 @@ func (e *normal) gCmd(r rune) (_ modeChanger) {
 	case '/':
 		return e.searchHistory(r)
 	case 'I':
-		return e.edit(r)
+		return e.insertFromBeginning(0)
 	}
 	return
 }
