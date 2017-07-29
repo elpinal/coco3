@@ -112,8 +112,8 @@ func (v *visual) delete(_ rune) modeChanger {
 	return norm()
 }
 
-func (v *visual) change(r rune) modeChanger {
-	_ = v.delete(r)
+func (v *visual) change(_ rune) modeChanger {
+	_ = v.delete(0)
 	return ins(v.pos == len(v.buf))
 }
 
