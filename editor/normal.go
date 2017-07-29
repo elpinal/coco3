@@ -125,12 +125,12 @@ var normalCommands = map[rune]normalCommand{
 	'B':       (*normal).wordBackNonBlank,
 	'C':       (*normal).abbrev,
 	'D':       (*normal).abbrev,
-	'E':       (*normal).wordEnd,
+	'E':       (*normal).wordEndNonBlank,
 	'F':       (*normal).searchCharacterBackward,
 	'I':       (*normal).edit,
 	'N':       (*normal).previous,
 	'R':       (*normal).replaceMode,
-	'W':       (*normal).word,
+	'W':       (*normal).wordNonBlank,
 	'X':       (*normal).abbrev,
 	'Y':       (*normal).abbrev,
 	'a':       (*normal).edit,
@@ -312,32 +312,32 @@ func (e *normal) replace(_ rune) (_ modeChanger) {
 	return
 }
 
-func (e *normal) word(r rune) (_ modeChanger) {
-	var f func()
-	switch r {
-	case 'w':
-		f = e.wordForward
-	case 'W':
-		f = e.wordForwardNonBlank
-	}
+func (e *normal) word(_ rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		f()
+		e.wordForward()
 	}
 	return
 }
 
-func (e *normal) wordEnd(r rune) (_ modeChanger) {
-	var f func()
-	switch r {
-	case 'e':
-		e.inclusive = true
-		f = e.nvCommon.wordEnd
-	case 'E':
-		e.inclusive = true
-		f = e.wordEndNonBlank
-	}
+func (e *normal) wordNonBlank(_ rune) (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		f()
+		e.wordForwardNonBlank()
+	}
+	return
+}
+
+func (e *normal) wordEnd(_ rune) (_ modeChanger) {
+	e.inclusive = true
+	for i := 0; i < e.count; i++ {
+		e.nvCommon.wordEnd()
+	}
+	return
+}
+
+func (e *normal) wordEndNonBlank(_ rune) (_ modeChanger) {
+	e.inclusive = true
+	for i := 0; i < e.count; i++ {
+		e.nvCommon.wordEndNonBlank()
 	}
 	return
 }
