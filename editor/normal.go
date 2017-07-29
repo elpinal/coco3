@@ -151,7 +151,7 @@ var normalCommands = map[rune]normalCommand{
 	'u':       (*normal).undoCmd,
 	'v':       (*normal).visual,
 	'w':       (*normal).word,
-	'x':       (*normal).abbrev,
+	'x':       (*normal).deleteUnder,
 	'y':       (*normal).operator1,
 }
 
@@ -386,9 +386,16 @@ func (e *normal) clearOp() {
 	e.opArg = opArg{}
 }
 
+func (e *normal) deleteUnder(_ rune) (_ modeChanger) {
+	from, to := e.pos, e.pos+e.count
+	e.yank(e.regName, from, to)
+	e.delete(from, to)
+	e.undoTree.add(e.buf)
+	return
+}
+
 func (e *normal) abbrev(r rune) (_ modeChanger) {
 	abbrMap := map[rune][]rune{
-		'x': []rune("dl"),
 		'X': []rune("dh"),
 		'D': []rune("d$"),
 		'C': []rune("c$"),
