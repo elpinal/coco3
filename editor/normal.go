@@ -125,7 +125,7 @@ var normalCommands = map[rune]normalCommand{
 	'B':       (*normal).wordBackNonBlank,
 	'C':       (*normal).abbrev,
 	'D':       (*normal).abbrev,
-	'E':       (*normal).word,
+	'E':       (*normal).wordEnd,
 	'F':       (*normal).searchCharacterBackward,
 	'I':       (*normal).edit,
 	'N':       (*normal).previous,
@@ -137,7 +137,7 @@ var normalCommands = map[rune]normalCommand{
 	'b':       (*normal).wordBack,
 	'c':       (*normal).operator1,
 	'd':       (*normal).operator1,
-	'e':       (*normal).word,
+	'e':       (*normal).wordEnd,
 	'f':       (*normal).searchCharacter,
 	'g':       (*normal).gCmd,
 	'h':       (*normal).left,
@@ -319,9 +319,19 @@ func (e *normal) word(r rune) (_ modeChanger) {
 		f = e.wordForward
 	case 'W':
 		f = e.wordForwardNonBlank
+	}
+	for i := 0; i < e.count; i++ {
+		f()
+	}
+	return
+}
+
+func (e *normal) wordEnd(r rune) (_ modeChanger) {
+	var f func()
+	switch r {
 	case 'e':
 		e.inclusive = true
-		f = e.wordEnd
+		f = e.nvCommon.wordEnd
 	case 'E':
 		e.inclusive = true
 		f = e.wordEndNonBlank
