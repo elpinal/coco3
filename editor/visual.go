@@ -99,6 +99,7 @@ var visualCommands = map[rune]visualCommand{
 	'h':        (*visual).left,
 	'l':        (*visual).right,
 	'r':        (*visual).replace,
+	's':        (*visual).siege,
 	'o':        (*visual).swap,
 	'u':        (*visual).toLower,
 	'v':        (*visual).escape,
@@ -189,5 +190,12 @@ func (v *visual) switchCase() modeChanger {
 
 func (v *visual) deleteLine() modeChanger {
 	v.editor.delete(0, len(v.buf))
+	return norm()
+}
+
+func (v *visual) siege() modeChanger {
+	hi := v.Highlight()
+	r, _, _ := v.in.ReadRune()
+	v.editor.siege(hi.Left, hi.Right, r)
 	return norm()
 }
