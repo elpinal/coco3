@@ -617,28 +617,28 @@ func (e *normal) parseNumber(i int) (a int, l int) {
 	return a, len(e.buf) - i
 }
 
-func (e *normal) increment() (_ modeChanger) {
+func (e *normal) updateNumber(f func(int) int) {
 	i := e.indexNumber()
 	if i < 0 {
 		return
 	}
 	n, l := e.parseNumber(i)
 	e.delete(i, i+l)
-	s := fmt.Sprint(n+1)
+	s := fmt.Sprint(f(n))
 	e.insert([]rune(s), i)
-	e.move(i+len(s)-1)
+	e.move(i + len(s) - 1)
+}
+
+func (e *normal) increment() (_ modeChanger) {
+	e.updateNumber(func(n int) int {
+		return n + 1
+	})
 	return
 }
 
 func (e *normal) decrement() (_ modeChanger) {
-	i := e.indexNumber()
-	if i < 0 {
-		return
-	}
-	n, l := e.parseNumber(i)
-	e.delete(i, i+l)
-	s := fmt.Sprint(n-1)
-	e.insert([]rune(s), i)
-	e.move(i+len(s)-1)
+	e.updateNumber(func(n int) int {
+		return n - 1
+	})
 	return
 }
