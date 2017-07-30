@@ -576,13 +576,20 @@ func (e *normal) searchHistory() (_ modeChanger) {
 }
 
 func (e *normal) indexNumber() int {
+	i0 := e.pos
+	for ; 0 <= i0; i0-- {
+		r := e.buf[i0]
+		if !('0' <= r && r <= '9') {
+			break
+		}
+	}
 	var negative bool
-	for i, r := range e.buf[e.pos:] {
+	for i, r := range e.buf[i0:] {
 		if '0' <= r && r <= '9' {
 			if negative {
 				i--
 			}
-			return i + e.pos
+			return i + i0
 		}
 		if !negative && r == '-' {
 			negative = true
