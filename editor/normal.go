@@ -624,8 +624,9 @@ func (e *normal) increment() (_ modeChanger) {
 	}
 	n, l := e.parseNumber(i)
 	e.delete(i, i+l)
-	e.insert([]rune(fmt.Sprint(n+1)), i)
-	e.move(i)
+	s := fmt.Sprint(n+1)
+	e.insert([]rune(s), i)
+	e.move(i+len(s)-1)
 	return
 }
 
@@ -636,7 +637,8 @@ func (e *normal) decrement() (_ modeChanger) {
 	}
 	n, l := e.parseNumber(i)
 	e.delete(i, i+l)
-	e.insert([]rune(fmt.Sprint(n-1)), i)
-	e.move(i)
+	s := fmt.Sprint(n-1)
+	e.insert([]rune(s), i)
+	e.move(i+len(s)-1)
 	return
 }
