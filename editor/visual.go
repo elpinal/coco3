@@ -85,6 +85,7 @@ var visualCommands = map[rune]visualCommand{
 	'0':        (*visual).beginline,
 	'A':        (*visual).appendAfter,
 	'B':        (*visual).wordBack,
+	'C':        (*visual).changeLine,
 	'D':        (*visual).deleteLine,
 	'E':        (*visual).wordEndNonBlank,
 	'F':        (*visual).searchCharacterBackward,
@@ -199,4 +200,9 @@ func (v *visual) siege() modeChanger {
 	v.editor.siege(hi.Left, hi.Right, r)
 	v.move(hi.Left)
 	return norm()
+}
+
+func (v *visual) changeLine() modeChanger {
+	v.editor.delete(0, len(v.buf))
+	return ins(v.pos == len(v.buf))
 }
