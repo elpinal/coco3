@@ -85,6 +85,7 @@ var visualCommands = map[rune]visualCommand{
 	'B':        (*visual).wordBack,
 	'E':        (*visual).wordEndNonBlank,
 	'F':        (*visual).searchCharacterBackward,
+	'I':        (*visual).insertBefore,
 	'U':        (*visual).toUpper,
 	'W':        (*visual).wordNonBlank,
 	'b':        (*visual).wordBack,
@@ -164,4 +165,9 @@ func (v *visual) wordEndNonBlank() (_ modeChanger) {
 		v.nvCommon.wordEndNonBlank()
 	}
 	return
+}
+
+func (v *visual) insertBefore() modeChanger {
+	v.move(v.Highlight().Left)
+	return ins(v.pos == len(v.buf))
 }
