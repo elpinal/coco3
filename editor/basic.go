@@ -179,16 +179,16 @@ func (e *basic) siege(from int, to int, r rune) {
 	case '\'', '"', '`', '@', '*', '+', '_', '|', '$':
 		e.insert([]rune{r}, to)
 		e.insert([]rune{r}, from)
-	case '(', ')':
+	case '(', ')', 'b':
 		e.insert([]rune{')'}, to)
 		e.insert([]rune{'('}, from)
-	case '{', '}':
+	case '{', '}', 'B':
 		e.insert([]rune{'}'}, to)
 		e.insert([]rune{'{'}, from)
-	case '[', ']':
+	case '[', ']', 'r':
 		e.insert([]rune{']'}, to)
 		e.insert([]rune{'['}, from)
-	case '<', '>':
+	case '<', '>', 'a':
 		e.insert([]rune{'>'}, to)
 		e.insert([]rune{'<'}, from)
 	}
