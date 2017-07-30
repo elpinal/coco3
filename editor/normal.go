@@ -149,6 +149,7 @@ var normalCommands = map[rune]normalCommand{
 	'n':       (*normal).next,
 	'p':       (*normal).put1,
 	'r':       (*normal).replace,
+	's':       (*normal).siegeOp,
 	'u':       (*normal).undoCmd,
 	'v':       (*normal).visual,
 	'w':       (*normal).word,
@@ -405,6 +406,9 @@ func (e *normal) doPendingOperator() (_ modeChanger) {
 	case OpTilde:
 		e.swapCase(from, to)
 		e.undoTree.add(e.buf)
+	case OpSiege:
+		r, _, _ := e.in.ReadRune()
+		e.siege(from, to, r)
 	}
 	e.clearOp()
 	e.move(min(from, to))
@@ -647,5 +651,10 @@ func (e *normal) decrement() (_ modeChanger) {
 func (e *normal) switchCase() (_ modeChanger) {
 	e.editor.swapCase(e.pos, e.pos+e.count)
 	e.move(e.pos + e.count)
+	return
+}
+
+func (e *normal) siegeOp() (_ modeChanger) {
+	e.operator(OpSiege)
 	return
 }

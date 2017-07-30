@@ -8,4 +8,5 @@ const (
 	OpLower
 	OpUpper
 	OpTilde
+	OpSiege
 )
