@@ -197,5 +197,6 @@ func (v *visual) siege() modeChanger {
 	hi := v.Highlight()
 	r, _, _ := v.in.ReadRune()
 	v.editor.siege(hi.Left, hi.Right, r)
+	v.move(hi.Left)
 	return norm()
 }
