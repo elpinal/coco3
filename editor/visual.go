@@ -85,6 +85,7 @@ var visualCommands = map[rune]visualCommand{
 	'0':        (*visual).beginline,
 	'A':        (*visual).appendAfter,
 	'B':        (*visual).wordBack,
+	'D':        (*visual).deleteLine,
 	'E':        (*visual).wordEndNonBlank,
 	'F':        (*visual).searchCharacterBackward,
 	'I':        (*visual).insertBefore,
@@ -183,5 +184,10 @@ func (v *visual) switchCase() modeChanger {
 	hi := v.Highlight()
 	v.editor.swapCase(hi.Left, hi.Right)
 	v.move(hi.Left)
+	return norm()
+}
+
+func (v *visual) deleteLine() modeChanger {
+	v.editor.delete(0, len(v.buf))
 	return norm()
 }
