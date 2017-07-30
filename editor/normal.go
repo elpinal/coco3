@@ -576,16 +576,30 @@ func (e *normal) searchHistory() (_ modeChanger) {
 }
 
 func (e *normal) indexNumber() int {
+	var negative bool
 	for i, r := range e.buf[e.pos:] {
 		if '0' <= r && r <= '9' {
+			if negative {
+				i--
+			}
 			return i + e.pos
+		}
+		if !negative && r == '-' {
+			negative = true
 		}
 	}
 	return -1
 }
 
 func (e *normal) parseNumber(i int) (a int, l int) {
-	for n := i; n < len(e.buf); n++ {
+	i0 := i
+	if e.buf[i] == '-' {
+		i0++
+		defer func() {
+			a *= -1
+		}()
+	}
+	for n := i0; n < len(e.buf); n++ {
 		r := int(e.buf[n])
 		if '0' <= r && r <= '9' {
 			a = 10*a + r - '0'
