@@ -118,6 +118,7 @@ var normalCommands = map[rune]normalCommand{
 	'?':       (*normal).searchBackward,
 	'+':       (*normal).increment,
 	'-':       (*normal).decrement,
+	'~':       (*normal).switchCase,
 	'$':       (*normal).endline,
 	'^':       (*normal).beginlineNonBlank,
 	'0':       (*normal).beginline,
@@ -640,5 +641,11 @@ func (e *normal) decrement() (_ modeChanger) {
 	e.updateNumber(func(n int) int {
 		return n - e.count
 	})
+	return
+}
+
+func (e *normal) switchCase() (_ modeChanger) {
+	e.editor.swapCase(e.pos, e.pos+e.count)
+	e.move(e.pos + e.count)
 	return
 }
