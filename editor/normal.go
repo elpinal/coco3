@@ -631,14 +631,14 @@ func (e *normal) updateNumber(f func(int) int) {
 
 func (e *normal) increment() (_ modeChanger) {
 	e.updateNumber(func(n int) int {
-		return n + 1
+		return n + e.count
 	})
 	return
 }
 
 func (e *normal) decrement() (_ modeChanger) {
 	e.updateNumber(func(n int) int {
-		return n - 1
+		return n - e.count
 	})
 	return
 }
