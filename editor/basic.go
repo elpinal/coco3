@@ -179,5 +179,8 @@ func (e *basic) siege(from int, to int, r rune) {
 	case '\'', '"', '`':
 		e.insert([]rune{r}, to)
 		e.insert([]rune{r}, from)
+	case '(', ')':
+		e.insert([]rune{')'}, to)
+		e.insert([]rune{'('}, from)
 	}
 }
