@@ -15,6 +15,7 @@ type exCommand struct {
 // exComands represents a table of Ex commands and corresponding functions.
 // The order is important. Precede commands have higher precedence.
 var exCommands = []exCommand{
+	{"delete", (*commandline).delete},
 	{"quit", (*commandline).quit},
 }
 
@@ -118,4 +119,9 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 
 func (e *commandline) quit(args []string) continuity {
 	return exit
+}
+
+func (e *commandline) delete(args []string) (_ continuity) {
+	e.editor.delete(0, len(e.editor.buf))
+	return
 }
