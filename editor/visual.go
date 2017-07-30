@@ -80,6 +80,7 @@ type visualCommand = func(*visual) modeChanger
 var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
 	CharCtrlC:  (*visual).escape,
+	'~':        (*visual).switchCase,
 	'$':        (*visual).endline,
 	'0':        (*visual).beginline,
 	'A':        (*visual).appendAfter,
@@ -176,4 +177,11 @@ func (v *visual) insertBefore() modeChanger {
 func (v *visual) appendAfter() modeChanger {
 	v.move(v.Highlight().Right)
 	return ins(v.pos == len(v.buf))
+}
+
+func (v *visual) switchCase() modeChanger {
+	hi := v.Highlight()
+	v.editor.swapCase(hi.Left, hi.Right)
+	v.move(hi.Left)
+	return norm()
 }
