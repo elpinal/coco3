@@ -176,7 +176,7 @@ func (e *basic) replace(s []rune, at int) {
 
 func (e *basic) siege(from int, to int, r rune) {
 	switch r {
-	case '\'', '"', '`':
+	case '\'', '"', '`', '@', '*', '+', '_', '|', '$':
 		e.insert([]rune{r}, to)
 		e.insert([]rune{r}, from)
 	case '(', ')':
