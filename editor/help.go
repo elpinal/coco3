@@ -50,4 +50,9 @@ var quickref = map[string]string{
 	"i":  "insert text before the cursor",
 	"I":  "insert text before the first non-blank in the line",
 	"gI": "insert text in column 1",
+
+	// insert mode...
+
+	"i_<Esc>":  "end Insert mode, back to Normal mode",
+	"i_CTRL-C": "like <Esc>",
 }
