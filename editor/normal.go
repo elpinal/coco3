@@ -569,12 +569,16 @@ func (e *normal) searchBackward() modeChanger {
 }
 
 func (e *normal) next() (_ modeChanger) {
-	e.move(e.nvCommon.next())
+	for i := 0; i < e.count; i++ {
+		e.move(e.nvCommon.next())
+	}
 	return
 }
 
 func (e *normal) previous() (_ modeChanger) {
-	e.move(e.nvCommon.previous())
+	for i := 0; i < e.count; i++ {
+		e.move(e.nvCommon.previous())
+	}
 	return
 }
 
