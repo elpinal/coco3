@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func help(w io.Writer) error {
+func Help(w io.Writer) error {
 	for k, v := range quickref {
 		_, err := w.Write([]byte(fmt.Sprintf("%s   %s\n", k, v)))
 		if err != nil {

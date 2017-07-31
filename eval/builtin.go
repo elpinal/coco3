@@ -2,6 +2,7 @@ package eval
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/elpinal/coco3/editor"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -42,6 +44,7 @@ func init() {
 		"let":     let,
 		"exec":    execCmd,
 		"history": history,
+		"help":    help,
 	}
 }
 
@@ -218,4 +221,20 @@ func history(ctx context.Context, ci info) error {
 		fmt.Fprintf(buf, "%v  %s\n", data.Time.Format("Mon, 02 Jan 2006 15:04:05"), data.Line)
 	}
 	return buf.Flush()
+}
+
+func help(ctx context.Context, ci info) error {
+	var b bytes.Buffer
+	err := editor.Help(&b)
+	if err != nil {
+		return err
+	}
+	cmd := exec.CommandContext(ctx, "less")
+	cmd.Stdin = &b
+	cmd.Stdout = ci.out
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
