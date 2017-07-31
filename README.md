@@ -13,6 +13,10 @@ $ go get -u github.com/elpinal/coco3
 
 -u flag stands for "update".
 
+## Documentation
+
+To get help, type ":help" or execute "help" built-in command.
+
 ## Motivation
 
 Most shells have too complicated syntax. Some shells have an insufficient
