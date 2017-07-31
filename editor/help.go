@@ -61,4 +61,12 @@ var quickref = map[string]string{
 	"i_<BS":    "delete the character before the cursor",
 	"i_CTRL-W": "delete word before the cursor",
 	"i_CTRL-U": "delete all entered characters in the current line",
+
+	"x":     "delete N characters under and after the cursor",
+	"<Del>": "delete N characters under and after the cursor",
+	"X":     "delete N characters before the cursor",
+	"d":     "delete the text that is moved over with {motion}",
+	"v_d":   "delete the highlighted text",
+	"dd":    "delete N lines",
+	"D":     "delete to the end of the line (and N-1 more lines)",
 }
