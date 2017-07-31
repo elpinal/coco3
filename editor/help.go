@@ -7,7 +7,7 @@ import (
 
 func Help(w io.Writer) error {
 	for k, v := range quickref {
-		_, err := w.Write([]byte(fmt.Sprintf("%s   %s\n", k, v)))
+		_, err := w.Write([]byte(fmt.Sprintf("%-12s%s\n", k, v)))
 		if err != nil {
 			return err
 		}
