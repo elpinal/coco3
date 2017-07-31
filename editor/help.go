@@ -55,4 +55,10 @@ var quickref = map[string]string{
 
 	"i_<Esc>":  "end Insert mode, back to Normal mode",
 	"i_CTRL-C": "like <Esc>",
+
+	"i_CTRL-R": "insert the contents of a register",
+	"i_CTRL-Y": "complete the word before the cursor in various ways",
+	"i_<BS":    "delete the character before the cursor",
+	"i_CTRL-W": "delete word before the cursor",
+	"i_CTRL-U": "delete all entered characters in the current line",
 }
