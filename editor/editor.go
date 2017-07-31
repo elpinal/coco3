@@ -66,7 +66,7 @@ func (b *balancer) Read() ([]rune, bool, error) {
 		}
 		if end == execute {
 			b.s.SetLastLine("")
-			b.s.Refresh(b.conf, m.Mode() == modeCommandline || m.Mode() == modeSearch, m.Runes(), m.Position(), m.Highlight())
+			b.s.Refresh(b.conf, false, m.Runes(), m.Position(), m.Highlight())
 			return m.Runes(), false, nil
 		}
 		if next != nil {
