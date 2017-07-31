@@ -508,12 +508,16 @@ func (e *normal) gCmd() (_ modeChanger) {
 }
 
 func (e *normal) undoCmd() (_ modeChanger) {
-	e.undo()
+	for i := 0; i < e.count; i++ {
+		e.undo()
+	}
 	return
 }
 
 func (e *normal) redoCmd() (_ modeChanger) {
-	e.redo()
+	for i := 0; i < e.count; i++ {
+		e.redo()
+	}
 	return
 }
 
