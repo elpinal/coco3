@@ -292,18 +292,18 @@ func (e *normal) object(include bool) {
 }
 
 func (e *normal) down() (_ modeChanger) {
-	if e.age >= len(e.history)-1 {
+	if e.age >= len(e.history)-e.count {
 		return
 	}
 	e.history[e.age] = e.buf
-	e.age++
+	e.age += e.count
 	e.buf = e.history[e.age]
 	e.pos = len(e.buf)
 	return
 }
 
 func (e *normal) up() (_ modeChanger) {
-	if e.age <= 0 {
+	if e.age <= e.count-1 {
 		return
 	}
 	if e.age == len(e.history) {
@@ -311,7 +311,7 @@ func (e *normal) up() (_ modeChanger) {
 	} else {
 		e.history[e.age] = e.buf
 	}
-	e.age--
+	e.age -= e.count
 	e.buf = e.history[e.age]
 	e.pos = len(e.buf)
 	return
