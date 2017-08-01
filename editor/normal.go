@@ -281,10 +281,12 @@ func (e *normal) object(include bool) {
 		from, to = e.currentWordNonBlank(include)
 	case '"', '\'', '`':
 		from, to = e.currentQuote(include, r)
-		if from < 0 || to < 0 {
-			return
-		}
+	case '(', ')':
+		from, to = e.currentParen(include, '(', ')')
 	default:
+		return
+	}
+	if from < 0 || to < 0 {
 		return
 	}
 	e.opStart = from
