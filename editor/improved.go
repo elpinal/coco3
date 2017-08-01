@@ -349,6 +349,45 @@ func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 	return
 }
 
+func (e *editor) currentParen(include bool, p1, p2 rune) (from, to int) {
+	if len(e.buf) == 0 {
+		return
+	}
+	if e.pos == len(e.buf) {
+		return -1, -1
+	}
+	switch e.buf[e.pos] {
+	case p1:
+		to = e.index(p2, e.pos+1)
+		from = e.pos
+	case p2:
+		from = e.lastIndex(p1, e.pos)
+		to = e.pos
+	default:
+		from = e.lastIndex(p1, e.pos)
+		if from < 0 {
+			return
+		}
+		to = e.index(p2, e.pos)
+	}
+	if to < 0 {
+		return
+	}
+	if include {
+		to++
+		if to < len(e.buf) && isWhitespace(e.buf[to]) {
+			to++
+			return
+		}
+		if from > 0 && isWhitespace(e.buf[from-1]) {
+			from--
+		}
+		return
+	}
+	from++
+	return
+}
+
 func (e *editor) charSearch(r rune) (int, error) {
 	i := strings.IndexRune(string(e.slice(e.pos+1, len(e.buf))), r)
 	if i < 0 {
