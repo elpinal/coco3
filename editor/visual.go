@@ -222,11 +222,14 @@ func (v *visual) object() (_ modeChanger) {
 		from, to = v.currentWord(false)
 	case 'W':
 		from, to = v.currentWordNonBlank(false)
+	case '"', '\'', '`':
+		from, to = v.currentQuote(false, r)
 	default:
 		v.move(initPos)
 		return
 	}
 	if from < 0 {
+		v.move(initPos)
 		return
 	}
 	if v.start <= v.pos {
