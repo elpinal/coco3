@@ -92,6 +92,7 @@ var visualCommands = map[rune]visualCommand{
 	'I':        (*visual).insertBefore,
 	'U':        (*visual).toUpper,
 	'W':        (*visual).wordNonBlank,
+	'a':        (*visual).objectInclude,
 	'b':        (*visual).wordBack,
 	'c':        (*visual).change,
 	'd':        (*visual).delete,
@@ -208,7 +209,7 @@ func (v *visual) changeLine() modeChanger {
 	return ins(v.pos == len(v.buf))
 }
 
-func (v *visual) object() (_ modeChanger) {
+func (v *visual) object1(include bool) {
 	initPos := v.pos
 	if v.start <= v.pos {
 		v.move(v.pos + 1)
@@ -219,11 +220,11 @@ func (v *visual) object() (_ modeChanger) {
 	r, _, _ := v.in.ReadRune()
 	switch r {
 	case 'w':
-		from, to = v.currentWord(false)
+		from, to = v.currentWord(include)
 	case 'W':
-		from, to = v.currentWordNonBlank(false)
+		from, to = v.currentWordNonBlank(include)
 	case '"', '\'', '`':
-		from, to = v.currentQuote(false, r)
+		from, to = v.currentQuote(include, r)
 	default:
 		v.move(initPos)
 		return
@@ -237,5 +238,15 @@ func (v *visual) object() (_ modeChanger) {
 		return
 	}
 	v.move(from)
+	return
+}
+
+func (v *visual) object() (_ modeChanger) {
+	v.object1(false)
+	return
+}
+
+func (v *visual) objectInclude() (_ modeChanger) {
+	v.object1(true)
 	return
 }
