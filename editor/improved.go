@@ -286,6 +286,9 @@ func (e *editor) currentWordNonBlank(include bool) (from, to int) {
 	if len(e.buf) == 0 {
 		return 0, 0
 	}
+	if e.pos == len(e.buf) {
+		return -1, -1
+	}
 	f := func(r rune) bool { return !isWhitespace(r) }
 	if isWhitespace(e.buf[e.pos]) {
 		f = isWhitespace

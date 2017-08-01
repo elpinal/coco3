@@ -220,6 +220,8 @@ func (v *visual) object() (_ modeChanger) {
 	switch r {
 	case 'w':
 		from, to = v.currentWord(false)
+	case 'W':
+		from, to = v.currentWordNonBlank(false)
 	default:
 		v.move(initPos)
 		return
