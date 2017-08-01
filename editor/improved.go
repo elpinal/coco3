@@ -313,6 +313,9 @@ func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 	if len(e.buf) == 0 {
 		return
 	}
+	if e.pos == len(e.buf) {
+		return -1, -1
+	}
 	if e.buf[e.pos] == quote {
 		n := strings.Count(string(e.buf[:e.pos]), string(quote))
 		if n%2 == 0 {
