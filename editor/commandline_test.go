@@ -14,8 +14,8 @@ func TestCommandline(t *testing.T) {
 		basic:     &basic{},
 	}
 	var (
-		end  continuity
-		err  error
+		end continuity
+		err error
 	)
 	for range command {
 		end, _, err = ed.Run()
