@@ -227,6 +227,12 @@ func (v *visual) object1(include bool) {
 		from, to = v.currentQuote(include, r)
 	case '(', ')':
 		from, to = v.currentParen(include, '(', ')')
+	case '{', '}':
+		from, to = v.currentParen(include, '{', '}')
+	case '[', ']':
+		from, to = v.currentParen(include, '[', ']')
+	case '<', '>':
+		from, to = v.currentParen(include, '<', '>')
 	default:
 		v.move(initPos)
 		return

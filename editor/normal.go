@@ -283,6 +283,12 @@ func (e *normal) object(include bool) {
 		from, to = e.currentQuote(include, r)
 	case '(', ')':
 		from, to = e.currentParen(include, '(', ')')
+	case '{', '}':
+		from, to = v.currentParen(include, '{', '}')
+	case '[', ']':
+		from, to = v.currentParen(include, '[', ']')
+	case '<', '>':
+		from, to = v.currentParen(include, '<', '>')
 	default:
 		return
 	}
