@@ -359,22 +359,14 @@ func (e *editor) currentParen(include bool, p1, p2 rune) (from, to int) {
 	if e.pos == len(e.buf) {
 		return -1, -1
 	}
-	switch e.buf[e.pos] {
-	case p1:
-		to = e.index(p2, e.pos+1)
-		from = e.pos
-	case p2:
-		from = e.lastIndex(p1, e.pos)
-		to = e.pos
-	default:
-		from = e.lastIndex(p1, e.pos)
-		if from < 0 {
-			return
-		}
-		to = e.index(p2, e.pos)
+
+	from = e.searchLeft(p1, p2)
+	if from < 0 {
+		return -1, -1
 	}
+	to = e.searchRight(p1, p2)
 	if to < 0 {
-		return
+		return -1, -1
 	}
 	if include {
 		to++
@@ -389,6 +381,38 @@ func (e *editor) currentParen(include bool, p1, p2 rune) (from, to int) {
 	}
 	from++
 	return
+}
+
+func (e *editor) searchLeft(p1, p2 rune) int {
+	var level int
+	for i := e.pos; i >= 0; i-- {
+		switch e.buf[i] {
+		case p1:
+			if level == 0 {
+				return i
+			}
+			level--
+		case p2:
+			level++
+		}
+	}
+	return -1
+}
+
+func (e *editor) searchRight(p1, p2 rune) int {
+	var level int
+	for i := e.pos; i < len(e.buf); i++ {
+		switch e.buf[i] {
+		case p1:
+			level++
+		case p2:
+			if level == 0 {
+				return i
+			}
+			level--
+		}
+	}
+	return -1
 }
 
 func (e *editor) charSearch(r rune) (int, error) {
