@@ -209,12 +209,21 @@ func (v *visual) changeLine() modeChanger {
 }
 
 func (v *visual) object() (_ modeChanger) {
+	initPos := v.pos
 	if v.start <= v.pos {
 		v.move(v.pos + 1)
 	} else {
 		v.move(v.pos - 1)
 	}
-	from, to := v.currentWord(false)
+	var from, to int
+	r, _, _ := v.in.ReadRune()
+	switch r {
+	case 'w':
+		from, to = v.currentWord(false)
+	default:
+		v.move(initPos)
+		return
+	}
 	if from < 0 {
 		return
 	}
