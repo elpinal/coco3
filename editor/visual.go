@@ -211,6 +211,9 @@ func (v *visual) changeLine() modeChanger {
 func (v *visual) object() (_ modeChanger) {
 	v.move(v.pos + 1)
 	from, to := v.currentWord(false)
+	if from < 0 {
+		return
+	}
 	if v.start <= v.pos {
 		v.move(to - 1)
 		return

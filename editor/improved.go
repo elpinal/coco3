@@ -254,9 +254,11 @@ func (e *editor) swapCase(from, to int) {
 }
 
 func (e *editor) currentWord(include bool) (from, to int) {
-	switch len(e.buf) {
-	case 0, e.pos:
+	if len(e.buf) == 0 {
 		return 0, 0
+	}
+	if e.pos == len(e.buf) {
+		return -1, -1
 	}
 	f := func(r rune) bool { return !(isKeyword(r) || isWhitespace(r)) }
 	switch ch := e.buf[e.pos]; {
