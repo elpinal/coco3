@@ -677,7 +677,7 @@ func (e *normal) siegeOp() (_ modeChanger) {
 	return
 }
 
-func (e *normal) prevUnmatched() (_ modeChanger) {
+func (e *nvCommon) prevUnmatched() (_ modeChanger) {
 	r, _, _ := e.in.ReadRune()
 	var rp, lp rune
 	switch r {
@@ -698,7 +698,7 @@ func (e *normal) prevUnmatched() (_ modeChanger) {
 	return
 }
 
-func (e *normal) nextUnmatched() (_ modeChanger) {
+func (e *nvCommon) nextUnmatched() (_ modeChanger) {
 	r, _, _ := e.in.ReadRune()
 	var rp, lp rune
 	switch r {

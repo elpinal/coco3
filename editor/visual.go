@@ -81,6 +81,8 @@ var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
 	CharCtrlC:  (*visual).escape,
 	'~':        (*visual).switchCase,
+	'[':        (*visual).prevUnmatched,
+	']':        (*visual).nextUnmatched,
 	'$':        (*visual).endline,
 	'0':        (*visual).beginline,
 	'A':        (*visual).appendAfter,
