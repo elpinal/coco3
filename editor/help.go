@@ -38,6 +38,8 @@ var quickref = []struct{ k, v string }{
 	{"E", "forward to the end of the Nth blank-separated WORD"},
 	{"b", "N words backward"},
 	{"B", "N blank-separated WORDs backward"},
+	{"ge", "backward to the end of the Nth word"},
+	{"gE", "backward to the end of the Nth blank-separated WORD"},
 
 	{"/", "search forward"},
 	{"?", "search backward"},
