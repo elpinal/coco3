@@ -119,6 +119,7 @@ var normalCommands = map[rune]normalCommand{
 	'+':       (*normal).increment,
 	'-':       (*normal).decrement,
 	'~':       (*normal).switchCase,
+	'[':       (*normal).prevUnmatched,
 	'$':       (*normal).endline,
 	'^':       (*normal).beginlineNonBlank,
 	'0':       (*normal).beginline,
@@ -672,5 +673,18 @@ func (e *normal) switchCase() (_ modeChanger) {
 
 func (e *normal) siegeOp() (_ modeChanger) {
 	e.operator(OpSiege)
+	return
+}
+
+func (e *normal) prevUnmatched() (_ modeChanger) {
+	r, _, _ := e.in.ReadRune()
+	switch r {
+	case '(':
+		i := e.searchLeft('(', ')')
+		if i < 0 {
+			return
+		}
+		e.move(i)
+	}
 	return
 }
