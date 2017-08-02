@@ -514,6 +514,8 @@ func (e *normal) gCmd() (_ modeChanger) {
 		return e.searchHistory()
 	case 'I':
 		return e.insertFromBeginning()
+	case 'e':
+		return e.wordEndBackward()
 	case 'E':
 		return e.wordEndBackwardNonBlank()
 	}
@@ -776,6 +778,13 @@ func (e *nvCommon) moveToMatch() (_ modeChanger) {
 func (e *normal) wordEndBackwardNonBlank() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackwardNonBlank()
+	}
+	return
+}
+
+func (e *normal) wordEndBackward() (_ modeChanger) {
+	for i := 0; i < e.count; i++ {
+		e.editor.wordEndBackward()
 	}
 	return
 }
