@@ -243,16 +243,15 @@ func (v *visual) object1(include bool) {
 		v.move(initPos)
 		return
 	}
-	if v.start == initPos {
+	switch {
+	case v.start == initPos:
 		v.move(to - 1)
 		v.start = from
-		return
-	}
-	if v.start <= v.pos {
+	case v.start < v.pos:
 		v.move(to - 1)
-		return
+	default:
+		v.move(from)
 	}
-	v.move(from)
 	return
 }
 
