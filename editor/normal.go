@@ -776,6 +776,7 @@ func (e *nvCommon) moveToMatch() (_ modeChanger) {
 }
 
 func (e *normal) wordEndBackwardNonBlank() (_ modeChanger) {
+	e.inclusive = true
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackwardNonBlank()
 	}
@@ -783,6 +784,7 @@ func (e *normal) wordEndBackwardNonBlank() (_ modeChanger) {
 }
 
 func (e *normal) wordEndBackward() (_ modeChanger) {
+	e.inclusive = true
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackward()
 	}
