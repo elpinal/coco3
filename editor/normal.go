@@ -121,6 +121,7 @@ var normalCommands = map[rune]normalCommand{
 	'~':       (*normal).switchCase,
 	'[':       (*normal).prevUnmatched,
 	']':       (*normal).nextUnmatched,
+	'%':       (*normal).moveToMatch,
 	'$':       (*normal).endline,
 	'^':       (*normal).beginlineNonBlank,
 	'0':       (*normal).beginline,
@@ -716,5 +717,41 @@ func (e *nvCommon) nextUnmatched() (_ modeChanger) {
 		return
 	}
 	e.move(i)
+	return
+}
+
+func isParen(r rune) bool {
+	switch r {
+	case '(', ')', '[', ']', '{', '}':
+		return true
+	}
+	return false
+}
+
+func getRightParen(r rune) rune {
+	return map[rune]rune{
+		'(': ')',
+		'[': ']',
+		'{': '}',
+	}[r]
+}
+
+func (e *nvCommon) moveToMatch() (_ modeChanger) {
+	i := e.indexFunc(isParen, e.pos, true)
+	if i < 0 {
+		return
+	}
+	initPos := e.pos
+	e.move(i)
+	p := e.buf[i]
+	switch p {
+	case '(', '[', '{':
+		i := e.searchRight(p, getRightParen(p))
+		if i < 0 {
+			e.move(initPos)
+			return
+		}
+		e.move(i)
+	}
 	return
 }

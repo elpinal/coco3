@@ -385,7 +385,7 @@ func (e *editor) currentParen(include bool, p1, p2 rune) (from, to int) {
 
 func (e *editor) searchLeft(p1, p2 rune) int {
 	var level int
-	for i := e.pos; i >= 0; i-- {
+	for i := e.pos - 1; i >= 0; i-- {
 		switch e.buf[i] {
 		case p1:
 			if level == 0 {
@@ -401,7 +401,7 @@ func (e *editor) searchLeft(p1, p2 rune) int {
 
 func (e *editor) searchRight(p1, p2 rune) int {
 	var level int
-	for i := e.pos; i < len(e.buf); i++ {
+	for i := e.pos + 1; i < len(e.buf); i++ {
 		switch e.buf[i] {
 		case p1:
 			level++
