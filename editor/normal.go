@@ -120,6 +120,7 @@ var normalCommands = map[rune]normalCommand{
 	'-':       (*normal).decrement,
 	'~':       (*normal).switchCase,
 	'[':       (*normal).prevUnmatched,
+	']':       (*normal).nextUnmatched,
 	'$':       (*normal).endline,
 	'^':       (*normal).beginlineNonBlank,
 	'0':       (*normal).beginline,
@@ -690,6 +691,27 @@ func (e *normal) prevUnmatched() (_ modeChanger) {
 		return
 	}
 	i := e.searchLeft(rp, lp)
+	if i < 0 {
+		return
+	}
+	e.move(i)
+	return
+}
+
+func (e *normal) nextUnmatched() (_ modeChanger) {
+	r, _, _ := e.in.ReadRune()
+	var rp, lp rune
+	switch r {
+	case ')':
+		rp = '('
+		lp = ')'
+	case '}':
+		rp = '{'
+		lp = '}'
+	default:
+		return
+	}
+	i := e.searchRight(rp, lp)
 	if i < 0 {
 		return
 	}
