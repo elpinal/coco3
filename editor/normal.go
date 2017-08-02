@@ -284,9 +284,9 @@ func (e *normal) object(include bool) {
 		from, to = e.currentWordNonBlank(include)
 	case '"', '\'', '`':
 		from, to = e.currentQuote(include, r)
-	case '(', ')':
+	case '(', ')', 'b':
 		from, to = e.currentParen(include, '(', ')')
-	case '{', '}':
+	case '{', '}', 'B':
 		from, to = e.currentParen(include, '{', '}')
 	case '[', ']':
 		from, to = e.currentParen(include, '[', ']')
