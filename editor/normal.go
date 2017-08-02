@@ -736,6 +736,14 @@ func getRightParen(r rune) rune {
 	}[r]
 }
 
+func getLeftParen(r rune) rune {
+	return map[rune]rune{
+		')': '(',
+		']': '[',
+		'}': '{',
+	}[r]
+}
+
 func (e *nvCommon) moveToMatch() (_ modeChanger) {
 	i := e.indexFunc(isParen, e.pos, true)
 	if i < 0 {
@@ -747,6 +755,13 @@ func (e *nvCommon) moveToMatch() (_ modeChanger) {
 	switch p {
 	case '(', '[', '{':
 		i := e.searchRight(p, getRightParen(p))
+		if i < 0 {
+			e.move(initPos)
+			return
+		}
+		e.move(i)
+	case ')', ']', '}':
+		i := e.searchLeft(getLeftParen(p), p)
 		if i < 0 {
 			e.move(initPos)
 			return
