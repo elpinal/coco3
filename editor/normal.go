@@ -683,6 +683,9 @@ func (e *normal) prevUnmatched() (_ modeChanger) {
 	case '(':
 		rp = '('
 		lp = ')'
+	case '{':
+		rp = '{'
+		lp = '}'
 	}
 	i := e.searchLeft(rp, lp)
 	if i < 0 {
