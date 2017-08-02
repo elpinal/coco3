@@ -370,13 +370,6 @@ func (e *editor) currentParen(include bool, p1, p2 rune) (from, to int) {
 	}
 	if include {
 		to++
-		if to < len(e.buf) && isWhitespace(e.buf[to]) {
-			to++
-			return
-		}
-		if from > 0 && isWhitespace(e.buf[from-1]) {
-			from--
-		}
 		return
 	}
 	from++
