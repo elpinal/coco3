@@ -678,13 +678,16 @@ func (e *normal) siegeOp() (_ modeChanger) {
 
 func (e *normal) prevUnmatched() (_ modeChanger) {
 	r, _, _ := e.in.ReadRune()
+	var rp, lp rune
 	switch r {
 	case '(':
-		i := e.searchLeft('(', ')')
-		if i < 0 {
-			return
-		}
-		e.move(i)
+		rp = '('
+		lp = ')'
 	}
+	i := e.searchLeft(rp, lp)
+	if i < 0 {
+		return
+	}
+	e.move(i)
 	return
 }
