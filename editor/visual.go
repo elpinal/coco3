@@ -213,7 +213,7 @@ func (v *visual) changeLine() modeChanger {
 
 func (v *visual) object1(include bool) {
 	initPos := v.pos
-	if v.start <= v.pos {
+	if v.start < v.pos {
 		v.move(v.pos + 1)
 	} else {
 		v.move(v.pos - 1)
@@ -241,6 +241,11 @@ func (v *visual) object1(include bool) {
 	}
 	if from < 0 {
 		v.move(initPos)
+		return
+	}
+	if v.start == initPos {
+		v.move(to - 1)
+		v.start = from
 		return
 	}
 	if v.start <= v.pos {
