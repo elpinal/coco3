@@ -387,8 +387,8 @@ func (e *normal) doPendingOperator() (_ modeChanger) {
 	if !e.finishOp {
 		return
 	}
-	from := e.opStart
-	to := e.pos
+	from := min(e.opStart, e.pos)
+	to := max(e.opStart, e.pos)
 	if e.inclusive {
 		to++
 	}
