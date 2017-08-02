@@ -100,6 +100,7 @@ var visualCommands = map[rune]visualCommand{
 	'd':        (*visual).delete,
 	'e':        (*visual).wordEnd,
 	'f':        (*visual).searchCharacter,
+	'g':        (*visual).gCmd,
 	'i':        (*visual).object,
 	'h':        (*visual).left,
 	'l':        (*visual).right,
@@ -262,5 +263,33 @@ func (v *visual) object() (_ modeChanger) {
 
 func (v *visual) objectInclude() (_ modeChanger) {
 	v.object1(true)
+	return
+}
+
+func (v *visual) gCmd() (_ modeChanger) {
+	r, _, err := v.streamSet.in.ReadRune()
+	if err != nil {
+		return
+	}
+	switch r {
+	case 'e':
+		return v.wordEndBackward()
+	case 'E':
+		return v.wordEndBackwardNonBlank()
+	}
+	return
+}
+
+func (v *visual) wordEndBackwardNonBlank() (_ modeChanger) {
+	for i := 0; i < v.count; i++ {
+		v.editor.wordEndBackwardNonBlank()
+	}
+	return
+}
+
+func (v *visual) wordEndBackward() (_ modeChanger) {
+	for i := 0; i < v.count; i++ {
+		v.editor.wordEndBackward()
+	}
 	return
 }
