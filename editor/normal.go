@@ -284,11 +284,11 @@ func (e *normal) object(include bool) {
 	case '(', ')':
 		from, to = e.currentParen(include, '(', ')')
 	case '{', '}':
-		from, to = v.currentParen(include, '{', '}')
+		from, to = e.currentParen(include, '{', '}')
 	case '[', ']':
-		from, to = v.currentParen(include, '[', ']')
+		from, to = e.currentParen(include, '[', ']')
 	case '<', '>':
-		from, to = v.currentParen(include, '<', '>')
+		from, to = e.currentParen(include, '<', '>')
 	default:
 		return
 	}
