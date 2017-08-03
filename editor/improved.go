@@ -6,9 +6,10 @@ import (
 	"unicode"
 
 	"github.com/elpinal/coco3/editor/register"
+	"github.com/elpinal/revim"
 )
 
-type searchRange [][2]int
+type searchRange [][]int
 
 type editor struct {
 	basic
@@ -28,7 +29,6 @@ func newEditor() *editor {
 	return &editor{
 		undoTree:  newUndoTree(),
 		Registers: r,
-		sr:        make([][2]int, 2),
 	}
 }
 
@@ -530,15 +530,17 @@ func (e *editor) search(s string) (found bool) {
 	if s == "" {
 		return false
 	}
-	off := 0
-	for {
-		i := strings.Index(string(e.buf[off:]), s)
-		if i < 0 {
-			return len(e.sr) > 0
-		}
-		e.sr = append(e.sr, [2]int{off + i, off + i + len(s)})
-		off += i + len(s)
+	re, err := revim.Compile(s)
+	if err != nil {
+		// TODO: report error
+		return false
 	}
+	loc := re.FindAllStringIndex(string(e.buf))
+	if loc == nil {
+		return false
+	}
+	e.sr = loc
+	return true
 }
 
 func (e *editor) next() int {
