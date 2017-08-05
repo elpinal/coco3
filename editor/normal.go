@@ -197,19 +197,16 @@ func (e *nvCommon) wordBackNonBlank() (_ modeChanger) {
 	return
 }
 
-func (e *normal) changeOp() (_ modeChanger) {
-	e.operator(OpChange)
-	return
+func (e *normal) changeOp() modeChanger {
+	return opPend(OpChange, e.count)
 }
 
-func (e *normal) deleteOp() (_ modeChanger) {
-	e.operator(OpDelete)
-	return
+func (e *normal) deleteOp() modeChanger {
+	return opPend(OpDelete, e.count)
 }
 
-func (e *normal) yankOp() (_ modeChanger) {
-	e.operator(OpYank)
-	return
+func (e *normal) yankOp() modeChanger {
+	return opPend(OpYank, e.count)
 }
 
 func (e *normal) operator(op int) {
@@ -924,6 +921,11 @@ func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
 		o.move(o.pos - 1)
 	}
 	o.count = 0
+
+	if m := o.object(); m != nil {
+		next = m
+	}
+
 	return
 }
 
@@ -932,4 +934,48 @@ type operatorPendingCommand = func(*operatorPending) modeChanger
 var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'h': (*operatorPending).left,
 	'l': (*operatorPending).right,
+}
+
+func (o *operatorPending) object() modeChanger {
+	from := min(o.start, o.pos)
+	to := max(o.start, o.pos)
+	/*
+	if o.inclusive {
+		to++
+	}
+	if o.motionType == mline {
+		from = 0
+		to = len(o.buf)
+	}
+	*/
+	switch o.opType {
+	case OpDelete:
+		// FIXME: specify register
+		o.yank(register.Unnamed, from, to)
+		o.delete(from, to)
+		//o.undoTree.add(o.buf)
+	case OpYank:
+		o.yank(register.Unnamed, from, to)
+	case OpChange:
+		o.yank(register.Unnamed, from, to)
+		o.delete(from, to)
+		//o.undoTree.add(o.buf)
+		return ins(o.pos == len(o.buf))
+		/*
+	case OpLower:
+		o.toLower(from, to)
+		o.undoTree.add(o.buf)
+	case OpUpper:
+		o.toUpper(from, to)
+		o.undoTree.add(o.buf)
+	case OpTilde:
+		o.swapCase(from, to)
+		o.undoTree.add(o.buf)
+	case OpSiege:
+		r, _, _ := o.in.ReadRune()
+		o.siege(from, to, r)
+		*/
+	}
+	o.move(min(from, to))
+	return nil
 }
