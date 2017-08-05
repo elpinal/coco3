@@ -133,6 +133,7 @@ var normalCommands = map[rune]normalCommand{
 	'F':       (*normal).searchCharacterBackward,
 	'I':       (*normal).insertFirstNonBlank,
 	'N':       (*normal).previous,
+	'P':       (*normal).putHere,
 	'R':       (*normal).replaceMode,
 	'W':       (*normal).wordNonBlank,
 	'X':       (*normal).deleteBefore,
@@ -330,6 +331,14 @@ func (e *normal) up() (_ modeChanger) {
 
 func (e *nvCommon) right() (_ modeChanger) {
 	e.move(e.pos + e.count)
+	return
+}
+
+func (e *normal) putHere() (_ modeChanger) {
+	for i := 0; i < e.count; i++ {
+		e.put(e.regName, e.pos)
+	}
+	e.undoTree.add(e.buf)
 	return
 }
 
