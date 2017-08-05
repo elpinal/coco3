@@ -501,6 +501,14 @@ func (e *editor) charSearchBackward(r rune) (int, error) {
 	return i, nil
 }
 
+func (e *editor) charSearchBackwardAfter(r rune) (int, error) {
+	i := strings.LastIndex(string(e.slice(0, e.pos)), string(r))
+	if i < 0 {
+		return 0, fmt.Errorf("pattern not found: %c", r)
+	}
+	return i + 1, nil
+}
+
 func (e *editor) undo() {
 	s, ok := e.undoTree.undo()
 	if !ok {

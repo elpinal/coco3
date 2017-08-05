@@ -135,6 +135,7 @@ var normalCommands = map[rune]normalCommand{
 	'N':       (*normal).previous,
 	'P':       (*normal).putHere,
 	'R':       (*normal).replaceMode,
+	'T':       (*normal).searchCharacterBackwardAfter,
 	'V':       (*normal).visualLine,
 	'W':       (*normal).wordNonBlank,
 	'X':       (*normal).deleteBefore,
@@ -339,7 +340,7 @@ func (e *nvCommon) right() (_ modeChanger) {
 func (e *normal) putHere() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.put(e.regName, e.pos)
-		e.move(e.pos-1)
+		e.move(e.pos - 1)
 	}
 	e.undoTree.add(e.buf)
 	return
@@ -523,9 +524,27 @@ func (e *nvCommon) searchCharacterBefore() (_ modeChanger) {
 			e.move(pos)
 			return
 		}
-		e.move(i+1)
+		e.move(i + 1)
 	}
-	e.move(e.pos-1)
+	e.move(e.pos - 1)
+	return
+}
+
+func (e *nvCommon) searchCharacterBackwardAfter() (_ modeChanger) {
+	r, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return
+	}
+	pos := e.pos
+	for i := 0; i < e.count; i++ {
+		i, err := e.charSearchBackwardAfter(r)
+		if err != nil {
+			e.move(pos)
+			return
+		}
+		e.move(i - 1)
+	}
+	e.move(e.pos + 1)
 	return
 }
 
