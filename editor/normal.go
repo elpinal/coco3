@@ -846,3 +846,90 @@ func (e *normal) wordEndBackward() (_ modeChanger) {
 	}
 	return
 }
+
+type operatorPending struct {
+	nvCommon
+
+	opType  int
+	opCount int
+	start   int
+}
+
+func newOperatorPending(s streamSet, e *editor, op int, count int) *operatorPending {
+	return &operatorPending{
+		nvCommon: nvCommon{
+			streamSet: s,
+			editor:    e,
+		},
+		opType:  op,
+		opCount: count,
+		start:   e.pos,
+	}
+}
+
+func opPend(op, count int) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newOperatorPending(b.streamSet, b.editor, op, count), nil
+	}
+}
+
+func (o *operatorPending) Mode() mode {
+	return modeOperatorPending
+}
+
+func (o *operatorPending) Runes() []rune {
+	return o.buf
+}
+
+func (o *operatorPending) Position() int {
+	return o.pos
+}
+
+func (o *operatorPending) Message() []rune {
+	return nil
+}
+
+func (o *operatorPending) Highlight() *screen.Hi {
+	return nil
+}
+
+func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
+	next = norm()
+	r, _, err := o.in.ReadRune()
+	if err != nil {
+		return end, next, err
+	}
+	for ('1' <= r && r <= '9') || (o.count != 0 && r == '0') {
+		o.count = o.count*10 + int(r-'0')
+		r1, _, err := o.streamSet.in.ReadRune()
+		if err != nil {
+			return end, next, err
+		}
+		r = r1
+	}
+	if o.count == 0 {
+		o.count = 1
+	}
+	if o.opCount > 0 {
+		o.count *= o.opCount
+	}
+	cmd, ok := operatorPendingCommands[r]
+	if !ok {
+		return
+	}
+	if m := cmd(o); m != nil {
+		next = m
+	}
+	if o.pos == len(o.buf) {
+		o.move(o.pos - 1)
+	}
+	o.count = 0
+	return
+}
+
+type operatorPendingCommand = func(*operatorPending) modeChanger
+
+var operatorPendingCommands = map[rune]operatorPendingCommand{
+	'h': (*operatorPending).left,
+	'l': (*operatorPending).right,
+}
