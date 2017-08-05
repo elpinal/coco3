@@ -461,7 +461,7 @@ func TestSearch(t *testing.T) {
 			pos:   0,
 			query: "a",
 			found: true,
-			sr: [][2]int{
+			sr: [][]int{
 				{0, 1},
 				{1, 2},
 				{2, 3},
@@ -472,7 +472,7 @@ func TestSearch(t *testing.T) {
 			pos:   10,
 			query: "xy",
 			found: true,
-			sr: [][2]int{
+			sr: [][]int{
 				{7, 9},
 				{17, 19},
 			},
