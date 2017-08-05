@@ -155,6 +155,7 @@ var normalCommands = map[rune]normalCommand{
 	'p':       (*normal).put1,
 	'r':       (*normal).replace,
 	's':       (*normal).siegeOp,
+	't':       (*normal).searchCharacterBefore,
 	'u':       (*normal).undoCmd,
 	'v':       (*normal).visual,
 	'w':       (*normal).word,
@@ -507,6 +508,24 @@ func (e *nvCommon) searchCharacterBackward() (_ modeChanger) {
 		}
 		e.move(i)
 	}
+	return
+}
+
+func (e *nvCommon) searchCharacterBefore() (_ modeChanger) {
+	r, _, err := e.streamSet.in.ReadRune()
+	if err != nil {
+		return
+	}
+	pos := e.pos
+	for i := 0; i < e.count; i++ {
+		i, err := e.charSearchBefore(r)
+		if err != nil {
+			e.move(pos)
+			return
+		}
+		e.move(i+1)
+	}
+	e.move(e.pos-1)
 	return
 }
 
