@@ -137,6 +137,7 @@ func (c *CLI) interact(g gate.Gate) error {
 	}
 	if end {
 		c.exitCh <- 0
+		<-c.doneCh
 		return nil
 	}
 	go c.writeHistory(r)
