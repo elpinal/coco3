@@ -17,8 +17,18 @@ func newVisual(s streamSet, e *editor) *visual {
 			streamSet: s,
 			editor:    e,
 		},
-
 		start: e.pos,
+	}
+}
+
+func newVisualLine(s streamSet, e *editor) *visual {
+	e.move(len(e.buf) - 1)
+	return &visual{
+		nvCommon: nvCommon{
+			streamSet: s,
+			editor:    e,
+		},
+		start: 0,
 	}
 }
 

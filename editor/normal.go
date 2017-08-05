@@ -135,6 +135,7 @@ var normalCommands = map[rune]normalCommand{
 	'N':       (*normal).previous,
 	'P':       (*normal).putHere,
 	'R':       (*normal).replaceMode,
+	'V':       (*normal).visualLine,
 	'W':       (*normal).wordNonBlank,
 	'X':       (*normal).deleteBefore,
 	'Y':       (*normal).yankToEnd,
@@ -574,6 +575,12 @@ func (e *normal) commandline() modeChanger {
 func (e *normal) visual() modeChanger {
 	return func(b *balancer) (moder, error) {
 		return newVisual(b.streamSet, b.editor), nil
+	}
+}
+
+func (e *normal) visualLine() modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newVisualLine(b.streamSet, b.editor), nil
 	}
 }
 
