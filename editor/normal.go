@@ -337,6 +337,7 @@ func (e *nvCommon) right() (_ modeChanger) {
 func (e *normal) putHere() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.put(e.regName, e.pos)
+		e.move(e.pos-1)
 	}
 	e.undoTree.add(e.buf)
 	return
@@ -345,6 +346,7 @@ func (e *normal) putHere() (_ modeChanger) {
 func (e *normal) put1() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.put(e.regName, e.pos+1)
+		e.move(e.pos + len(e.Read(e.regName)))
 	}
 	e.undoTree.add(e.buf)
 	return
