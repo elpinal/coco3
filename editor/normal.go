@@ -356,10 +356,10 @@ func (e *normal) put1() (_ modeChanger) {
 }
 
 func (e *normal) replace() (_ modeChanger) {
-	r1, _, _ := e.streamSet.in.ReadRune()
+	r, _, _ := e.streamSet.in.ReadRune()
 	s := make([]rune, e.count)
 	for i := 0; i < e.count; i++ {
-		s[i] = r1
+		s[i] = r
 	}
 	e.editor.replace(s, e.pos)
 	e.move(e.pos + e.count - 1)
@@ -479,13 +479,13 @@ func (e *normal) yankToEnd() (_ modeChanger) {
 }
 
 func (e *nvCommon) searchCharacter() (_ modeChanger) {
-	r1, _, err := e.streamSet.in.ReadRune()
+	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
 	}
 	pos := e.pos
 	for i := 0; i < e.count; i++ {
-		i, err := e.charSearch(r1)
+		i, err := e.charSearch(r)
 		if err != nil {
 			e.move(pos)
 			return
@@ -496,13 +496,13 @@ func (e *nvCommon) searchCharacter() (_ modeChanger) {
 }
 
 func (e *nvCommon) searchCharacterBackward() (_ modeChanger) {
-	r1, _, err := e.streamSet.in.ReadRune()
+	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
 	}
 	pos := e.pos
 	for i := 0; i < e.count; i++ {
-		i, err := e.charSearchBackward(r1)
+		i, err := e.charSearchBackward(r)
 		if err != nil {
 			e.move(pos)
 			return
@@ -549,11 +549,11 @@ func (e *nvCommon) searchCharacterBackwardAfter() (_ modeChanger) {
 }
 
 func (e *normal) gCmd() (_ modeChanger) {
-	r1, _, err := e.streamSet.in.ReadRune()
+	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
 	}
-	switch r1 {
+	switch r {
 	case 'u':
 		e.operator(OpLower)
 	case 'U':
@@ -593,14 +593,14 @@ func (e *normal) replaceMode() modeChanger {
 }
 
 func (e *normal) handleRegister() (_ modeChanger) {
-	r1, _, err := e.streamSet.in.ReadRune()
+	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return
 	}
-	if !register.IsValid(r1) {
+	if !register.IsValid(r) {
 		return
 	}
-	e.regName = r1
+	e.regName = r
 	return
 }
 
