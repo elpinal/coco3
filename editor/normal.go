@@ -7,20 +7,6 @@ import (
 	"github.com/elpinal/coco3/screen"
 )
 
-type opArg struct {
-	opType     int // current operator type
-	opStart    int
-	opCount    int
-	motionType int
-	inclusive  bool
-}
-
-type normalSet struct {
-	opArg
-	finishOp bool
-	regName  rune
-}
-
 type nvCommon struct {
 	streamSet
 	*editor
@@ -31,7 +17,7 @@ type nvCommon struct {
 type normal struct {
 	nvCommon
 
-	normalSet
+	regName rune
 }
 
 func newNormal(s streamSet, e *editor) *normal {
@@ -54,7 +40,6 @@ func (e *normal) Mode() mode {
 }
 
 func (e *normal) Run() (end continuity, next modeChanger, err error) {
-	e.finishOp = e.opType != OpNop
 	r, _, err := e.streamSet.in.ReadRune()
 	if err != nil {
 		return end, next, err
@@ -70,18 +55,12 @@ func (e *normal) Run() (end continuity, next modeChanger, err error) {
 	if e.count == 0 {
 		e.count = 1
 	}
-	if e.opCount > 0 {
-		e.count *= e.opCount
-	}
 	if e.regName == 0 {
 		e.regName = register.Unnamed
 	}
 	if cmd, ok := normalCommands[r]; ok {
 		if m := cmd(e); m != nil {
 			next = m
-		}
-		if n := e.doPendingOperator(); n != nil {
-			next = n
 		}
 		e.count = 0
 		if e.pos == len(e.buf) {
@@ -209,16 +188,6 @@ func (e *normal) yankOp() modeChanger {
 	return opPend(OpYank, e.count)
 }
 
-func (e *normal) operator(op int) {
-	if op == e.opType { // double operator
-		e.motionType = mline
-	} else {
-		e.opStart = e.pos
-		e.opType = op
-		e.opCount = e.count
-	}
-}
-
 func (e *nvCommon) left() (_ modeChanger) {
 	e.move(e.pos - e.count)
 	return
@@ -235,72 +204,27 @@ func ins(rightmost bool) modeChanger {
 }
 
 func (e *normal) insertFromBeginning() modeChanger {
-	if e.finishOp {
-		return nil
-	}
 	e.move(0)
 	return ins(e.pos == len(e.buf))
 }
 
 func (e *normal) appendAtEnd() modeChanger {
-	if e.finishOp {
-		return nil
-	}
 	e.move(len(e.buf))
 	return ins(e.pos == len(e.buf))
 }
 
 func (e *normal) insertFirstNonBlank() modeChanger {
-	if e.finishOp {
-		return nil
-	}
 	_ = e.beginlineNonBlank()
 	return ins(e.pos == len(e.buf))
 }
 
 func (e *normal) appendAfter() modeChanger {
-	if e.finishOp {
-		e.object(true)
-		return nil
-	}
 	e.move(e.pos + 1)
 	return ins(e.pos == len(e.buf))
 }
 
 func (e *normal) edit() modeChanger {
-	if e.finishOp {
-		e.object(false)
-		return nil
-	}
 	return ins(e.pos == len(e.buf))
-}
-
-func (e *normal) object(include bool) {
-	var from, to int
-	r, _, _ := e.streamSet.in.ReadRune()
-	switch r {
-	case 'w':
-		from, to = e.currentWord(include)
-	case 'W':
-		from, to = e.currentWordNonBlank(include)
-	case '"', '\'', '`':
-		from, to = e.currentQuote(include, r)
-	case '(', ')', 'b':
-		from, to = e.currentParen(include, '(', ')')
-	case '{', '}', 'B':
-		from, to = e.currentParen(include, '{', '}')
-	case '[', ']':
-		from, to = e.currentParen(include, '[', ']')
-	case '<', '>':
-		from, to = e.currentParen(include, '<', '>')
-	default:
-		return
-	}
-	if from < 0 || to < 0 {
-		return
-	}
-	e.opStart = from
-	e.pos = to
 }
 
 func (e *normal) down() (_ modeChanger) {
@@ -379,7 +303,6 @@ func (e *nvCommon) wordNonBlank() (_ modeChanger) {
 }
 
 func (e *normal) wordEnd() (_ modeChanger) {
-	e.inclusive = true
 	for i := 0; i < e.count; i++ {
 		e.nvCommon.wordEnd()
 	}
@@ -387,58 +310,10 @@ func (e *normal) wordEnd() (_ modeChanger) {
 }
 
 func (e *normal) wordEndNonBlank() (_ modeChanger) {
-	e.inclusive = true
 	for i := 0; i < e.count; i++ {
 		e.nvCommon.wordEndNonBlank()
 	}
 	return
-}
-
-func (e *normal) doPendingOperator() (_ modeChanger) {
-	if !e.finishOp {
-		return
-	}
-	from := min(e.opStart, e.pos)
-	to := max(e.opStart, e.pos)
-	if e.inclusive {
-		to++
-	}
-	if e.motionType == mline {
-		from = 0
-		to = len(e.buf)
-	}
-	switch e.opType {
-	case OpDelete:
-		e.yank(e.regName, from, to)
-		e.delete(from, to)
-		e.undoTree.add(e.buf)
-	case OpYank:
-		e.yank(e.regName, from, to)
-	case OpChange:
-		e.yank(e.regName, from, to)
-		e.delete(from, to)
-		e.undoTree.add(e.buf)
-		return ins(e.pos == len(e.buf))
-	case OpLower:
-		e.toLower(from, to)
-		e.undoTree.add(e.buf)
-	case OpUpper:
-		e.toUpper(from, to)
-		e.undoTree.add(e.buf)
-	case OpTilde:
-		e.swapCase(from, to)
-		e.undoTree.add(e.buf)
-	case OpSiege:
-		r, _, _ := e.in.ReadRune()
-		e.siege(from, to, r)
-	}
-	e.clearOp()
-	e.move(min(from, to))
-	return
-}
-
-func (e *normal) clearOp() {
-	e.opArg = opArg{}
 }
 
 func (e *normal) deleteUnder() (_ modeChanger) {
@@ -828,7 +703,6 @@ func (e *nvCommon) moveToMatch() (_ modeChanger) {
 }
 
 func (e *normal) wordEndBackwardNonBlank() (_ modeChanger) {
-	e.inclusive = true
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackwardNonBlank()
 	}
@@ -836,7 +710,6 @@ func (e *normal) wordEndBackwardNonBlank() (_ modeChanger) {
 }
 
 func (e *normal) wordEndBackward() (_ modeChanger) {
-	e.inclusive = true
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackward()
 	}
