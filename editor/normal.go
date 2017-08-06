@@ -919,7 +919,7 @@ func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
 	}
 	o.count = 0
 
-	if m := o.object(); m != nil {
+	if m := o.operate(); m != nil {
 		next = m
 	}
 
@@ -954,7 +954,7 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'B': (*operatorPending).wordBackNonBlank,
 }
 
-func (o *operatorPending) object() modeChanger {
+func (o *operatorPending) operate() modeChanger {
 	from := min(o.start, o.pos)
 	to := max(o.start, o.pos)
 	/*
