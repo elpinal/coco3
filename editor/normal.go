@@ -302,16 +302,16 @@ func (e *nvCommon) wordNonBlank() (_ modeChanger) {
 	return
 }
 
-func (e *normal) wordEnd() (_ modeChanger) {
+func (e *nvCommon) wordEnd() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		e.nvCommon.wordEnd()
+		e.editor.wordEnd()
 	}
 	return
 }
 
-func (e *normal) wordEndNonBlank() (_ modeChanger) {
+func (e *nvCommon) wordEndNonBlank() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		e.nvCommon.wordEndNonBlank()
+		e.editor.wordEndNonBlank()
 	}
 	return
 }
@@ -881,17 +881,13 @@ func (o *operatorPending) operate() modeChanger {
 }
 
 func (o *operatorPending) wordEnd() (_ modeChanger) {
-	for i := 0; i < o.count; i++ {
-		o.nvCommon.wordEnd()
-	}
+	_ = o.nvCommon.wordEnd()
 	o.inclusive = true
 	return
 }
 
 func (o *operatorPending) wordEndNonBlank() (_ modeChanger) {
-	for i := 0; i < o.count; i++ {
-		o.nvCommon.wordEndNonBlank()
-	}
+	_ = o.nvCommon.wordEndNonBlank()
 	o.inclusive = true
 	return
 }

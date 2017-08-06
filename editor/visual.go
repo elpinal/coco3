@@ -174,20 +174,6 @@ func (v *visual) toLower() modeChanger {
 	return norm()
 }
 
-func (v *visual) wordEnd() (_ modeChanger) {
-	for i := 0; i < v.count; i++ {
-		v.nvCommon.wordEnd()
-	}
-	return
-}
-
-func (v *visual) wordEndNonBlank() (_ modeChanger) {
-	for i := 0; i < v.count; i++ {
-		v.nvCommon.wordEndNonBlank()
-	}
-	return
-}
-
 func (v *visual) insertBefore() modeChanger {
 	v.move(v.Highlight().Left)
 	return ins(v.pos == len(v.buf))
