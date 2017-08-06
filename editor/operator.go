@@ -118,11 +118,13 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 	']': (*operatorPending).nextUnmatched,
 	'|': (*operatorPending).column,
 	'^': (*operatorPending).beginlineNonBlank,
+	'~': (*operatorPending).switchLine,
 	'0': (*operatorPending).beginline,
 	'B': (*operatorPending).wordBackNonBlank,
 	'E': (*operatorPending).wordEndNonBlank,
 	'F': (*operatorPending).searchCharacterBackward,
 	'T': (*operatorPending).searchCharacterBackwardAfter,
+	'U': (*operatorPending).upperLine,
 	'W': (*operatorPending).wordNonBlank,
 	'a': (*operatorPending).anObject,
 	'b': (*operatorPending).wordBack,
@@ -135,6 +137,7 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'i': (*operatorPending).innerObject,
 	'l': (*operatorPending).right,
 	't': (*operatorPending).searchCharacterBefore,
+	'u': (*operatorPending).lowerLine,
 	'w': (*operatorPending).word,
 	'y': (*operatorPending).yankLine,
 }
@@ -254,6 +257,21 @@ func (o *operatorPending) changeLine() (_ modeChanger) {
 
 func (o *operatorPending) yankLine() (_ modeChanger) {
 	o.linewise(OpYank)
+	return
+}
+
+func (o *operatorPending) switchLine() (_ modeChanger) {
+	o.linewise(OpTilde)
+	return
+}
+
+func (o *operatorPending) upperLine() (_ modeChanger) {
+	o.linewise(OpUpper)
+	return
+}
+
+func (o *operatorPending) lowerLine() (_ modeChanger) {
+	o.linewise(OpLower)
 	return
 }
 
