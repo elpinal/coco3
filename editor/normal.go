@@ -552,11 +552,11 @@ func (e *normal) gCmd() (_ modeChanger) {
 	}
 	switch r {
 	case 'u':
-		e.operator(OpLower)
+		return opPend(OpLower, e.count)
 	case 'U':
-		e.operator(OpUpper)
+		return opPend(OpUpper, e.count)
 	case '~':
-		e.operator(OpTilde)
+		return opPend(OpTilde, e.count)
 	case '/':
 		return e.searchHistory()
 	case 'I':
@@ -731,8 +731,7 @@ func (e *normal) switchCase() (_ modeChanger) {
 }
 
 func (e *normal) siegeOp() (_ modeChanger) {
-	e.operator(OpSiege)
-	return
+	return opPend(OpSiege, e.count)
 }
 
 func (e *nvCommon) prevUnmatched() (_ modeChanger) {
@@ -981,20 +980,18 @@ func (o *operatorPending) operate() modeChanger {
 		o.delete(from, to)
 		//o.undoTree.add(o.buf)
 		return ins(o.pos == len(o.buf))
-		/*
-			case OpLower:
-				o.toLower(from, to)
-				o.undoTree.add(o.buf)
-			case OpUpper:
-				o.toUpper(from, to)
-				o.undoTree.add(o.buf)
-			case OpTilde:
-				o.swapCase(from, to)
-				o.undoTree.add(o.buf)
-			case OpSiege:
-				r, _, _ := o.in.ReadRune()
-				o.siege(from, to, r)
-		*/
+	case OpLower:
+		o.toLower(from, to)
+		//o.undoTree.add(o.buf)
+	case OpUpper:
+		o.toUpper(from, to)
+		//o.undoTree.add(o.buf)
+	case OpTilde:
+		o.swapCase(from, to)
+		//o.undoTree.add(o.buf)
+	case OpSiege:
+		r, _, _ := o.in.ReadRune()
+		o.siege(from, to, r)
 	}
 	o.move(min(from, to))
 	return nil
