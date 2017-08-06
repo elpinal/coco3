@@ -130,6 +130,7 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'd': (*operatorPending).deleteLine,
 	'e': (*operatorPending).wordEnd,
 	'f': (*operatorPending).searchCharacter,
+	'g': (*operatorPending).gCmd,
 	'h': (*operatorPending).left,
 	'i': (*operatorPending).innerObject,
 	'l': (*operatorPending).right,
@@ -253,5 +254,27 @@ func (o *operatorPending) changeLine() (_ modeChanger) {
 
 func (o *operatorPending) yankLine() (_ modeChanger) {
 	o.linewise(OpYank)
+	return
+}
+
+func (o *operatorPending) gCmd() (_ modeChanger) {
+	r, _, err := o.in.ReadRune()
+	if err != nil {
+		return
+	}
+	switch r {
+	case 'u':
+		o.linewise(OpLower)
+	case 'U':
+		o.linewise(OpUpper)
+	case '~':
+		o.linewise(OpTilde)
+	case 'e':
+		o.inclusive = true
+		return o.nvCommon.wordEndBackward()
+	case 'E':
+		o.inclusive = true
+		return o.nvCommon.wordEndBackwardNonBlank()
+	}
 	return
 }

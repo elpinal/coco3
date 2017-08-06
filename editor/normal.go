@@ -709,14 +709,14 @@ func (e *nvCommon) moveToMatch() (_ modeChanger) {
 	return
 }
 
-func (e *normal) wordEndBackwardNonBlank() (_ modeChanger) {
+func (e *nvCommon) wordEndBackwardNonBlank() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackwardNonBlank()
 	}
 	return
 }
 
-func (e *normal) wordEndBackward() (_ modeChanger) {
+func (e *nvCommon) wordEndBackward() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackward()
 	}
