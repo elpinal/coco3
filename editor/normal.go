@@ -848,6 +848,8 @@ func (o *operatorPending) operate() modeChanger {
 		// FIXME: specify register
 		o.yank(register.Unnamed, from, to)
 		o.delete(from, to)
+		// TODO: It is hard to remember to write "undoTree.add" every time
+		// changing text.
 		o.undoTree.add(o.buf)
 	case OpYank:
 		o.yank(register.Unnamed, from, to)
@@ -872,6 +874,7 @@ func (o *operatorPending) operate() modeChanger {
 	case OpSiege:
 		r, _, _ := o.in.ReadRune()
 		o.siege(from, to, r)
+		o.undoTree.add(o.buf)
 	}
 	o.move(min(from, to))
 	return nil
