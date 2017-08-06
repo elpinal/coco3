@@ -940,7 +940,9 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'$': (*operatorPending).endline,
 	'^': (*operatorPending).beginlineNonBlank,
 	'0': (*operatorPending).beginline,
+	'a': (*operatorPending).anObject,
 	'h': (*operatorPending).left,
+	'i': (*operatorPending).innerObject,
 	'f': (*operatorPending).searchCharacter,
 	'F': (*operatorPending).searchCharacterBackward,
 	't': (*operatorPending).searchCharacterBefore,
@@ -1009,5 +1011,43 @@ func (o *operatorPending) wordEndNonBlank() (_ modeChanger) {
 	for i := 0; i < o.count; i++ {
 		o.nvCommon.wordEndNonBlank()
 	}
+	return
+}
+
+func (o *operatorPending) object(include bool) {
+	var from, to int
+	r, _, _ := o.in.ReadRune()
+	switch r {
+	case 'w':
+		from, to = o.currentWord(include)
+	case 'W':
+		from, to = o.currentWordNonBlank(include)
+	case '"', '\'', '`':
+		from, to = o.currentQuote(include, r)
+	case '(', ')', 'b':
+		from, to = o.currentParen(include, '(', ')')
+	case '{', '}', 'B':
+		from, to = o.currentParen(include, '{', '}')
+	case '[', ']':
+		from, to = o.currentParen(include, '[', ']')
+	case '<', '>':
+		from, to = o.currentParen(include, '<', '>')
+	default:
+		return
+	}
+	if from < 0 || to < 0 {
+		return
+	}
+	o.start = from
+	o.pos = to
+}
+
+func (o *operatorPending) innerObject() (_ modeChanger) {
+	o.object(false)
+	return
+}
+
+func (o *operatorPending) anObject() (_ modeChanger) {
+	o.object(true)
 	return
 }
