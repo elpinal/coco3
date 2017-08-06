@@ -518,16 +518,16 @@ func (e *normal) searchBackward() modeChanger {
 	}
 }
 
-func (e *normal) next() (_ modeChanger) {
+func (e *nvCommon) next() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		e.move(e.nvCommon.next())
+		e.move(e.editor.next())
 	}
 	return
 }
 
-func (e *normal) previous() (_ modeChanger) {
+func (e *nvCommon) previous() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
-		e.move(e.nvCommon.previous())
+		e.move(e.editor.previous())
 	}
 	return
 }
