@@ -90,6 +90,7 @@ type visualCommand = func(*visual) modeChanger
 var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
 	CharCtrlC:  (*visual).escape,
+	'%':        (*visual).moveToMatch,
 	'~':        (*visual).switchCase,
 	'[':        (*visual).prevUnmatched,
 	']':        (*visual).nextUnmatched,
