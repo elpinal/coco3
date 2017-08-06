@@ -20,13 +20,18 @@ type normal struct {
 	regName rune
 }
 
-func newNormal(s streamSet, e *editor) *normal {
+func newNormalWithRegister(s streamSet, e *editor, regName rune) *normal {
 	return &normal{
 		nvCommon: nvCommon{
 			streamSet: s,
 			editor:    e,
 		},
+		regName: regName,
 	}
+}
+
+func newNormal(s streamSet, e *editor) *normal {
+	return newNormalWithRegister(s, e, register.Unnamed)
 }
 
 func norm() modeChanger {
@@ -67,6 +72,7 @@ func (e *normal) Run() (end continuity, next modeChanger, err error) {
 			e.move(e.pos - 1)
 		}
 	}
+	e.regName = 0
 	return
 }
 
@@ -177,15 +183,15 @@ func (e *nvCommon) wordBackNonBlank() (_ modeChanger) {
 }
 
 func (e *normal) changeOp() modeChanger {
-	return opPend(OpChange, e.count)
+	return opPend(OpChange, e.count, e.regName)
 }
 
 func (e *normal) deleteOp() modeChanger {
-	return opPend(OpDelete, e.count)
+	return opPend(OpDelete, e.count, e.regName)
 }
 
 func (e *normal) yankOp() modeChanger {
-	return opPend(OpYank, e.count)
+	return opPend(OpYank, e.count, e.regName)
 }
 
 func (e *nvCommon) left() (_ modeChanger) {
@@ -427,11 +433,11 @@ func (e *normal) gCmd() (_ modeChanger) {
 	}
 	switch r {
 	case 'u':
-		return opPend(OpLower, e.count)
+		return opPend(OpLower, e.count, e.regName)
 	case 'U':
-		return opPend(OpUpper, e.count)
+		return opPend(OpUpper, e.count, e.regName)
 	case '~':
-		return opPend(OpTilde, e.count)
+		return opPend(OpTilde, e.count, e.regName)
 	case '/':
 		return e.searchHistory()
 	case 'I':
@@ -472,8 +478,9 @@ func (e *normal) handleRegister() (_ modeChanger) {
 	if !register.IsValid(r) {
 		return
 	}
-	e.regName = r
-	return
+	return func(b *balancer) (moder, error) {
+		return newNormalWithRegister(b.streamSet, b.editor, r), nil
+	}
 }
 
 func (e *normal) commandline() modeChanger {
@@ -606,7 +613,7 @@ func (e *normal) switchCase() (_ modeChanger) {
 }
 
 func (e *normal) siegeOp() (_ modeChanger) {
-	return opPend(OpSiege, e.count)
+	return opPend(OpSiege, e.count, e.regName)
 }
 
 func (e *nvCommon) prevUnmatched() (_ modeChanger) {
@@ -724,9 +731,10 @@ type operatorPending struct {
 	start      int
 	inclusive  bool
 	motionType int
+	regName    rune
 }
 
-func newOperatorPending(s streamSet, e *editor, op int, count int) *operatorPending {
+func newOperatorPending(s streamSet, e *editor, op, count int, regName rune) *operatorPending {
 	return &operatorPending{
 		nvCommon: nvCommon{
 			streamSet: s,
@@ -735,12 +743,19 @@ func newOperatorPending(s streamSet, e *editor, op int, count int) *operatorPend
 		opType:  op,
 		opCount: count,
 		start:   e.pos,
+		regName: regName,
 	}
 }
 
-func opPend(op, count int) modeChanger {
+func opPendWithRegister(op, count int, regName rune) modeChanger {
 	return func(b *balancer) (moder, error) {
-		return newOperatorPending(b.streamSet, b.editor, op, count), nil
+		return newOperatorPending(b.streamSet, b.editor, op, count, regName), nil
+	}
+}
+
+func opPend(op, count int, regName rune) modeChanger {
+	return func(b *balancer) (moder, error) {
+		return newOperatorPending(b.streamSet, b.editor, op, count, regName), nil
 	}
 }
 
@@ -845,20 +860,19 @@ func (o *operatorPending) operate() modeChanger {
 	}
 	switch o.opType {
 	case OpDelete:
-		// FIXME: specify register
-		o.yank(register.Unnamed, from, to)
+		o.yank(o.regName, from, to)
 		o.delete(from, to)
 		// TODO: It is hard to remember to write "undoTree.add" every time
 		// changing text.
 		o.undoTree.add(o.buf)
 	case OpYank:
-		o.yank(register.Unnamed, from, to)
+		o.yank(o.regName, from, to)
 		if o.motionType == mline {
 			// yanking line does not move cursor.
 			return nil
 		}
 	case OpChange:
-		o.yank(register.Unnamed, from, to)
+		o.yank(o.regName, from, to)
 		o.delete(from, to)
 		o.undoTree.add(o.buf)
 		return ins(o.pos == len(o.buf))
