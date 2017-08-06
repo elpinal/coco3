@@ -848,7 +848,7 @@ func (o *operatorPending) operate() modeChanger {
 		// FIXME: specify register
 		o.yank(register.Unnamed, from, to)
 		o.delete(from, to)
-		//o.undoTree.add(o.buf)
+		o.undoTree.add(o.buf)
 	case OpYank:
 		o.yank(register.Unnamed, from, to)
 		if o.motionType == mline {
@@ -858,17 +858,17 @@ func (o *operatorPending) operate() modeChanger {
 	case OpChange:
 		o.yank(register.Unnamed, from, to)
 		o.delete(from, to)
-		//o.undoTree.add(o.buf)
+		o.undoTree.add(o.buf)
 		return ins(o.pos == len(o.buf))
 	case OpLower:
 		o.toLower(from, to)
-		//o.undoTree.add(o.buf)
+		o.undoTree.add(o.buf)
 	case OpUpper:
 		o.toUpper(from, to)
-		//o.undoTree.add(o.buf)
+		o.undoTree.add(o.buf)
 	case OpTilde:
 		o.swapCase(from, to)
-		//o.undoTree.add(o.buf)
+		o.undoTree.add(o.buf)
 	case OpSiege:
 		r, _, _ := o.in.ReadRune()
 		o.siege(from, to, r)
