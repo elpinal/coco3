@@ -851,6 +851,10 @@ func (o *operatorPending) operate() modeChanger {
 		//o.undoTree.add(o.buf)
 	case OpYank:
 		o.yank(register.Unnamed, from, to)
+		if o.motionType == mline {
+			// yanking line does not move cursor.
+			return nil
+		}
 	case OpChange:
 		o.yank(register.Unnamed, from, to)
 		o.delete(from, to)
