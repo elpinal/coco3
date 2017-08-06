@@ -917,13 +917,14 @@ func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
 	if m := cmd(o); m != nil {
 		next = m
 	}
-	if o.pos == len(o.buf) {
-		o.move(o.pos - 1)
-	}
 	o.count = 0
 
 	if m := o.object(); m != nil {
 		next = m
+	}
+
+	if o.pos == len(o.buf) {
+		o.move(o.pos - 1)
 	}
 
 	return
