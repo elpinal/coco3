@@ -51,21 +51,10 @@ func (r *Registers) Init() {
 }
 
 func (r *Registers) Register(where rune, s []rune) {
-	switch {
-	case '0' <= where && where <= '9':
-		r.numbered[where-'0'] = s
-		return
-	case 'a' <= where && where <= 'z':
-		r.named[where] = s
-		return
-	case 'A' <= where && where <= 'Z':
-		i := where - 'A' + 'a'
-		r.named[i] = append(r.named[i], s...)
-		return
-	}
 	switch where {
 	case Unnamed:
 		r.unnamed = s
+		return
 	case SmallDelete:
 		r.smallDelete = s
 	case RecentExecuted:
@@ -80,9 +69,22 @@ func (r *Registers) Register(where rune, s []rune) {
 		r.clipboard = s
 	case BlackHole:
 		// no-op
+		return
 	case LastSearch:
 		r.lastSearch = s
 	}
+	switch {
+	case '0' <= where && where <= '9':
+		r.numbered[where-'0'] = s
+	case 'a' <= where && where <= 'z':
+		r.named[where] = s
+	case 'A' <= where && where <= 'Z':
+		i := where - 'A' + 'a'
+		r.named[i] = append(r.named[i], s...)
+	}
+
+	// The unnamed register is pointing to the last used register.
+	r.unnamed = s
 }
 
 func (r *Registers) Read(where rune) []rune {
