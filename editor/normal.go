@@ -932,21 +932,38 @@ func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
 type operatorPendingCommand = func(*operatorPending) modeChanger
 
 var operatorPendingCommands = map[rune]operatorPendingCommand{
+	'[': (*operatorPending).prevUnmatched,
+	']': (*operatorPending).nextUnmatched,
+	'%': (*operatorPending).moveToMatch,
+	'|': (*operatorPending).column,
+	'$': (*operatorPending).endline,
+	'^': (*operatorPending).beginlineNonBlank,
+	'0': (*operatorPending).beginline,
 	'h': (*operatorPending).left,
+	'f': (*operatorPending).searchCharacter,
+	'F': (*operatorPending).searchCharacterBackward,
+	't': (*operatorPending).searchCharacterBefore,
+	'T': (*operatorPending).searchCharacterBackwardAfter,
 	'l': (*operatorPending).right,
+	'w': (*operatorPending).word,
+	'W': (*operatorPending).wordNonBlank,
+	'e': (*operatorPending).wordEnd,
+	'E': (*operatorPending).wordEndNonBlank,
+	'b': (*operatorPending).wordBack,
+	'B': (*operatorPending).wordBackNonBlank,
 }
 
 func (o *operatorPending) object() modeChanger {
 	from := min(o.start, o.pos)
 	to := max(o.start, o.pos)
 	/*
-	if o.inclusive {
-		to++
-	}
-	if o.motionType == mline {
-		from = 0
-		to = len(o.buf)
-	}
+		if o.inclusive {
+			to++
+		}
+		if o.motionType == mline {
+			from = 0
+			to = len(o.buf)
+		}
 	*/
 	switch o.opType {
 	case OpDelete:
@@ -962,20 +979,34 @@ func (o *operatorPending) object() modeChanger {
 		//o.undoTree.add(o.buf)
 		return ins(o.pos == len(o.buf))
 		/*
-	case OpLower:
-		o.toLower(from, to)
-		o.undoTree.add(o.buf)
-	case OpUpper:
-		o.toUpper(from, to)
-		o.undoTree.add(o.buf)
-	case OpTilde:
-		o.swapCase(from, to)
-		o.undoTree.add(o.buf)
-	case OpSiege:
-		r, _, _ := o.in.ReadRune()
-		o.siege(from, to, r)
+			case OpLower:
+				o.toLower(from, to)
+				o.undoTree.add(o.buf)
+			case OpUpper:
+				o.toUpper(from, to)
+				o.undoTree.add(o.buf)
+			case OpTilde:
+				o.swapCase(from, to)
+				o.undoTree.add(o.buf)
+			case OpSiege:
+				r, _, _ := o.in.ReadRune()
+				o.siege(from, to, r)
 		*/
 	}
 	o.move(min(from, to))
 	return nil
+}
+
+func (o *operatorPending) wordEnd() (_ modeChanger) {
+	for i := 0; i < o.count; i++ {
+		o.nvCommon.wordEnd()
+	}
+	return
+}
+
+func (o *operatorPending) wordEndNonBlank() (_ modeChanger) {
+	for i := 0; i < o.count; i++ {
+		o.nvCommon.wordEndNonBlank()
+	}
+	return
 }
