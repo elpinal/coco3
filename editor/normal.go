@@ -719,10 +719,11 @@ func (e *normal) wordEndBackward() (_ modeChanger) {
 type operatorPending struct {
 	nvCommon
 
-	opType    int
-	opCount   int
-	start     int
-	inclusive bool
+	opType     int
+	opCount    int
+	start      int
+	inclusive  bool
+	motionType int
 }
 
 func newOperatorPending(s streamSet, e *editor, op int, count int) *operatorPending {
@@ -827,6 +828,9 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'E': (*operatorPending).wordEndNonBlank,
 	'b': (*operatorPending).wordBack,
 	'B': (*operatorPending).wordBackNonBlank,
+	'd': (*operatorPending).deleteLine,
+	'c': (*operatorPending).changeLine,
+	'y': (*operatorPending).yankLine,
 }
 
 func (o *operatorPending) operate() modeChanger {
@@ -835,12 +839,10 @@ func (o *operatorPending) operate() modeChanger {
 	if o.inclusive {
 		to++
 	}
-	/*
-		if o.motionType == mline {
-			from = 0
-			to = len(o.buf)
-		}
-	*/
+	if o.motionType == mline {
+		from = 0
+		to = len(o.buf)
+	}
 	switch o.opType {
 	case OpDelete:
 		// FIXME: specify register
@@ -922,5 +924,27 @@ func (o *operatorPending) innerObject() (_ modeChanger) {
 
 func (o *operatorPending) anObject() (_ modeChanger) {
 	o.object(true)
+	return
+}
+
+func (o *operatorPending) linewise(op int) {
+	if o.opType != op {
+		return
+	}
+	o.motionType = mline
+}
+
+func (o *operatorPending) deleteLine() (_ modeChanger) {
+	o.linewise(OpDelete)
+	return
+}
+
+func (o *operatorPending) changeLine() (_ modeChanger) {
+	o.linewise(OpChange)
+	return
+}
+
+func (o *operatorPending) yankLine() (_ modeChanger) {
+	o.linewise(OpYank)
 	return
 }
