@@ -719,9 +719,10 @@ func (e *normal) wordEndBackward() (_ modeChanger) {
 type operatorPending struct {
 	nvCommon
 
-	opType  int
-	opCount int
-	start   int
+	opType    int
+	opCount   int
+	start     int
+	inclusive bool
 }
 
 func newOperatorPending(s streamSet, e *editor, op int, count int) *operatorPending {
@@ -831,10 +832,10 @@ var operatorPendingCommands = map[rune]operatorPendingCommand{
 func (o *operatorPending) operate() modeChanger {
 	from := min(o.start, o.pos)
 	to := max(o.start, o.pos)
+	if o.inclusive {
+		to++
+	}
 	/*
-		if o.inclusive {
-			to++
-		}
 		if o.motionType == mline {
 			from = 0
 			to = len(o.buf)
@@ -874,6 +875,7 @@ func (o *operatorPending) wordEnd() (_ modeChanger) {
 	for i := 0; i < o.count; i++ {
 		o.nvCommon.wordEnd()
 	}
+	o.inclusive = true
 	return
 }
 
@@ -881,6 +883,7 @@ func (o *operatorPending) wordEndNonBlank() (_ modeChanger) {
 	for i := 0; i < o.count; i++ {
 		o.nvCommon.wordEndNonBlank()
 	}
+	o.inclusive = true
 	return
 }
 
