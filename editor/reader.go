@@ -3,21 +3,21 @@ package editor
 import (
 	"context"
 	"io"
-	"unicode/utf8"
 )
 
-type RuneAddReader struct {
+type RecordableRuneReader struct {
 	rd  io.RuneReader
 	s   []rune
-	n   int
 	ctx context.Context
+
+	record bool
 }
 
-func NewReaderContext(ctx context.Context, rd io.RuneReader) *RuneAddReader {
-	return &RuneAddReader{rd: rd, ctx: ctx}
+func NewReaderContext(ctx context.Context, rd io.RuneReader) *RecordableRuneReader {
+	return &RecordableRuneReader{rd: rd, ctx: ctx}
 }
 
-func NewReader(rd io.RuneReader) *RuneAddReader {
+func NewReader(rd io.RuneReader) *RecordableRuneReader {
 	return NewReaderContext(context.Background(), rd)
 }
 
@@ -27,7 +27,7 @@ type runeRead struct {
 	err  error
 }
 
-func (rd *RuneAddReader) readRune() chan runeRead {
+func (rd *RecordableRuneReader) readRune() chan runeRead {
 	ch := make(chan runeRead)
 	go func() {
 		r, size, err := rd.rd.ReadRune()
@@ -36,29 +36,27 @@ func (rd *RuneAddReader) readRune() chan runeRead {
 	return ch
 }
 
-func (rd *RuneAddReader) ReadRune() (r rune, size int, err error) {
-	if len(rd.s) <= rd.n {
-		ch := rd.readRune()
-		defer func() { close(ch) }()
-		select {
-		case rr := <-ch:
-			return rr.r, rr.size, rr.err
-		case <-rd.ctx.Done():
-			return 0, 0, io.EOF
-		}
-	}
+func (rd *RecordableRuneReader) ReadRune() (r rune, size int, err error) {
+	ch := rd.readRune()
+	defer func() { close(ch) }()
 	select {
+	case rr := <-ch:
+		if rd.record {
+			rd.s = append(rd.s, rr.r)
+		}
+		return rr.r, rr.size, rr.err
 	case <-rd.ctx.Done():
 		return 0, 0, io.EOF
-	default:
 	}
-	r = rd.s[rd.n]
-	size = utf8.RuneLen(r)
-	rd.n++
-	return r, size, err
 }
 
-func (rd *RuneAddReader) Add(s []rune) {
-	rd.s = append(rd.s[rd.n:], s...)
-	rd.n = 0
+func (rd *RecordableRuneReader) Record() {
+	rd.record = true
+}
+
+func (rd *RecordableRuneReader) Stop() []rune {
+	rd.record = false
+	ret := rd.s
+	rd.s = nil
+	return ret
 }

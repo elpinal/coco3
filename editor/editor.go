@@ -40,7 +40,7 @@ func NewContext(ctx context.Context, s screen.Screen, conf *config.Config, in io
 }
 
 type streamSet struct {
-	in  *RuneAddReader
+	in  *RecordableRuneReader
 	out io.Writer
 	err io.Writer
 }
