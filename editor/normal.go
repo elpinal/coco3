@@ -139,6 +139,7 @@ var normalCommands = map[rune]normalCommand{
 	'l':       (*normal).right,
 	'n':       (*normal).next,
 	'p':       (*normal).put1,
+	'q':       (*normal).record,
 	'r':       (*normal).replace,
 	's':       (*normal).siegeOp,
 	't':       (*normal).searchCharacterBefore,
@@ -720,5 +721,29 @@ func (e *nvCommon) wordEndBackward() (_ modeChanger) {
 	for i := 0; i < e.count; i++ {
 		e.editor.wordEndBackward()
 	}
+	return
+}
+
+func isAlphanum(r rune) bool {
+	switch {
+	case '0' <= r && r <= '9',
+		'a' <= r && r <= 'z',
+		'A' <= r && r <= 'Z':
+		return true
+	}
+	return false
+}
+
+func (e *nvCommon) record() (_ modeChanger) {
+	if !e.in.record {
+		e.in.Record()
+		return
+	}
+	s := e.in.Stop()
+	r, _, _ := e.in.ReadRune()
+	if !isAlphanum(r) || r != '"' {
+		return
+	}
+	e.Register(r, s)
 	return
 }
