@@ -25,6 +25,8 @@ var quickref = []struct{ k, v string }{
 	{"|", "to column N"},
 	{"f", "to the Nth occurrence of {char} to the right"},
 	{"F", "to the Nth occurrence of {char} to the left"},
+	{"t": "till before the Nth occurrence of {char} to the right"},
+	{"T": "till bl before the Nth occurrence of {char} to the left"},
 
 	{"k", "go back history"},
 	{"j", "go forward history"},
@@ -40,6 +42,11 @@ var quickref = []struct{ k, v string }{
 	{"B", "N blank-separated WORDs backward"},
 	{"ge", "backward to the end of the Nth word"},
 	{"gE", "backward to the end of the Nth blank-separated WORD"},
+
+	{"[(": "N times back to unclosed '('"},
+	{"[{": "N times back to unclosed '{'"},
+	{"])": "N times forward to unclosed ')'"},
+	{"]}": "N times forward to unclosed '}'"},
 
 	{"/", "search forward"},
 	{"?", "search backward"},
