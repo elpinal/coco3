@@ -86,4 +86,18 @@ var quickref = []struct{ k, v string }{
 	{"Y": "yank to the end of line into a register"},
 	{"p": "put a register after the cursor position (N times)"},
 	{"P": "put a register before the cursor position (N times)"},
+
+	{"r": "replace N characters with {char}"},
+	{"R": "enter Replace mode"},
+	{"c": "change the text that is moved over with {motion}"},
+	{"v_c": "change the highlighted text"},
+	{"cc": "change N lines"},
+	{"C": "change to the end of the line"},
+	{"~": "switch case for N characters and advance cursor"},
+	{"v_~": "switch case for highlighted text"},
+	{"v_u": "make highlighted text lowercase"},
+	{"v_U": "make highlighted text uppercase"},
+	{"g~": "switch case for the text that is moved over with {motion}"},
+	{"gu": "make the text that is moved over with {motion} lowercase"},
+	{"gU": "make the text that is moved over with {motion} uppercase"},
 }
