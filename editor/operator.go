@@ -37,12 +37,6 @@ func newOperatorPending(s streamSet, e *editor, op, count int, regName rune) *op
 	}
 }
 
-func opPendWithRegister(op, count int, regName rune) modeChanger {
-	return func(b *balancer) (moder, error) {
-		return newOperatorPending(b.streamSet, b.editor, op, count, regName), nil
-	}
-}
-
 func opPend(op, count int, regName rune) modeChanger {
 	return func(b *balancer) (moder, error) {
 		return newOperatorPending(b.streamSet, b.editor, op, count, regName), nil
