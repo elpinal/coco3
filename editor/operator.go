@@ -173,7 +173,7 @@ func (o *operatorPending) operate() modeChanger {
 		o.toUpper(from, to)
 		o.undoTree.add(o.buf)
 	case OpSwitchCase:
-		o.swapCase(from, to)
+		o.switchCase(from, to)
 		o.undoTree.add(o.buf)
 	case OpSiege:
 		r, _, _ := o.in.ReadRune()

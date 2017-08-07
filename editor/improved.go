@@ -305,7 +305,7 @@ func (e *editor) toLower(from, to int) {
 	e.replace([]rune(strings.ToLower(string(e.slice(from, to)))), at)
 }
 
-func swapCase(xs []rune) {
+func switchCase(xs []rune) {
 	for i, r := range xs {
 		if unicode.IsLower(r) {
 			xs[i] = unicode.ToUpper(r)
@@ -315,10 +315,10 @@ func swapCase(xs []rune) {
 	}
 }
 
-func (e *editor) swapCase(from, to int) {
+func (e *editor) switchCase(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
 	xs := e.slice(from, to)
-	swapCase(xs)
+	switchCase(xs)
 	e.replace(xs, at)
 }
 

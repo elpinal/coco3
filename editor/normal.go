@@ -608,7 +608,7 @@ func (e *normal) decrement() (_ modeChanger) {
 }
 
 func (e *normal) switchCase() (_ modeChanger) {
-	e.editor.swapCase(e.pos, e.pos+e.count)
+	e.editor.switchCase(e.pos, e.pos+e.count)
 	e.move(e.pos + e.count)
 	return
 }

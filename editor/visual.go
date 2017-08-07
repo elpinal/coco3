@@ -188,7 +188,7 @@ func (v *visual) appendAfter() modeChanger {
 
 func (v *visual) switchCase() modeChanger {
 	hi := v.Highlight()
-	v.editor.swapCase(hi.Left, hi.Right)
+	v.editor.switchCase(hi.Left, hi.Right)
 	v.move(hi.Left)
 	return norm()
 }
