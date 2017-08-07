@@ -77,5 +77,13 @@ var quickref = []struct{ k, v string }{
 	{"d", "delete the text that is moved over with {motion}"},
 	{"v_d", "delete the highlighted text"},
 	{"dd", "delete N lines"},
-	{"D", "delete to the end of the line (and N-1 more lines)"},
+	{"D", "delete to the end of the line"},
+
+	{"\"": "use register {char} for the next delete, yank, or put"},
+	{"y": "yank the text moved over with {motion} into a register"},
+	{"v_y": "yank the highlighted text into a register"},
+	{"yy": "yank N lines into a register"},
+	{"Y": "yank to the end of line into a register"},
+	{"p": "put a register after the cursor position (N times)"},
+	{"P": "put a register before the cursor position (N times)"},
 }
