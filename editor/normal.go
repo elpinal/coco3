@@ -437,7 +437,7 @@ func (e *normal) gCmd() (_ modeChanger) {
 	case 'U':
 		return opPend(OpUpper, e.count, e.regName)
 	case '~':
-		return opPend(OpTilde, e.count, e.regName)
+		return opPend(OpSwitchCase, e.count, e.regName)
 	case '/':
 		return e.searchHistory()
 	case 'I':

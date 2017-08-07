@@ -9,7 +9,7 @@ const (
 	OpChange
 	OpLower
 	OpUpper
-	OpTilde
+	OpSwitchCase
 	OpSiege
 )
 
@@ -178,7 +178,7 @@ func (o *operatorPending) operate() modeChanger {
 	case OpUpper:
 		o.toUpper(from, to)
 		o.undoTree.add(o.buf)
-	case OpTilde:
+	case OpSwitchCase:
 		o.swapCase(from, to)
 		o.undoTree.add(o.buf)
 	case OpSiege:
@@ -263,7 +263,7 @@ func (o *operatorPending) yankLine() (_ modeChanger) {
 }
 
 func (o *operatorPending) switchLine() (_ modeChanger) {
-	o.linewise(OpTilde)
+	o.linewise(OpSwitchCase)
 	return
 }
 
@@ -288,7 +288,7 @@ func (o *operatorPending) gCmd() (_ modeChanger) {
 	case 'U':
 		o.linewise(OpUpper)
 	case '~':
-		o.linewise(OpTilde)
+		o.linewise(OpSwitchCase)
 	case 'e':
 		o.inclusive = true
 		return o.nvCommon.wordEndBackward()
