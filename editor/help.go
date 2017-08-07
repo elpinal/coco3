@@ -78,6 +78,7 @@ var quickref = []struct{ k, v string }{
 	{"v_d", "delete the highlighted text"},
 	{"dd", "delete N lines"},
 	{"D", "delete to the end of the line"},
+	{":d[elete]", "delete N lines"},
 
 	{"\"", "use register {char} for the next delete, yank, or put"},
 	{"y", "yank the text moved over with {motion} into a register"},
@@ -132,4 +133,6 @@ var quickref = []struct{ k, v string }{
 	{"q{a-z}", "record typed characters into register {a-z}"},
 	{"q{A-Z}", "record typed characters, appended to register {a-z}"},
 	{"q", "stop recording"},
+
+	{":q[uit]", "exit"},
 }
