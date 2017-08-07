@@ -128,4 +128,8 @@ var quickref = []struct{ k, v string }{
 	{"i\"", `Select "inner double quoted string"`},
 	{"a`", `Select "a backward quoted string"`},
 	{"i`", `Select "inner backward quoted string"`},
+
+	{"q{a-z}", "record typed characters into register {a-z}"},
+	{"q{A-Z}", "record typed characters, appended to register {a-z}"},
+	{"q", "stop recording"},
 }
