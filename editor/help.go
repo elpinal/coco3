@@ -100,4 +100,9 @@ var quickref = []struct{ k, v string }{
 	{"g~": "switch case for the text that is moved over with {motion}"},
 	{"gu": "make the text that is moved over with {motion} lowercase"},
 	{"gU": "make the text that is moved over with {motion} uppercase"},
+
+	{"v": "start highlighting characters  }  move cursor and use"},
+	{"V": "start highlighting linewise    }  operator to affect"},
+	{"o": "exchange cursor position with start of highlighting"},
+	{"v_v": "highlight characters or stop highlighting"},
 }
