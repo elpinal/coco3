@@ -177,7 +177,7 @@ func (c *CLI) writeHistory(r []rune) {
 	}
 }
 
-var schema = `
+const schema = `
 create table if not exists command_info (
     time datetime,
     line text
