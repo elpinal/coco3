@@ -58,7 +58,7 @@ func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos i
 	}
 	count := strings.Count(prompt, "\n")
 	if inCommandline {
-		count += 1
+		count++
 	}
 	t.lastCursorLine = count
 	t.w.WriteString("\r\033[J")
