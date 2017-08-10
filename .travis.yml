@@ -1,0 +1,15 @@
+language: go
+
+matrix:
+  include:
+    - go: master
+      os: osx
+
+    - go: 1.8.x
+      os: osx
+
+    - go: master
+      os: linux
+
+  allow_failures:
+    - os: linux
