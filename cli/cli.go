@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"time"
 
+	"golang.org/x/crypto/ssh/terminal"
+
 	"github.com/elpinal/coco3/config"
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/gate"
@@ -149,18 +151,17 @@ func (c *CLI) interact(g gate.Gate) error {
 }
 
 func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
-	old, err := enterRowMode()
+	defer c.Out.Write([]byte{'\n'})
+	oldState, err := terminal.MakeRaw(0)
 	if err != nil {
-		return nil, false, err
+		panic(err)
 	}
 	defer func() {
-		if err := exitRowMode(old); err != nil {
+		if err := terminal.Restore(0, oldState); err != nil {
 			fmt.Fprintln(c.Err, err)
 		}
 	}()
 	r, end, err := g.Read()
-	// Make a newline before error handling.
-	c.Out.Write([]byte{'\n'})
 	if err != nil {
 		return nil, false, err
 	}

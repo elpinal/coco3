@@ -75,7 +75,7 @@ func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos i
 		t.w.WriteString(string(s[hi.Right:]))
 	}
 	if t.msg != "" {
-		t.w.WriteString("\n")
+		t.w.WriteString("\n\r")
 		t.w.WriteString(t.msg)
 		if !inCommandline {
 			t.w.WriteString("\033[A")
