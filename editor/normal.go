@@ -92,7 +92,7 @@ func (e *normal) Highlight() *screen.Hi {
 	return nil
 }
 
-type normalCommand = func(*normal) modeChanger
+type normalCommand func(*normal) modeChanger
 
 var normalCommands = map[rune]normalCommand{
 	CharCtrlR: (*normal).redoCmd,

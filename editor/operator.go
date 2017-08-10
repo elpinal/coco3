@@ -103,7 +103,7 @@ func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
 	return
 }
 
-type operatorPendingCommand = func(*operatorPending) modeChanger
+type operatorPendingCommand func(*operatorPending) modeChanger
 
 var operatorPendingCommands = map[rune]operatorPendingCommand{
 	'$': (*operatorPending).endline,

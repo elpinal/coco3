@@ -85,7 +85,7 @@ func (v *visual) Run() (end continuity, next modeChanger, err error) {
 	return
 }
 
-type visualCommand = func(*visual) modeChanger
+type visualCommand func(*visual) modeChanger
 
 var visualCommands = map[rune]visualCommand{
 	CharEscape: (*visual).escape,
