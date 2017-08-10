@@ -62,7 +62,7 @@ func (t *Terminal) draw(conf *config.Config, inCommandline bool, s []rune, pos i
 	}
 	t.lastCursorLine = count
 	t.w.WriteString("\r\033[J")
-	t.w.WriteString(prompt)
+	t.w.WriteString(strings.Replace(prompt, "\n", "\n\r", -1))
 	i := strings.LastIndex(prompt, "\n") + 1
 	promptWidth := runewidth.StringWidth(prompt[i:])
 	if hi == nil {
