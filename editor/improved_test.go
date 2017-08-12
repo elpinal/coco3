@@ -485,7 +485,7 @@ func TestCurrentParen(t *testing.T) {
 			include: true,
 			lparen:  '<',
 			rparen:  '>',
-			from:    4,
+			from:    5,
 			to:      15,
 		},
 		{
@@ -494,7 +494,7 @@ func TestCurrentParen(t *testing.T) {
 			include: true,
 			lparen:  '{',
 			rparen:  '}',
-			from:    18,
+			from:    19,
 			to:      26,
 		},
 		{
@@ -503,7 +503,7 @@ func TestCurrentParen(t *testing.T) {
 			include: true,
 			lparen:  '[',
 			rparen:  ']',
-			from:    4,
+			from:    5,
 			to:      15,
 		},
 	}
