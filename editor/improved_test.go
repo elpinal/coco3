@@ -2,6 +2,7 @@ package editor
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/elpinal/coco3/editor/register"
@@ -572,5 +573,15 @@ func TestSearch(t *testing.T) {
 		if !reflect.DeepEqual(e.sr, test.sr) {
 			t.Errorf("search/%v (searchRange): got %v, want %v", i, e.sr, test.sr)
 		}
+	}
+}
+
+func BenchmarkSearchLeft(b *testing.B) {
+	e := newEditor()
+	e.insert([]rune(strings.Repeat("(", 100)+strings.Repeat(")", 100)), 0)
+	e.move(199)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		e.searchLeft('(', ')')
 	}
 }
