@@ -490,11 +490,12 @@ func (e *editor) searchRight(p1, p2 rune) int {
 }
 
 func (e *editor) charSearch(r rune) (int, error) {
-	i := strings.IndexRune(string(e.slice(e.pos+1, len(e.buf))), r)
-	if i < 0 {
-		return 0, fmt.Errorf("pattern not found: %c", r)
+	for i := e.pos + 1; i < len(e.buf); i++ {
+		if e.buf[i] == r {
+			return i, nil
+		}
 	}
-	return e.pos + 1 + i, nil
+	return 0, fmt.Errorf("pattern not found: %c", r)
 }
 
 func (e *editor) charSearchBefore(r rune) (int, error) {
