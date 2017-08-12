@@ -73,6 +73,38 @@ func TestNormal(t *testing.T) {
 	e.Clear()
 }
 
+func TestWithVisual(t *testing.T) {
+	input := strings.NewReader("aaa" + string([]rune{
+		CharEscape,
+		'0',
+		'l',
+		'v',
+		'A',
+		'X',
+		CharEscape,
+		'V',
+		's', '`',
+		'i',
+		CharCtrlM,
+	}))
+	var outBuf, errBuf bytes.Buffer
+	e := New(&testScreen{}, &config.Config{}, input, &outBuf, &errBuf)
+	s, _, err := e.Read()
+	if err != nil {
+		t.Error(err)
+	}
+	if want := "`aaXa`"; string(s) != want {
+		t.Errorf("got %q, want %q", string(s), want)
+	}
+	if got := outBuf.String(); got != "" {
+		t.Errorf("got %q, want %q", got, "")
+	}
+	if got := errBuf.String(); got != "" {
+		t.Errorf("got %q, want %q", got, "")
+	}
+	e.Clear()
+}
+
 func TestYankPaste(t *testing.T) {
 	e := New(&testScreen{}, &config.Config{}, strings.NewReader("123"+string([]rune{CharEscape, 'h', 'x', 'p', 'i', CharCtrlM})), ioutil.Discard, ioutil.Discard)
 	s, _, err := e.Read()
