@@ -303,7 +303,9 @@ func (e *editor) wordEndBackwardNonBlank() {
 
 func (e *editor) toUpper(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
-	e.replace([]rune(strings.ToUpper(string(e.slice(from, to)))), at)
+	for i := at; i < constrain(max(from, to), 0, len(e.buf)); i++ {
+		e.buf[i] = unicode.ToUpper(e.buf[i])
+	}
 }
 
 func (e *editor) toLower(from, to int) {

@@ -401,6 +401,13 @@ func TestToUpper(t *testing.T) {
 	}
 }
 
+func BenchmarkToUpper(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		e := editor{basic: basic{buf: []rune("aaa BBB ccc")}}
+		e.toUpper(0, 11)
+	}
+}
+
 func TestToLower(t *testing.T) {
 	tests := []struct {
 		input []rune
