@@ -310,7 +310,9 @@ func (e *editor) toUpper(from, to int) {
 
 func (e *editor) toLower(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
-	e.replace([]rune(strings.ToLower(string(e.slice(from, to)))), at)
+	for i := at; i < constrain(max(from, to), 0, len(e.buf)); i++ {
+		e.buf[i] = unicode.ToLower(e.buf[i])
+	}
 }
 
 func switchCase(xs []rune) {

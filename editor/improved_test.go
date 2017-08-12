@@ -449,6 +449,13 @@ func TestToLower(t *testing.T) {
 	}
 }
 
+func BenchmarkToLower(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		e := editor{basic: basic{buf: []rune("aaa BBB ccc")}}
+		e.toLower(0, 11)
+	}
+}
+
 func TestCurrentWord(t *testing.T) {
 	tests := []struct {
 		input   []rune
