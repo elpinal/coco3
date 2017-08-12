@@ -80,6 +80,14 @@ func TestWordForward(t *testing.T) {
 			want:    0,
 		},
 		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("().aaa"), pos: 1},
+			want:    3,
+		},
+		{
 			initial: basic{buf: []rune("aaa"), pos: 0},
 			want:    3,
 		},
@@ -120,6 +128,14 @@ func TestWordBackward(t *testing.T) {
 	}{
 		{
 			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune(" aaa"), pos: 1},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("   "), pos: 2},
 			want:    0,
 		},
 		{
