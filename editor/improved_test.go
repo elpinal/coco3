@@ -576,6 +576,16 @@ func TestSearch(t *testing.T) {
 	}
 }
 
+func BenchmarkSearchLeftSimple(b *testing.B) {
+	e := newEditor()
+	e.insert([]rune("("+strings.Repeat(" ", 199)), 0)
+	e.move(199)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		e.searchLeft('(', ')')
+	}
+}
+
 func BenchmarkSearchLeft(b *testing.B) {
 	e := newEditor()
 	e.insert([]rune(strings.Repeat("(", 100)+strings.Repeat(")", 100)), 0)
