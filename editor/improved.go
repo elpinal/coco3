@@ -229,7 +229,7 @@ func (e *editor) wordEndNonBlank() {
 			return
 		}
 	}
-	e.pos = len(e.buf)
+	e.pos = len(e.buf) - 1
 }
 
 func (e *editor) wordEndBackward() {
