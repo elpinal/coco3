@@ -671,3 +671,23 @@ func BenchmarkCharSearchBackward(b *testing.B) {
 		_, _ = e.charSearchBackward('b')
 	}
 }
+
+func TestCharSearchBackwardAfter(t *testing.T) {
+	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
+	e.move(10)
+	i, err := e.charSearchBackwardAfter('b')
+	if err != nil {
+		t.Errorf("charSearchBackwardAfter: %v", err)
+	}
+	if want := 5; i != want {
+		t.Errorf("charSearchBackwardAfter: want %d, got %d", want, i)
+	}
+}
+
+func BenchmarkCharSearchBackwardAfter(b *testing.B) {
+	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
+	e.move(10)
+	for i := 0; i < b.N; i++ {
+		_, _ = e.charSearchBackwardAfter('b')
+	}
+}

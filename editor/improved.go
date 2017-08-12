@@ -517,11 +517,12 @@ func (e *editor) charSearchBackward(r rune) (int, error) {
 }
 
 func (e *editor) charSearchBackwardAfter(r rune) (int, error) {
-	i := strings.LastIndex(string(e.slice(0, e.pos)), string(r))
-	if i < 0 {
-		return 0, fmt.Errorf("pattern not found: %c", r)
+	for i := e.pos - 1; i >= 0; i-- {
+		if e.buf[i] == r {
+			return i + 1, nil
+		}
 	}
-	return i + 1, nil
+	return 0, fmt.Errorf("pattern not found: %c", r)
 }
 
 func (e *editor) undo() {
