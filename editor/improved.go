@@ -32,6 +32,12 @@ func newEditor() *editor {
 	}
 }
 
+func newEditorBuffer(buf []rune) *editor {
+	e := newEditor()
+	e.buf = buf
+	return e
+}
+
 func (e *editor) yank(r rune, from, to int) {
 	s := e.slice(from, to)
 	e.Register(r, s)
