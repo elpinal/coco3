@@ -615,3 +615,21 @@ func BenchmarkSearchRight(b *testing.B) {
 		e.searchRight('(', ')')
 	}
 }
+
+func TestCharSearch(t *testing.T) {
+	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
+	i, err := e.charSearch('d')
+	if err != nil {
+		t.Errorf("charSearch: %v", err)
+	}
+	if want := 6; i != want {
+		t.Errorf("charSearch: want %d, got %d", want, i)
+	}
+}
+
+func BenchmarkCharSearch(b *testing.B) {
+	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
+	for i := 0; i < b.N; i++ {
+		_, _ = e.charSearch('d')
+	}
+}
