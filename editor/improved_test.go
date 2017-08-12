@@ -456,6 +456,54 @@ func BenchmarkToLower(b *testing.B) {
 	}
 }
 
+func TestSwitchCase(t *testing.T) {
+	tests := []struct {
+		input []rune
+		from  int
+		to    int
+		want  []rune
+	}{
+		{
+			input: []rune(""),
+			from:  0,
+			to:    0,
+			want:  []rune(""),
+		},
+		{
+			input: []rune("Gopher"),
+			from:  0,
+			to:    8,
+			want:  []rune("gOPHER"),
+		},
+		{
+			input: []rune("AAAAAA"),
+			from:  -9,
+			to:    9,
+			want:  []rune("aaaaaa"),
+		},
+		{
+			input: []rune("aaa X bbb X ccc"),
+			from:  4,
+			to:    8,
+			want:  []rune("aaa x BBb X ccc"),
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: test.input}}
+		e.switchCase(test.from, test.to)
+		if string(e.buf) != string(test.want) {
+			t.Errorf("switchCase %v: got %v, want %v", i, string(e.buf), string(test.want))
+		}
+	}
+}
+
+func BenchmarkSwitchCase(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		e := editor{basic: basic{buf: []rune("aaa BBB ccc")}}
+		e.switchCase(0, 11)
+	}
+}
+
 func TestCurrentWord(t *testing.T) {
 	tests := []struct {
 		input   []rune

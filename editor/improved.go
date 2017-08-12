@@ -315,21 +315,15 @@ func (e *editor) toLower(from, to int) {
 	}
 }
 
-func switchCase(xs []rune) {
-	for i, r := range xs {
-		if unicode.IsLower(r) {
-			xs[i] = unicode.ToUpper(r)
-		} else if unicode.IsUpper(r) {
-			xs[i] = unicode.ToLower(r)
-		}
-	}
-}
-
 func (e *editor) switchCase(from, to int) {
 	at := constrain(min(from, to), 0, len(e.buf))
-	xs := e.slice(from, to)
-	switchCase(xs)
-	e.replace(xs, at)
+	for i := at; i < constrain(max(from, to), 0, len(e.buf)); i++ {
+		if unicode.IsLower(e.buf[i]) {
+			e.buf[i] = unicode.ToUpper(e.buf[i])
+		} else if unicode.IsUpper(e.buf[i]) {
+			e.buf[i] = unicode.ToLower(e.buf[i])
+		}
+	}
 }
 
 func (e *editor) currentWord(include bool) (from, to int) {
