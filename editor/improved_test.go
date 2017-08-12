@@ -442,6 +442,83 @@ func TestCurrentQuote(t *testing.T) {
 	}
 }
 
+func TestCurrentParen(t *testing.T) {
+	tests := []struct {
+		input   []rune
+		pos     int
+		include bool
+		lparen  rune
+		rparen  rune
+		from    int
+		to      int
+	}{
+		{
+			input:   []rune(""),
+			pos:     0,
+			include: false,
+			lparen:  '(',
+			rparen:  ')',
+			from:    0,
+			to:      0,
+		},
+		{
+			input:   []rune("(aaa)"),
+			pos:     0,
+			include: false,
+			lparen:  '(',
+			rparen:  ')',
+			from:    1,
+			to:      4,
+		},
+		{
+			input:   []rune("a( a )a"),
+			pos:     3,
+			include: false,
+			lparen:  '(',
+			rparen:  ')',
+			from:    2,
+			to:      5,
+		},
+		{
+			input:   []rune(` aaa <bbb ccc >`),
+			pos:     7,
+			include: true,
+			lparen:  '<',
+			rparen:  '>',
+			from:    4,
+			to:      15,
+		},
+		{
+			input:   []rune(` aaa "bbb ccc "ddd {eee f}ff`),
+			pos:     25,
+			include: true,
+			lparen:  '{',
+			rparen:  '}',
+			from:    18,
+			to:      26,
+		},
+		{
+			input:   []rune(" aaa [bbb ccc ]"),
+			pos:     7,
+			include: true,
+			lparen:  '[',
+			rparen:  ']',
+			from:    4,
+			to:      15,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
+		from, to := e.currentParen(test.include, test.lparen, test.rparen)
+		if from != test.from {
+			t.Errorf("currentQuote/%v (from): got %v, want %v", i, from, test.from)
+		}
+		if to != test.to {
+			t.Errorf("currentQuote/%v (to): got %v, want %v", i, to, test.to)
+		}
+	}
+}
+
 func TestSearch(t *testing.T) {
 	tests := []struct {
 		buf   string
