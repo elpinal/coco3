@@ -465,18 +465,19 @@ func (e *editor) searchLeft(p1, p2 rune) int {
 }
 
 func (e *editor) searchRight(p1, p2 rune) int {
+	if e.buf[e.pos] == p2 {
+		return e.pos
+	}
 	var level int
-	for i := e.pos; i < len(e.buf); i++ {
+	for i := e.pos + 1; i < len(e.buf); i++ {
 		switch e.buf[i] {
-		case p1:
-			if i != e.pos {
-				level++
-			}
 		case p2:
 			if level == 0 {
 				return i
 			}
 			level--
+		case p1:
+			level++
 		}
 	}
 	return -1
