@@ -595,3 +595,23 @@ func BenchmarkSearchLeft(b *testing.B) {
 		e.searchLeft('(', ')')
 	}
 }
+
+func BenchmarkSearchRightSimple(b *testing.B) {
+	e := newEditor()
+	e.insert([]rune(strings.Repeat(" ", 199)+")"), 0)
+	e.move(0)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		e.searchRight('(', ')')
+	}
+}
+
+func BenchmarkSearchRight(b *testing.B) {
+	e := newEditor()
+	e.insert([]rune(strings.Repeat("(", 100)+strings.Repeat(")", 100)), 0)
+	e.move(0)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		e.searchRight('(', ')')
+	}
+}
