@@ -633,3 +633,21 @@ func BenchmarkCharSearch(b *testing.B) {
 		_, _ = e.charSearch('d')
 	}
 }
+
+func TestCharSearchBefore(t *testing.T) {
+	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
+	i, err := e.charSearchBefore('d')
+	if err != nil {
+		t.Errorf("charSearchBefore: %v", err)
+	}
+	if want := 5; i != want {
+		t.Errorf("charSearchBefore: want %d, got %d", want, i)
+	}
+}
+
+func BenchmarkCharSearchBefore(b *testing.B) {
+	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
+	for i := 0; i < b.N; i++ {
+		_, _ = e.charSearchBefore('d')
+	}
+}
