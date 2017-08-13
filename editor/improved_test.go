@@ -426,8 +426,8 @@ func TestWordEndBackward(t *testing.T) {
 			want:    1,
 		},
 		{
-			initial: basic{buf: []rune("a % "), pos: 2},
-			want:    0,
+			initial: basic{buf: []rune(" a % "), pos: 3},
+			want:    1,
 		},
 	}
 	for i, test := range tests {
