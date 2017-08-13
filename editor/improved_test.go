@@ -977,6 +977,59 @@ func TestCurrentParen(t *testing.T) {
 	}
 }
 
+func TestSearchLeft(t *testing.T) {
+	tests := []struct {
+		input  []rune
+		pos    int
+		lparen rune
+		rparen rune
+		want   int
+	}{
+		{
+			input:  []rune(""),
+			pos:    0,
+			lparen: '(',
+			rparen: ')',
+			want:   -1,
+		},
+		{
+			input:  []rune("()"),
+			pos:    0,
+			lparen: '(',
+			rparen: ')',
+			want:   0,
+		},
+		{
+			input:  []rune("a(a(a)a)a"),
+			pos:    6,
+			lparen: '(',
+			rparen: ')',
+			want:   1,
+		},
+		{
+			input:  []rune("( () )"),
+			pos:    2,
+			lparen: '(',
+			rparen: ')',
+			want:   2,
+		},
+		{
+			input:  []rune("abababab"),
+			pos:    3,
+			lparen: 'a',
+			rparen: 'b',
+			want:   2,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
+		got := e.searchLeft(test.lparen, test.rparen)
+		if got != test.want {
+			t.Errorf("searchLeft/%v: got %v, want %v", i, got, test.want)
+		}
+	}
+}
+
 func TestSearch(t *testing.T) {
 	tests := []struct {
 		buf   string

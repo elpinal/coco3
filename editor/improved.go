@@ -451,7 +451,7 @@ func (e *editor) currentParen(include bool, p1, p2 rune) (from, to int) {
 }
 
 func (e *editor) searchLeft(p1, p2 rune) int {
-	if e.buf[e.pos] == p1 {
+	if e.pos != len(e.buf) && e.buf[e.pos] == p1 {
 		return e.pos
 	}
 	var level int
