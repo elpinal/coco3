@@ -675,6 +675,55 @@ func TestCurrentWord(t *testing.T) {
 	}
 }
 
+func TestCurrentWordNonBlank(t *testing.T) {
+	tests := []struct {
+		input   []rune
+		pos     int
+		include bool
+		from    int
+		to      int
+	}{
+		{
+			input:   []rune(""),
+			pos:     0,
+			include: false,
+			from:    0,
+			to:      0,
+		},
+		{
+			input:   []rune("a%a"),
+			pos:     0,
+			include: false,
+			from:    0,
+			to:      3,
+		},
+		{
+			input:   []rune("a a a"),
+			pos:     1,
+			include: false,
+			from:    1,
+			to:      2,
+		},
+		{
+			input:   []rune(" aaa .bb ccc "),
+			pos:     7,
+			include: true,
+			from:    5,
+			to:      9,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
+		from, to := e.currentWordNonBlank(test.include)
+		if from != test.from {
+			t.Errorf("currentWordNonBlank/%v (from): got %v, want %v", i, from, test.from)
+		}
+		if to != test.to {
+			t.Errorf("currentWordNonBlank/%v (to): got %v, want %v", i, to, test.to)
+		}
+	}
+}
+
 func TestCurrentQuote(t *testing.T) {
 	tests := []struct {
 		input   []rune
