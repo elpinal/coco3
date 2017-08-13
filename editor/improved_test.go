@@ -674,6 +674,27 @@ func TestCurrentWord(t *testing.T) {
 			from:    5,
 			to:      9,
 		},
+		{
+			input:   []rune("a"),
+			pos:     1,
+			include: true,
+			from:    -1,
+			to:      -1,
+		},
+		{
+			input:   []rune("%"),
+			pos:     0,
+			include: true,
+			from:    0,
+			to:      1,
+		},
+		{
+			input:   []rune(" %"),
+			pos:     1,
+			include: true,
+			from:    0,
+			to:      2,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
