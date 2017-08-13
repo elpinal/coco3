@@ -1180,13 +1180,36 @@ func BenchmarkSearchRight(b *testing.B) {
 }
 
 func TestCharSearch(t *testing.T) {
-	e := newEditorBuffer([]rune("aaa bcd eee fgh"))
-	i, err := e.charSearch('d')
-	if err != nil {
-		t.Errorf("charSearch: %v", err)
+	tests := []struct {
+		input []rune
+		pos   int
+		char  rune
+		want  int
+		fail  bool
+	}{
+		{
+			input: []rune("aaa bcd eee fgh"),
+			pos:   0,
+			char:  'd',
+			want:  6,
+		},
+		{
+			input: []rune("aaa bcd eee fgh"),
+			pos:   0,
+			char:  'X',
+			fail:  true,
+		},
 	}
-	if want := 6; i != want {
-		t.Errorf("charSearch: want %d, got %d", want, i)
+	for i, test := range tests {
+		e := newEditorBuffer([]rune(test.input))
+		e.move(test.pos)
+		n, err := e.charSearch(test.char)
+		if !test.fail && err != nil {
+			t.Errorf("charSearch/%d: %v", i, err)
+		}
+		if n != test.want {
+			t.Errorf("charSearch/%d: want %d, got %d", i, test.want, n)
+		}
 	}
 }
 
