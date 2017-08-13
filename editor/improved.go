@@ -62,6 +62,10 @@ func isWhitespace(ch rune) bool {
 	return false
 }
 
+func isSymbol(r rune) bool {
+	return !(isKeyword(r) || isWhitespace(r))
+}
+
 func (e *editor) wordForward() {
 	switch n := len(e.buf) - e.pos; {
 	case n < 1:
@@ -88,7 +92,7 @@ func (e *editor) wordForward() {
 			}
 		}
 	default:
-		if i := e.indexFunc(func(r rune) bool { return isWhitespace(r) || isKeyword(r) }, e.pos+1, true); i > 0 {
+		if i := e.indexFunc(isSymbol, e.pos+1, false); i > 0 {
 			if isKeyword(e.buf[i]) {
 				e.pos = i
 				return
@@ -128,12 +132,9 @@ func (e *editor) wordBackward() {
 			return
 		}
 	default:
-		for i := n - 1; i >= 0; i-- {
-			switch ch := e.buf[i]; {
-			case isKeyword(ch), isWhitespace(ch):
-				e.pos = i + 1
-				return
-			}
+		if i := e.lastIndexFunc(isSymbol, n, false); i >= 0 {
+			e.pos = i + 1
+			return
 		}
 	}
 	e.pos = 0
@@ -186,7 +187,7 @@ func (e *editor) wordEnd() {
 					return
 				}
 			default:
-				if i := e.indexFunc(func(r rune) bool { return !isWhitespace(r) && !isKeyword(r) }, i+1, false); i > 0 {
+				if i := e.indexFunc(isSymbol, i+1, false); i > 0 {
 					e.pos = i - 1
 					return
 				}
@@ -198,7 +199,7 @@ func (e *editor) wordEnd() {
 			return
 		}
 	default:
-		if i := e.indexFunc(func(r rune) bool { return !isWhitespace(r) && !isKeyword(r) }, e.pos+1, false); i > 0 {
+		if i := e.indexFunc(isSymbol, e.pos+1, false); i > 0 {
 			e.pos = i - 1
 			return
 		}
@@ -260,7 +261,7 @@ func (e *editor) wordEndBackward() {
 			}
 		}
 	default:
-		if i := e.lastIndexFunc(func(r rune) bool { return isWhitespace(r) || isKeyword(r) }, e.pos, true); i > 0 {
+		if i := e.lastIndexFunc(isSymbol, e.pos, false); i > 0 {
 			switch {
 			case isWhitespace(e.buf[i]):
 				if i := e.lastIndexFunc(isWhitespace, i, false); i > 0 {
@@ -333,7 +334,7 @@ func (e *editor) currentWord(include bool) (from, to int) {
 	if e.pos == len(e.buf) {
 		return -1, -1
 	}
-	f := func(r rune) bool { return !(isKeyword(r) || isWhitespace(r)) }
+	f := isSymbol
 	switch ch := e.buf[e.pos]; {
 	case isWhitespace(ch):
 		f = isWhitespace
