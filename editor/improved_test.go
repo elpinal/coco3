@@ -205,6 +205,10 @@ func TestWordForwardNonBlank(t *testing.T) {
 			initial: basic{buf: []rune("#####   aa#"), pos: 5},
 			want:    8,
 		},
+		{
+			initial: basic{buf: []rune("     "), pos: 0},
+			want:    5,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: test.initial}
