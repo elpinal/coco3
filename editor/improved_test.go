@@ -1277,3 +1277,39 @@ func BenchmarkCharSearchBackwardAfter(b *testing.B) {
 		_, _ = e.charSearchBackwardAfter('b')
 	}
 }
+
+func TestOverwrite(t *testing.T) {
+	tests := []struct {
+		base  []rune
+		cover []rune
+		at    int
+		want  string
+	}{
+		{
+			base:  []rune("abcabc"),
+			cover: []rune("123"),
+			at:    0,
+			want:  "123abc",
+		},
+		{
+			base:  []rune(""),
+			cover: []rune("123"),
+			at:    0,
+			want:  "123",
+		},
+	}
+	for i, test := range tests {
+		e := newEditor()
+		s := string(e.overwrite(test.base, test.cover, test.at))
+		if s != test.want {
+			t.Errorf("charSearch/%d: want %q, got %q", i, test.want, s)
+		}
+	}
+}
+
+func BenchmarkOverwrite(b *testing.B) {
+	e := newEditor()
+	for i := 0; i < b.N; i++ {
+		_ = e.overwrite([]rune("1234567890"), []rune("0987654321"), 1)
+	}
+}
