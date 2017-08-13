@@ -303,6 +303,10 @@ func TestWordEnd(t *testing.T) {
 			initial: basic{buf: []rune("#####   aa#"), pos: 5},
 			want:    9,
 		},
+		{
+			initial: basic{buf: []rune("  ###aaa"), pos: 0},
+			want:    4,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: test.initial}
