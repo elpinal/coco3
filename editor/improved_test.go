@@ -937,6 +937,33 @@ func TestCurrentParen(t *testing.T) {
 			from:    5,
 			to:      15,
 		},
+		{
+			input:   []rune("a"),
+			pos:     1,
+			include: true,
+			lparen:  '[',
+			rparen:  ']',
+			from:    -1,
+			to:      -1,
+		},
+		{
+			input:   []rune("a]"),
+			pos:     1,
+			include: true,
+			lparen:  '[',
+			rparen:  ']',
+			from:    -1,
+			to:      -1,
+		},
+		{
+			input:   []rune("[a"),
+			pos:     1,
+			include: true,
+			lparen:  '[',
+			rparen:  ']',
+			from:    -1,
+			to:      -1,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
