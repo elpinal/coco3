@@ -372,6 +372,61 @@ func TestWordEndNonBlank(t *testing.T) {
 	}
 }
 
+func TestWordEndBackward(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa.()"), pos: 4},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 2},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 3},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 6},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 9},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 9},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("  # "), pos: 3},
+			want:    2,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordEndBackward()
+		if e.pos != test.want {
+			t.Errorf("wordEndBackward %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
 func TestToUpper(t *testing.T) {
 	tests := []struct {
 		input []rune
