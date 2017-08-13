@@ -417,6 +417,18 @@ func TestWordEndBackward(t *testing.T) {
 			initial: basic{buf: []rune("  # "), pos: 3},
 			want:    2,
 		},
+		{
+			initial: basic{buf: []rune("   "), pos: 1},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune(" %a "), pos: 2},
+			want:    1,
+		},
+		{
+			initial: basic{buf: []rune("a % "), pos: 2},
+			want:    0,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: test.initial}
