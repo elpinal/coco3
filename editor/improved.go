@@ -363,12 +363,12 @@ func (e *editor) currentWordNonBlank(include bool) (from, to int) {
 	if e.pos == len(e.buf) {
 		return -1, -1
 	}
-	f := func(r rune) bool { return !isWhitespace(r) }
-	if isWhitespace(e.buf[e.pos]) {
-		f = isWhitespace
+	var truth bool
+	if !isWhitespace(e.buf[e.pos]) {
+		truth = true
 	}
-	from = e.lastIndexFunc(f, e.pos, false) + 1
-	to = e.indexFunc(f, e.pos, false)
+	from = e.lastIndexFunc(isWhitespace, e.pos, truth) + 1
+	to = e.indexFunc(isWhitespace, e.pos, truth)
 	if to < 0 {
 		to = len(e.buf)
 	}
