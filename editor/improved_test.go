@@ -744,6 +744,20 @@ func TestCurrentWordNonBlank(t *testing.T) {
 			from:    5,
 			to:      9,
 		},
+		{
+			input:   []rune("aa"),
+			pos:     2,
+			include: true,
+			from:    -1,
+			to:      -1,
+		},
+		{
+			input:   []rune(" aa"),
+			pos:     2,
+			include: true,
+			from:    0,
+			to:      3,
+		},
 	}
 	for i, test := range tests {
 		e := &editor{basic: basic{buf: test.input, pos: test.pos}}
