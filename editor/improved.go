@@ -470,7 +470,7 @@ func (e *editor) searchLeft(p1, p2 rune) int {
 }
 
 func (e *editor) searchRight(p1, p2 rune) int {
-	if e.buf[e.pos] == p2 {
+	if e.pos != len(e.buf) && e.buf[e.pos] == p2 {
 		return e.pos
 	}
 	var level int
