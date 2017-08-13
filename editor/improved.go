@@ -403,12 +403,13 @@ func (e *editor) currentQuote(include bool, quote rune) (from, to int) {
 	} else {
 		from = e.lastIndex(quote, e.pos)
 		if from < 0 {
-			return
+			to = -1
+			return -1, -1
 		}
 		to = e.index(quote, e.pos)
 	}
 	if to < 0 {
-		return
+		return -1, -1
 	}
 	if include {
 		to++
