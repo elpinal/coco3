@@ -183,34 +183,12 @@ create table if not exists command_info (
     line text
 )`
 
-type lastNewlineWriter struct {
-	buf []byte
-}
-
-func (l *lastNewlineWriter) Write(p []byte) (n int, err error) {
-	if len(p) == 0 {
-		return 0, nil
-	}
-	var off int
-	if len(p) > cap(l.buf) {
-		off = len(p) - cap(l.buf)
-	}
-	l.buf = l.buf[:0]
-	for _, b := range p[off:] {
-		l.buf = append(l.buf, b)
-	}
-	return len(p), nil
-}
-
-const bufferSize = 24
-
 func (c *CLI) execute(b []byte) error {
 	f, err := parser.ParseSrc(b)
 	if err != nil {
 		return err
 	}
-	w := &lastNewlineWriter{buf: make([]byte, 0, bufferSize)}
-	e := eval.New(c.In, io.MultiWriter(c.Out, w), io.MultiWriter(c.Err, w), c.db)
+	e := eval.New(c.In, c.Out, c.Err, c.db)
 	err = e.Eval(f.Lines)
 	select {
 	case code := <-e.ExitCh:
@@ -218,16 +196,7 @@ func (c *CLI) execute(b []byte) error {
 		<-c.doneCh
 	default:
 	}
-	if err != nil {
-		return err
-	}
-	if len(w.buf) == 0 {
-		return nil
-	}
-	if w.buf[len(w.buf)-1] != '\n' {
-		c.Out.Write([]byte("\033[7m%\033[0m\n"))
-	}
-	return nil
+	return err
 }
 
 func (c *CLI) runFiles(ctx context.Context, files []string) {
