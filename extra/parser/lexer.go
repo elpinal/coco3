@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"unicode/utf8"
+
+	"github.com/elpinal/coco3/extra/token"
 )
 
 const eof = 0
@@ -18,7 +20,7 @@ type exprLexer struct {
 	err error
 
 	// result
-	expr int
+	expr token.Token
 
 	// information for error messages
 	off    uint // start at 0
@@ -78,7 +80,10 @@ func (x *exprLexer) takeWhile(kind int, f func(rune) bool, yylval *yySymType) in
 		add(&b, x.ch)
 		x.next()
 	}
-	yylval.token = kind
+	yylval.token = token.Token{
+		Kind: kind,
+		Lit:  b.String(),
+	}
 	return kind
 }
 
@@ -108,12 +113,12 @@ func (x *exprLexer) Error(s string) {
 	x.err = errors.New(s)
 }
 
-func Parse(src []byte) (int, error) {
+func Parse(src []byte) (token.Token, error) {
 	l := newLexer(src)
 	yyErrorVerbose = true
 	yyParse(l)
 	if l.err != nil {
-		return 0, l.err
+		return token.Token{}, l.err
 	}
 	return l.expr, nil
 }

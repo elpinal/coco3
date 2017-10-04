@@ -2,10 +2,12 @@
 
 package parser
 
+import "github.com/elpinal/coco3/extra/token"
+
 %}
 
 %union {
-        token int
+        token token.Token
 }
 
 %type <token> top

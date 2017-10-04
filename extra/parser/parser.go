@@ -4,10 +4,12 @@ package parser
 import __yyfmt__ "fmt"
 
 //line parser.y:3
-//line parser.y:7
+import "github.com/elpinal/coco3/extra/token"
+
+//line parser.y:9
 type yySymType struct {
 	yys   int
-	token int
+	token token.Token
 }
 
 const ILLEGAL = 57346
@@ -26,7 +28,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:28
+//line parser.y:30
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -418,7 +420,7 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:21
+		//line parser.y:23
 		{
 			yyVAL.token = yyDollar[1].token
 			if l, ok := yylex.(*exprLexer); ok {

@@ -17,7 +17,7 @@ state 1
 state 2
 	top:  IDENT.    (1)
 
-	.  reduce 1 (src line 19)
+	.  reduce 1 (src line 21)
 
 
 5 terminals, 2 nonterminals
