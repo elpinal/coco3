@@ -2,6 +2,7 @@ package extra
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/elpinal/coco3/extra/ast"
@@ -15,6 +16,7 @@ type Env struct {
 func New() Env {
 	return Env{cmds: map[string]typed.Command{
 		"exec": execCommand,
+		"cd":   cdCommand,
 	}}
 }
 
@@ -48,5 +50,12 @@ var execCommand = typed.Command{
 	Params: []typed.Type{typed.String},
 	Fn: func(args []string) error {
 		return exec.Command(args[0]).Run()
+	},
+}
+
+var cdCommand = typed.Command{
+	Params: []typed.Type{typed.String},
+	Fn: func(args []string) error {
+		return os.Chdir(args[0])
 	},
 }
