@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/elpinal/coco3/extra/parser"
+	"github.com/elpinal/coco3/extra/typed"
 )
 
 func TestEval(t *testing.T) {
@@ -15,7 +16,7 @@ func TestEval(t *testing.T) {
 		_, err := fmt.Fprintf(&buf, prefix, args[0])
 		return err
 	}
-	e := Env{cmds: map[string]TypedCommand{"print": {params: []Type{String}, fn: printCommand}}}
+	e := Env{cmds: map[string]typed.Command{"print": {Params: []typed.Type{typed.String}, Fn: printCommand}}}
 	src := "print 'aaa'"
 	c, err := parser.Parse([]byte(src))
 	if err != nil {
