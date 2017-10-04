@@ -1,6 +1,8 @@
 package token
 
+import "github.com/elpinal/coco3/extra/typed"
+
 type Token struct {
-	Kind int
+	Kind typed.Type
 	Lit  string
 }

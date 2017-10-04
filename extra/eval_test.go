@@ -13,7 +13,7 @@ func TestEval(t *testing.T) {
 	var buf bytes.Buffer
 	prefix := "print: the argument is"
 	printCommand := func(args []string) error {
-		_, err := fmt.Fprintf(&buf, prefix, args[0])
+		_, err := fmt.Fprintln(&buf, prefix, args[0])
 		return err
 	}
 	e := Env{cmds: map[string]typed.Command{"print": {Params: []typed.Type{typed.String}, Fn: printCommand}}}

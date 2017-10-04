@@ -6,6 +6,7 @@ import (
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/token"
+	"github.com/elpinal/coco3/extra/typed"
 )
 
 func TestParse(t *testing.T) {
@@ -14,7 +15,7 @@ func TestParse(t *testing.T) {
 	if err != nil {
 		t.Errorf("Parse: %v", err)
 	}
-	want := ast.Command{Name: "aa", Args: []token.Token{{Kind: STRING, Lit: "b"}}}
+	want := ast.Command{Name: "aa", Args: []token.Token{{Kind: typed.String, Lit: "b"}}}
 	if !reflect.DeepEqual(*x, want) {
 		t.Errorf("Parse(%s) != %v; got %v", src, want, x)
 	}

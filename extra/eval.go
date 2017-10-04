@@ -21,7 +21,6 @@ func (e *Env) Eval(command *ast.Command) error {
 	}
 	args := make([]string, 0, len(command.Args))
 	for i, arg := range command.Args {
-		// FIXME
 		if arg.Kind != tc.Params[i] {
 			return fmt.Errorf("type mismatch: %v != %v", arg.Kind, tc.Params[i])
 		}

@@ -11,6 +11,7 @@ import (
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/token"
+	"github.com/elpinal/coco3/extra/typed"
 )
 
 const eof = 0
@@ -74,16 +75,17 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 }
 
 func (x *exprLexer) ident(yylval *yySymType) int {
-	return x.takeWhile(IDENT, isAlphabet, yylval)
+	x.takeWhile(typed.String, isAlphabet, yylval)
+	return IDENT
 }
 
 func (x *exprLexer) str(yylval *yySymType) int {
-	_ = x.takeWhile(STRING, isNotQuote, yylval)
+	x.takeWhile(typed.String, isNotQuote, yylval)
 	x.next()
 	return STRING
 }
 
-func (x *exprLexer) takeWhile(kind int, f func(rune) bool, yylval *yySymType) int {
+func (x *exprLexer) takeWhile(kind typed.Type, f func(rune) bool, yylval *yySymType) {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
 			x.err = fmt.Errorf("WriteRune: %s", err)
@@ -98,7 +100,6 @@ func (x *exprLexer) takeWhile(kind int, f func(rune) bool, yylval *yySymType) in
 		Kind: kind,
 		Lit:  b.String(),
 	}
-	return kind
 }
 
 func (x *exprLexer) next() {
