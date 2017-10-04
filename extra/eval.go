@@ -7,6 +7,7 @@ import (
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/typed"
+	"github.com/elpinal/coco3/extra/types"
 )
 
 type Env struct {
@@ -36,26 +37,24 @@ func (e *Env) Eval(command *ast.Command) error {
 	if len(command.Args) != len(tc.Params) {
 		return fmt.Errorf("the length of args (%d) != the one of params (%d)", len(command.Args), len(tc.Params))
 	}
-	args := make([]string, 0, len(command.Args))
 	for i, arg := range command.Args {
-		if arg.Kind != tc.Params[i] {
-			return fmt.Errorf("type mismatch: %v != %v", arg.Kind, tc.Params[i])
+		if arg.Type() != tc.Params[i] {
+			return fmt.Errorf("type mismatch: %v != %v", arg.Type(), tc.Params[i])
 		}
-		args = append(args, arg.Lit)
 	}
-	return tc.Fn(args)
+	return tc.Fn(command.Args)
 }
 
 var execCommand = typed.Command{
-	Params: []typed.Type{typed.String},
-	Fn: func(args []string) error {
-		return exec.Command(args[0]).Run()
+	Params: []types.Type{types.String},
+	Fn: func(args []ast.Expr) error {
+		return exec.Command(args[0].(*ast.String).Lit).Run()
 	},
 }
 
 var cdCommand = typed.Command{
-	Params: []typed.Type{typed.String},
-	Fn: func(args []string) error {
-		return os.Chdir(args[0])
+	Params: []types.Type{types.String},
+	Fn: func(args []ast.Expr) error {
+		return os.Chdir(args[0].(*ast.String).Lit)
 	},
 }

@@ -1,13 +1,11 @@
 package typed
 
-type Command struct {
-	Params []Type
-	Fn     func([]string) error
-}
-
-type Type int
-
-const (
-	String Type = iota + 1
-	Ident
+import (
+	"github.com/elpinal/coco3/extra/ast"
+	"github.com/elpinal/coco3/extra/types"
 )
+
+type Command struct {
+	Params []types.Type
+	Fn     func([]ast.Expr) error
+}

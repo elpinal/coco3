@@ -12,15 +12,19 @@ import (
 %union {
         token   token.Token
         command *ast.Command
-        args    []token.Token
+        exprs   []ast.Expr
+        expr    ast.Expr
+        list    ast.List
 }
 
 %type <command> top command
-%type <args> args
+%type <exprs> exprs
+%type <expr> expr
+%type <list> empty
 
 %token <token> ILLEGAL
 
-%token <token> IDENT STRING
+%token <token> IDENT STRING LBRACK RBRACK
 
 %%
 
@@ -34,18 +38,34 @@ top:
         }
 
 command:
-        IDENT args
+        IDENT exprs
         {
                 $$ = &ast.Command{$1.Lit, $2}
         }
 
-args:
+expr:
+        STRING
         {
-                $$ = []token.Token{}
+                $$ = &ast.String{$1.Lit}
         }
-        | args STRING
+        | empty
+        {
+                $$ = $1
+        }
+
+exprs:
+        {
+                $$ = nil
+        }
+        | exprs expr
         {
                 $$ = append($1, $2)
+        }
+
+empty:
+        LBRACK RBRACK
+        {
+                $$ = &ast.Empty{}
         }
 
 %%

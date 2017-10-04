@@ -18,40 +18,68 @@ state 1
 state 2
 	top:  command.    (1)
 
-	.  reduce 1 (src line 27)
+	.  reduce 1 (src line 31)
 
 
 state 3
-	command:  IDENT.args 
-	args: .    (3)
+	command:  IDENT.exprs 
+	exprs: .    (5)
 
-	.  reduce 3 (src line 42)
+	.  reduce 5 (src line 56)
 
-	args  goto 4
+	exprs  goto 4
 
 state 4
-	command:  IDENT args.    (2)
-	args:  args.STRING 
+	command:  IDENT exprs.    (2)
+	exprs:  exprs.expr 
 
-	STRING  shift 5
-	.  reduce 2 (src line 36)
+	STRING  shift 6
+	LBRACK  shift 8
+	.  reduce 2 (src line 40)
 
+	expr  goto 5
+	empty  goto 7
 
 state 5
-	args:  args STRING.    (4)
+	exprs:  exprs expr.    (6)
 
-	.  reduce 4 (src line 46)
+	.  reduce 6 (src line 60)
 
 
-6 terminals, 4 nonterminals
-5 grammar rules, 6/8000 states
+state 6
+	expr:  STRING.    (3)
+
+	.  reduce 3 (src line 46)
+
+
+state 7
+	expr:  empty.    (4)
+
+	.  reduce 4 (src line 51)
+
+
+state 8
+	empty:  LBRACK.RBRACK 
+
+	RBRACK  shift 9
+	.  error
+
+
+state 9
+	empty:  LBRACK RBRACK.    (7)
+
+	.  reduce 7 (src line 65)
+
+
+8 terminals, 6 nonterminals
+8 grammar rules, 10/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-53 working sets used
-memory: parser 2/120000
+55 working sets used
+memory: parser 4/120000
 0 extra closures
-2 shift entries, 1 exceptions
-3 goto entries
+4 shift entries, 1 exceptions
+5 goto entries
 0 entries saved by goto default
-Optimizer space used: output 5/120000
-5 table entries, 0 zero
-maximum spread: 6, maximum offset: 6
+Optimizer space used: output 9/120000
+9 table entries, 0 zero
+maximum spread: 8, maximum offset: 8

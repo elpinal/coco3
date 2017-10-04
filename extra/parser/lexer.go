@@ -11,7 +11,7 @@ import (
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/token"
-	"github.com/elpinal/coco3/extra/typed"
+	"github.com/elpinal/coco3/extra/types"
 )
 
 const eof = 0
@@ -64,6 +64,12 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 		case '\'':
 			x.next()
 			return x.str(yylval)
+		case '[':
+			x.next()
+			return LBRACK
+		case ']':
+			x.next()
+			return RBRACK
 		default:
 			if isAlphabet(c) {
 				return x.ident(yylval)
@@ -75,17 +81,17 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 }
 
 func (x *exprLexer) ident(yylval *yySymType) int {
-	x.takeWhile(typed.Ident, isAlphabet, yylval)
+	x.takeWhile(types.Ident, isAlphabet, yylval)
 	return IDENT
 }
 
 func (x *exprLexer) str(yylval *yySymType) int {
-	x.takeWhile(typed.String, isNotQuote, yylval)
+	x.takeWhile(types.String, isNotQuote, yylval)
 	x.next()
 	return STRING
 }
 
-func (x *exprLexer) takeWhile(kind typed.Type, f func(rune) bool, yylval *yySymType) {
+func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymType) {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
 			x.err = fmt.Errorf("WriteRune: %s", err)
