@@ -47,6 +47,10 @@ func isAlphabet(c rune) bool {
 	return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z'
 }
 
+func isNumber(c rune) bool {
+	return '0' <= c && c <= '9'
+}
+
 func isNotQuote(c rune) bool {
 	return c != '\''
 }
@@ -74,6 +78,9 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 			if isAlphabet(c) {
 				return x.ident(yylval)
 			}
+			if isNumber(c) {
+				return x.num(yylval)
+			}
 			fmt.Fprintf(os.Stderr, "[%d:%d]: invalid character: %[3]U %[3]q\n", x.line, x.column, c)
 			return ILLEGAL
 		}
@@ -89,6 +96,11 @@ func (x *exprLexer) str(yylval *yySymType) int {
 	x.takeWhile(types.String, isNotQuote, yylval)
 	x.next()
 	return STRING
+}
+
+func (x *exprLexer) num(yylval *yySymType) int {
+	x.takeWhile(types.Int, isNumber, yylval)
+	return NUM
 }
 
 func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymType) {

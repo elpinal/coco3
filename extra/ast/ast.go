@@ -13,6 +13,7 @@ type Expr interface {
 }
 
 func (_ *String) Expr() {}
+func (_ *Int) Expr()    {}
 func (_ *Empty) Expr()  {}
 func (_ *Cons) Expr()   {}
 
@@ -22,6 +23,14 @@ type String struct {
 
 func (s *String) Type() types.Type {
 	return types.String
+}
+
+type Int struct {
+	Lit string
+}
+
+func (s *Int) Type() types.Type {
+	return types.Int
 }
 
 type List interface {

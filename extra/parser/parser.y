@@ -24,7 +24,7 @@ import (
 
 %token <token> ILLEGAL
 
-%token <token> IDENT STRING LBRACK RBRACK
+%token <token> IDENT STRING LBRACK RBRACK NUM
 
 %%
 
@@ -47,6 +47,10 @@ expr:
         STRING
         {
                 $$ = &ast.String{$1.Lit}
+        }
+        | NUM
+        {
+                $$ = &ast.Int{$1.Lit}
         }
         | empty
         {

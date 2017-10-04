@@ -24,6 +24,7 @@ const IDENT = 57347
 const STRING = 57348
 const LBRACK = 57349
 const RBRACK = 57350
+const NUM = 57351
 
 var yyToknames = [...]string{
 	"$end",
@@ -34,6 +35,7 @@ var yyToknames = [...]string{
 	"STRING",
 	"LBRACK",
 	"RBRACK",
+	"NUM",
 }
 var yyStatenames = [...]string{}
 
@@ -41,7 +43,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:71
+//line parser.y:75
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -52,35 +54,38 @@ var yyExca = [...]int{
 
 const yyPrivate = 57344
 
-const yyLast = 9
+const yyLast = 10
 
 var yyAct = [...]int{
 
-	9, 6, 8, 3, 7, 5, 4, 2, 1,
+	6, 9, 3, 7, 10, 8, 5, 4, 2, 1,
 }
 var yyPact = [...]int{
 
-	-2, -1000, -1000, -1000, -5, -1000, -1000, -1000, -8, -1000,
+	-3, -1000, -1000, -1000, -6, -1000, -1000, -1000, -1000, -4,
+	-1000,
 }
 var yyPgo = [...]int{
 
-	0, 8, 7, 6, 5, 4,
+	0, 9, 8, 7, 6, 5,
 }
 var yyR1 = [...]int{
 
-	0, 1, 2, 4, 4, 3, 3, 5,
+	0, 1, 2, 4, 4, 4, 3, 3, 5,
 }
 var yyR2 = [...]int{
 
-	0, 1, 2, 1, 1, 0, 2, 2,
+	0, 1, 2, 1, 1, 1, 0, 2, 2,
 }
 var yyChk = [...]int{
 
-	-1000, -1, -2, 5, -3, -4, 6, -5, 7, 8,
+	-1000, -1, -2, 5, -3, -4, 6, 9, -5, 7,
+	8,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 5, 2, 6, 3, 4, 0, 7,
+	0, -2, 1, 6, 2, 7, 3, 4, 5, 0,
+	8,
 }
 var yyTok1 = [...]int{
 
@@ -88,7 +93,7 @@ var yyTok1 = [...]int{
 }
 var yyTok2 = [...]int{
 
-	2, 3, 4, 5, 6, 7, 8,
+	2, 3, 4, 5, 6, 7, 8, 9,
 }
 var yyTok3 = [...]int{
 	0,
@@ -456,23 +461,29 @@ yydefault:
 		yyDollar = yyS[yypt-1 : yypt+1]
 		//line parser.y:52
 		{
-			yyVAL.expr = yyDollar[1].list
+			yyVAL.expr = &ast.Int{yyDollar[1].token.Lit}
 		}
 	case 5:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line parser.y:56
+		{
+			yyVAL.expr = yyDollar[1].list
+		}
+	case 6:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line parser.y:57
+		//line parser.y:61
 		{
 			yyVAL.exprs = nil
 		}
-	case 6:
+	case 7:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:61
+		//line parser.y:65
 		{
 			yyVAL.exprs = append(yyDollar[1].exprs, yyDollar[2].expr)
 		}
-	case 7:
+	case 8:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:67
+		//line parser.y:71
 		{
 			yyVAL.list = &ast.Empty{}
 		}

@@ -23,9 +23,9 @@ state 2
 
 state 3
 	command:  IDENT.exprs 
-	exprs: .    (5)
+	exprs: .    (6)
 
-	.  reduce 5 (src line 56)
+	.  reduce 6 (src line 60)
 
 	exprs  goto 4
 
@@ -34,16 +34,17 @@ state 4
 	exprs:  exprs.expr 
 
 	STRING  shift 6
-	LBRACK  shift 8
+	LBRACK  shift 9
+	NUM  shift 7
 	.  reduce 2 (src line 40)
 
 	expr  goto 5
-	empty  goto 7
+	empty  goto 8
 
 state 5
-	exprs:  exprs expr.    (6)
+	exprs:  exprs expr.    (7)
 
-	.  reduce 6 (src line 60)
+	.  reduce 7 (src line 64)
 
 
 state 6
@@ -53,33 +54,39 @@ state 6
 
 
 state 7
-	expr:  empty.    (4)
+	expr:  NUM.    (4)
 
 	.  reduce 4 (src line 51)
 
 
 state 8
-	empty:  LBRACK.RBRACK 
+	expr:  empty.    (5)
 
-	RBRACK  shift 9
-	.  error
+	.  reduce 5 (src line 55)
 
 
 state 9
-	empty:  LBRACK RBRACK.    (7)
+	empty:  LBRACK.RBRACK 
 
-	.  reduce 7 (src line 65)
+	RBRACK  shift 10
+	.  error
 
 
-8 terminals, 6 nonterminals
-8 grammar rules, 10/8000 states
+state 10
+	empty:  LBRACK RBRACK.    (8)
+
+	.  reduce 8 (src line 69)
+
+
+9 terminals, 6 nonterminals
+9 grammar rules, 11/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 55 working sets used
 memory: parser 4/120000
 0 extra closures
-4 shift entries, 1 exceptions
+5 shift entries, 1 exceptions
 5 goto entries
 0 entries saved by goto default
-Optimizer space used: output 9/120000
-9 table entries, 0 zero
-maximum spread: 8, maximum offset: 8
+Optimizer space used: output 10/120000
+10 table entries, 0 zero
+maximum spread: 9, maximum offset: 8
