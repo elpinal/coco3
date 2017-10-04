@@ -4,16 +4,21 @@ package parser
 import __yyfmt__ "fmt"
 
 //line parser.y:3
-import "github.com/elpinal/coco3/extra/token"
+import (
+	"github.com/elpinal/coco3/extra/ast"
+	"github.com/elpinal/coco3/extra/token"
+)
 
-//line parser.y:9
+//line parser.y:12
 type yySymType struct {
-	yys   int
-	token token.Token
+	yys     int
+	token   token.Token
+	command *ast.Command
 }
 
 const ILLEGAL = 57346
 const IDENT = 57347
+const STRING = 57348
 
 var yyToknames = [...]string{
 	"$end",
@@ -21,6 +26,7 @@ var yyToknames = [...]string{
 	"$unk",
 	"ILLEGAL",
 	"IDENT",
+	"STRING",
 }
 var yyStatenames = [...]string{}
 
@@ -28,7 +34,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:30
+//line parser.y:40
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -39,35 +45,35 @@ var yyExca = [...]int{
 
 const yyPrivate = 57344
 
-const yyLast = 2
+const yyLast = 4
 
 var yyAct = [...]int{
 
-	2, 1,
+	4, 3, 2, 1,
 }
 var yyPact = [...]int{
 
-	-5, -1000, -1000,
+	-4, -1000, -1000, -6, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 1,
+	0, 3, 2,
 }
 var yyR1 = [...]int{
 
-	0, 1,
+	0, 1, 2,
 }
 var yyR2 = [...]int{
 
-	0, 1,
+	0, 1, 2,
 }
 var yyChk = [...]int{
 
-	-1000, -1, 5,
+	-1000, -1, -2, 5, 6,
 }
 var yyDef = [...]int{
 
-	0, -2, 1,
+	0, -2, 1, 0, 2,
 }
 var yyTok1 = [...]int{
 
@@ -75,7 +81,7 @@ var yyTok1 = [...]int{
 }
 var yyTok2 = [...]int{
 
-	2, 3, 4, 5,
+	2, 3, 4, 5, 6,
 }
 var yyTok3 = [...]int{
 	0,
@@ -420,12 +426,18 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:23
+		//line parser.y:27
 		{
-			yyVAL.token = yyDollar[1].token
+			yyVAL.command = yyDollar[1].command
 			if l, ok := yylex.(*exprLexer); ok {
-				l.expr = yyVAL.token
+				l.expr = yyVAL.command
 			}
+		}
+	case 2:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line parser.y:36
+		{
+			yyVAL.command = &ast.Command{yyDollar[1].token.Lit, yyDollar[2].token}
 		}
 	}
 	goto yystack /* stack new state and value */

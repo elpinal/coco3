@@ -2,29 +2,39 @@
 
 package parser
 
-import "github.com/elpinal/coco3/extra/token"
+import (
+        "github.com/elpinal/coco3/extra/ast"
+        "github.com/elpinal/coco3/extra/token"
+)
 
 %}
 
 %union {
-        token token.Token
+        token   token.Token
+        command *ast.Command
 }
 
-%type <token> top
+%type <command> top command
 
 %token <token> ILLEGAL
 
-%token <token> IDENT
+%token <token> IDENT STRING
 
 %%
 
 top:
-        IDENT
+        command
         {
                 $$ = $1
                 if l, ok := yylex.(*exprLexer); ok {
                         l.expr = $$
                 }
+        }
+
+command:
+        IDENT STRING
+        {
+                $$ = &ast.Command{$1.Lit, $2}
         }
 
 %%

@@ -2,10 +2,11 @@
 state 0
 	$accept: .top $end 
 
-	IDENT  shift 2
+	IDENT  shift 3
 	.  error
 
 	top  goto 1
+	command  goto 2
 
 state 1
 	$accept:  top.$end 
@@ -15,20 +16,33 @@ state 1
 
 
 state 2
-	top:  IDENT.    (1)
+	top:  command.    (1)
 
-	.  reduce 1 (src line 21)
+	.  reduce 1 (src line 25)
 
 
-5 terminals, 2 nonterminals
-2 grammar rules, 3/8000 states
+state 3
+	command:  IDENT.STRING 
+
+	STRING  shift 4
+	.  error
+
+
+state 4
+	command:  IDENT STRING.    (2)
+
+	.  reduce 2 (src line 34)
+
+
+6 terminals, 3 nonterminals
+3 grammar rules, 5/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-51 working sets used
-memory: parser 0/120000
+52 working sets used
+memory: parser 1/120000
 0 extra closures
-1 shift entries, 1 exceptions
-1 goto entries
+2 shift entries, 1 exceptions
+2 goto entries
 0 entries saved by goto default
-Optimizer space used: output 2/120000
-2 table entries, 0 zero
-maximum spread: 5, maximum offset: 5
+Optimizer space used: output 4/120000
+4 table entries, 0 zero
+maximum spread: 6, maximum offset: 6

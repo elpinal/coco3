@@ -9,6 +9,7 @@ import (
 	"os"
 	"unicode/utf8"
 
+	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/token"
 )
 
@@ -20,7 +21,7 @@ type exprLexer struct {
 	err error
 
 	// result
-	expr token.Token
+	expr *ast.Command
 
 	// information for error messages
 	off    uint // start at 0
@@ -45,6 +46,10 @@ func isAlphabet(c rune) bool {
 	return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z'
 }
 
+func isNotQuote(c rune) bool {
+	return c != '\''
+}
+
 func (x *exprLexer) Lex(yylval *yySymType) int {
 	for {
 		x.tokLine = x.line
@@ -55,6 +60,9 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 			return eof
 		case ' ':
 			x.next()
+		case '\'':
+			x.next()
+			return x.str(yylval)
 		default:
 			if isAlphabet(c) {
 				return x.ident(yylval)
@@ -67,6 +75,12 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 
 func (x *exprLexer) ident(yylval *yySymType) int {
 	return x.takeWhile(IDENT, isAlphabet, yylval)
+}
+
+func (x *exprLexer) str(yylval *yySymType) int {
+	_ = x.takeWhile(STRING, isNotQuote, yylval)
+	x.next()
+	return STRING
 }
 
 func (x *exprLexer) takeWhile(kind int, f func(rune) bool, yylval *yySymType) int {
@@ -113,12 +127,12 @@ func (x *exprLexer) Error(s string) {
 	x.err = errors.New(s)
 }
 
-func Parse(src []byte) (token.Token, error) {
+func Parse(src []byte) (*ast.Command, error) {
 	l := newLexer(src)
 	yyErrorVerbose = true
 	yyParse(l)
 	if l.err != nil {
-		return token.Token{}, l.err
+		return nil, l.err
 	}
 	return l.expr, nil
 }
