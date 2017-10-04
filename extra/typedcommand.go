@@ -2,7 +2,7 @@ package extra
 
 type TypedCommand struct {
 	params []Type
-	fn     func(string)
+	fn     func(string) error
 }
 
 type Type int

@@ -21,6 +21,5 @@ func (e *Env) Eval(command *ast.Command) error {
 	if tc.params[0] != String {
 		return fmt.Errorf("the parameter should be String type: %v", tc.params[0])
 	}
-	tc.fn(command.Arg.Lit)
-	return nil
+	return tc.fn(command.Arg.Lit)
 }
