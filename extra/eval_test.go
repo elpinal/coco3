@@ -17,7 +17,8 @@ func TestEval(t *testing.T) {
 		_, err := fmt.Fprintln(&buf, prefix, args[0].(*ast.String).Lit)
 		return err
 	}
-	e := Env{cmds: map[string]typed.Command{"print": {Params: []types.Type{types.String}, Fn: printCommand}}}
+	e := New()
+	e.Bind("print", typed.Command{Params: []types.Type{types.String}, Fn: printCommand})
 	err := e.Eval(&ast.Command{Name: "print", Args: []ast.Expr{&ast.String{Lit: "aaa"}}})
 	if err != nil {
 		t.Fatalf("Eval: %v", err)
