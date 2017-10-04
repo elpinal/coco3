@@ -75,7 +75,7 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 }
 
 func (x *exprLexer) ident(yylval *yySymType) int {
-	x.takeWhile(typed.String, isAlphabet, yylval)
+	x.takeWhile(typed.Ident, isAlphabet, yylval)
 	return IDENT
 }
 
