@@ -15,11 +15,16 @@ func (e *Env) Eval(command *ast.Command) error {
 	if !found {
 		return fmt.Errorf("no such typed command: %q", command.Name)
 	}
-	if len(tc.params) != 1 {
-		return fmt.Errorf("the parameters should be the list of one String: %v", tc.params)
+	if len(command.Args) != len(tc.params) {
+		return fmt.Errorf("the length of args (%d) != the one of params (%d)", len(command.Args), len(tc.params))
 	}
-	if tc.params[0] != String {
-		return fmt.Errorf("the parameter should be String type: %v", tc.params[0])
+	args := make([]string, 0, len(command.Args))
+	for i, arg := range command.Args {
+		// FIXME
+		if arg.Kind != tc.params[i] {
+			return fmt.Errorf("type mismatch: %v != %v", arg.Kind, tc.params[i])
+		}
+		args = append(args, arg.Lit)
 	}
-	return tc.fn(command.Arg.Lit)
+	return tc.fn(args)
 }

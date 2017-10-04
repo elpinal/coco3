@@ -12,9 +12,11 @@ import (
 %union {
         token   token.Token
         command *ast.Command
+        args    []token.Token
 }
 
 %type <command> top command
+%type <args> args
 
 %token <token> ILLEGAL
 
@@ -32,9 +34,18 @@ top:
         }
 
 command:
-        IDENT STRING
+        IDENT args
         {
                 $$ = &ast.Command{$1.Lit, $2}
+        }
+
+args:
+        {
+                $$ = []token.Token{}
+        }
+        | args STRING
+        {
+                $$ = append($1, $2)
         }
 
 %%

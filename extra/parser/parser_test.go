@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/elpinal/coco3/extra/ast"
@@ -13,8 +14,8 @@ func TestParse(t *testing.T) {
 	if err != nil {
 		t.Errorf("Parse: %v", err)
 	}
-	want := ast.Command{Name: "aa", Arg: token.Token{Kind: STRING, Lit: "b"}}
-	if *x != want {
+	want := ast.Command{Name: "aa", Args: []token.Token{{Kind: STRING, Lit: "b"}}}
+	if !reflect.DeepEqual(*x, want) {
 		t.Errorf("Parse(%s) != %v; got %v", src, want, x)
 	}
 }

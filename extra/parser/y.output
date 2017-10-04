@@ -18,31 +18,40 @@ state 1
 state 2
 	top:  command.    (1)
 
-	.  reduce 1 (src line 25)
+	.  reduce 1 (src line 27)
 
 
 state 3
-	command:  IDENT.STRING 
+	command:  IDENT.args 
+	args: .    (3)
 
-	STRING  shift 4
-	.  error
+	.  reduce 3 (src line 42)
 
+	args  goto 4
 
 state 4
-	command:  IDENT STRING.    (2)
+	command:  IDENT args.    (2)
+	args:  args.STRING 
 
-	.  reduce 2 (src line 34)
+	STRING  shift 5
+	.  reduce 2 (src line 36)
 
 
-6 terminals, 3 nonterminals
-3 grammar rules, 5/8000 states
+state 5
+	args:  args STRING.    (4)
+
+	.  reduce 4 (src line 46)
+
+
+6 terminals, 4 nonterminals
+5 grammar rules, 6/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-52 working sets used
-memory: parser 1/120000
+53 working sets used
+memory: parser 2/120000
 0 extra closures
 2 shift entries, 1 exceptions
-2 goto entries
+3 goto entries
 0 entries saved by goto default
-Optimizer space used: output 4/120000
-4 table entries, 0 zero
+Optimizer space used: output 5/120000
+5 table entries, 0 zero
 maximum spread: 6, maximum offset: 6

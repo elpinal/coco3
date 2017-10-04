@@ -14,6 +14,7 @@ type yySymType struct {
 	yys     int
 	token   token.Token
 	command *ast.Command
+	args    []token.Token
 }
 
 const ILLEGAL = 57346
@@ -34,7 +35,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:40
+//line parser.y:51
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -45,35 +46,35 @@ var yyExca = [...]int{
 
 const yyPrivate = 57344
 
-const yyLast = 4
+const yyLast = 5
 
 var yyAct = [...]int{
 
-	4, 3, 2, 1,
+	5, 3, 4, 2, 1,
 }
 var yyPact = [...]int{
 
-	-4, -1000, -1000, -6, -1000,
+	-4, -1000, -1000, -1000, -6, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 3, 2,
+	0, 4, 3, 2,
 }
 var yyR1 = [...]int{
 
-	0, 1, 2,
+	0, 1, 2, 3, 3,
 }
 var yyR2 = [...]int{
 
-	0, 1, 2,
+	0, 1, 2, 0, 2,
 }
 var yyChk = [...]int{
 
-	-1000, -1, -2, 5, 6,
+	-1000, -1, -2, 5, -3, 6,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 0, 2,
+	0, -2, 1, 3, 2, 4,
 }
 var yyTok1 = [...]int{
 
@@ -426,7 +427,7 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:27
+		//line parser.y:29
 		{
 			yyVAL.command = yyDollar[1].command
 			if l, ok := yylex.(*exprLexer); ok {
@@ -435,9 +436,21 @@ yydefault:
 		}
 	case 2:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:36
+		//line parser.y:38
 		{
-			yyVAL.command = &ast.Command{yyDollar[1].token.Lit, yyDollar[2].token}
+			yyVAL.command = &ast.Command{yyDollar[1].token.Lit, yyDollar[2].args}
+		}
+	case 3:
+		yyDollar = yyS[yypt-0 : yypt+1]
+		//line parser.y:43
+		{
+			yyVAL.args = []token.Token{}
+		}
+	case 4:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line parser.y:47
+		{
+			yyVAL.args = append(yyDollar[1].args, yyDollar[2].token)
 		}
 	}
 	goto yystack /* stack new state and value */
