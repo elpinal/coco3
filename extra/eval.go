@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/typed"
@@ -18,6 +19,7 @@ func New() Env {
 	return Env{cmds: map[string]typed.Command{
 		"exec": execCommand,
 		"cd":   cdCommand,
+		"exit": exitCommand,
 	}}
 }
 
@@ -56,5 +58,17 @@ var cdCommand = typed.Command{
 	Params: []types.Type{types.String},
 	Fn: func(args []ast.Expr) error {
 		return os.Chdir(args[0].(*ast.String).Lit)
+	},
+}
+
+var exitCommand = typed.Command{
+	Params: []types.Type{types.Int},
+	Fn: func(args []ast.Expr) error {
+		n, err := strconv.Atoi(args[0].(*ast.Int).Lit)
+		if err != nil {
+			return err
+		}
+		os.Exit(n)
+		return nil
 	},
 }
