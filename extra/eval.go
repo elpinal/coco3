@@ -2,6 +2,7 @@ package extra
 
 import (
 	"fmt"
+	"os/exec"
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/typed"
@@ -12,6 +13,12 @@ type Env struct {
 }
 
 func New() Env {
+	return Env{cmds: map[string]typed.Command{
+		"exec": execCommand,
+	}}
+}
+
+func WithoutDefault() Env {
 	return Env{cmds: make(map[string]typed.Command)}
 }
 
@@ -35,4 +42,11 @@ func (e *Env) Eval(command *ast.Command) error {
 		args = append(args, arg.Lit)
 	}
 	return tc.Fn(args)
+}
+
+var execCommand = typed.Command{
+	Params: []typed.Type{typed.String},
+	Fn: func(args []string) error {
+		return exec.Command(args[0]).Run()
+	},
 }
