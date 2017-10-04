@@ -11,6 +11,14 @@ type Env struct {
 	cmds map[string]typed.Command
 }
 
+func New() Env {
+	return Env{cmds: make(map[string]typed.Command)}
+}
+
+func (e *Env) Bind(name string, c typed.Command) {
+	e.cmds[name] = c
+}
+
 func (e *Env) Eval(command *ast.Command) error {
 	tc, found := e.cmds[command.Name]
 	if !found {
