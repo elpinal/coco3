@@ -22,6 +22,7 @@ func New() Env {
 		"exec": execCommand,
 		"cd":   cdCommand,
 		"exit": exitCommand,
+		"free": freeCommand,
 
 		"git":   gitCommand,
 		"cargo": cargoCommand,
@@ -100,6 +101,21 @@ var exitCommand = typed.Command{
 		}
 		os.Exit(n)
 		return nil
+	},
+}
+
+var freeCommand = typed.Command{
+	Params: []types.Type{types.String, types.StringList},
+	Fn: func(args []ast.Expr) error {
+		cmdArgs, err := toSlice(args[1].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "free")
+		}
+		cmd := exec.Cmd{Path: args[0].(*ast.String).Lit, Args: cmdArgs}
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		return cmd.Run()
 	},
 }
 
