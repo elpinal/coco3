@@ -46,7 +46,7 @@ func (e *Env) Eval(command *ast.Command) error {
 	}
 	for i, arg := range command.Args {
 		if arg.Type() != tc.Params[i] {
-			return fmt.Errorf("type mismatch: %v != %v", arg.Type(), tc.Params[i])
+			return fmt.Errorf("type mismatch: %v != %v (in %#v)", arg.Type(), tc.Params[i], arg)
 		}
 	}
 	return tc.Fn(command.Args)
