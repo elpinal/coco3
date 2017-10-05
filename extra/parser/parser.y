@@ -20,11 +20,11 @@ import (
 %type <command> top command
 %type <exprs> exprs
 %type <expr> expr
-%type <list> string_list
+%type <list> string_list sep_by_commas
 
 %token <token> ILLEGAL
 
-%token <token> IDENT STRING LBRACK RBRACK NUM COLON
+%token <token> IDENT STRING LBRACK RBRACK NUM COLON COMMA
 
 %%
 
@@ -72,6 +72,20 @@ string_list:
                 $$ = &ast.Empty{}
         }
         | STRING COLON string_list
+        {
+                $$ = &ast.Cons{Head: $1.Lit, Tail: $3}
+        }
+        | LBRACK sep_by_commas RBRACK
+        {
+                $$ = $2
+        }
+
+sep_by_commas:
+        STRING
+        {
+                $$ = &ast.Cons{Head: $1.Lit, Tail: &ast.Empty{}}
+        }
+        | STRING COMMA sep_by_commas
         {
                 $$ = &ast.Cons{Head: $1.Lit, Tail: $3}
         }

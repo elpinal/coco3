@@ -69,19 +69,22 @@ state 8
 
 state 9
 	string_list:  LBRACK.RBRACK 
+	string_list:  LBRACK.sep_by_commas RBRACK 
 
+	STRING  shift 13
 	RBRACK  shift 11
 	.  error
 
+	sep_by_commas  goto 12
 
 state 10
 	string_list:  STRING COLON.string_list 
 
-	STRING  shift 13
+	STRING  shift 15
 	LBRACK  shift 9
 	.  error
 
-	string_list  goto 12
+	string_list  goto 14
 
 state 11
 	string_list:  LBRACK RBRACK.    (8)
@@ -90,27 +93,62 @@ state 11
 
 
 state 12
+	string_list:  LBRACK sep_by_commas.RBRACK 
+
+	RBRACK  shift 16
+	.  error
+
+
+state 13
+	sep_by_commas:  STRING.    (11)
+	sep_by_commas:  STRING.COMMA sep_by_commas 
+
+	COMMA  shift 17
+	.  reduce 11 (src line 83)
+
+
+state 14
 	string_list:  STRING COLON string_list.    (9)
 
 	.  reduce 9 (src line 74)
 
 
-state 13
+state 15
 	string_list:  STRING.COLON string_list 
 
 	COLON  shift 10
 	.  error
 
 
-10 terminals, 6 nonterminals
-10 grammar rules, 14/8000 states
+state 16
+	string_list:  LBRACK sep_by_commas RBRACK.    (10)
+
+	.  reduce 10 (src line 78)
+
+
+state 17
+	sep_by_commas:  STRING COMMA.sep_by_commas 
+
+	STRING  shift 13
+	.  error
+
+	sep_by_commas  goto 18
+
+state 18
+	sep_by_commas:  STRING COMMA sep_by_commas.    (12)
+
+	.  reduce 12 (src line 88)
+
+
+11 terminals, 7 nonterminals
+13 grammar rules, 19/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
-55 working sets used
-memory: parser 5/120000
+56 working sets used
+memory: parser 7/120000
 0 extra closures
-9 shift entries, 1 exceptions
-6 goto entries
+13 shift entries, 1 exceptions
+8 goto entries
 0 entries saved by goto default
-Optimizer space used: output 14/120000
-14 table entries, 0 zero
-maximum spread: 10, maximum offset: 10
+Optimizer space used: output 20/120000
+20 table entries, 0 zero
+maximum spread: 11, maximum offset: 17

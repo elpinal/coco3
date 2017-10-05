@@ -28,11 +28,23 @@ func TestParse(t *testing.T) {
 				},
 			}},
 		},
+		{
+			src: "a ['u', 'v']",
+			want: ast.Command{Name: "a", Args: []ast.Expr{
+				&ast.Cons{
+					Head: "u",
+					Tail: &ast.Cons{
+						Head: "v",
+						Tail: &ast.Empty{},
+					},
+				},
+			}},
+		},
 	}
 	for _, test := range tests {
 		x, err := Parse([]byte(test.src))
 		if err != nil {
-			t.Errorf("Parse(%q): %v", test.src, err)
+			t.Fatalf("Parse(%q): %v", test.src, err)
 		}
 		if !reflect.DeepEqual(*x, test.want) {
 			t.Errorf("Parse(%q) != %v; got %v", test.src, test.want, x)

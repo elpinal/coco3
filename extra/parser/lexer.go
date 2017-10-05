@@ -77,6 +77,9 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 		case ':':
 			x.next()
 			return COLON
+		case ',':
+			x.next()
+			return COMMA
 		default:
 			if isAlphabet(c) {
 				return x.ident(yylval)
