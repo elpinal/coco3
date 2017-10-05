@@ -49,13 +49,13 @@ func (e *Env) Eval(command *ast.Command) error {
 	return tc.Fn(command.Args)
 }
 
-func toSilce(cons *ast.Cons) ([]string, error) {
+func toSilce(list ast.List) ([]string, error) {
 	var ret []string
 	for {
-		ret = append(ret, cons.Head)
-		switch x := cons.Tail.(type) {
+		switch x := list.(type) {
 		case *ast.Cons:
-			cons = x
+			ret = append(ret, x.Head)
+			list = x.Tail
 		case *ast.Empty:
 			return ret, nil
 		default:
@@ -67,7 +67,7 @@ func toSilce(cons *ast.Cons) ([]string, error) {
 var execCommand = typed.Command{
 	Params: []types.Type{types.String, types.StringList},
 	Fn: func(args []ast.Expr) error {
-		cmdArgs, err := toSilce(args[1].(*ast.Cons))
+		cmdArgs, err := toSilce(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, "exec")
 		}
