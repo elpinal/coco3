@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/elpinal/coco3/extra/types"
+import (
+	"fmt"
+
+	"github.com/elpinal/coco3/extra/types"
+)
 
 type Command struct {
 	Name string
@@ -14,7 +18,7 @@ type Expr interface {
 
 func (_ *String) Expr() {}
 func (_ *Int) Expr()    {}
-func (_ *Ident) Expr() {}
+func (_ *Ident) Expr()  {}
 func (_ *Empty) Expr()  {}
 func (_ *Cons) Expr()   {}
 
@@ -38,8 +42,12 @@ type Ident struct {
 	Lit string
 }
 
-func (s *Ident) Type() types.Type {
+func (_ *Ident) Type() types.Type {
 	return types.Ident
+}
+
+func (id *Ident) String() string {
+	return fmt.Sprintf("%q", id.Lit)
 }
 
 type List interface {
