@@ -22,7 +22,9 @@ func New() Env {
 		"exec": execCommand,
 		"cd":   cdCommand,
 		"exit": exitCommand,
-		"git":  gitCommand,
+
+		"git":   gitCommand,
+		"cargo": cargoCommand,
 	}}
 }
 
@@ -112,6 +114,27 @@ var gitCommand = typed.Command{
 			cmd = exec.Command("git", cmdArgs...)
 		default:
 			cmd = exec.Command("git", append([]string{name.Lit}, cmdArgs...)...)
+		}
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		return cmd.Run()
+	},
+}
+
+var cargoCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn: func(args []ast.Expr) error {
+		cmdArgs, err := toSlice(args[1].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "cargo")
+		}
+		var cmd *exec.Cmd
+		switch name := args[0].(*ast.Ident); name.Lit {
+		case "command":
+			cmd = exec.Command("cargo", cmdArgs...)
+		default:
+			cmd = exec.Command("cargo", append([]string{name.Lit}, cmdArgs...)...)
 		}
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
