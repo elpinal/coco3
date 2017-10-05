@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"strconv"
 
+	"github.com/pkg/errors"
+
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/typed"
 	"github.com/elpinal/coco3/extra/types"
@@ -47,21 +49,27 @@ func (e *Env) Eval(command *ast.Command) error {
 	return tc.Fn(command.Args)
 }
 
+func toSilce(cons *ast.Cons) ([]string, error) {
+	var ret []string
+	for {
+		ret = append(ret, cons.Head)
+		switch x := cons.Tail.(type) {
+		case *ast.Cons:
+			cons = x
+		case *ast.Empty:
+			return ret, nil
+		default:
+			return nil, fmt.Errorf("unexpected list type: %T", x)
+		}
+	}
+}
+
 var execCommand = typed.Command{
 	Params: []types.Type{types.String, types.StringList},
 	Fn: func(args []ast.Expr) error {
-		var cmdArgs []string
-	loop:
-		for cons := args[1].(*ast.Cons); ; {
-			cmdArgs = append(cmdArgs, cons.Head)
-			switch x := cons.Tail.(type) {
-			case *ast.Empty:
-				break loop
-			case *ast.Cons:
-				cons = x
-			default:
-				panic(fmt.Sprintf("exec: unexpected list type: %T", x))
-			}
+		cmdArgs, err := toSilce(args[1].(*ast.Cons))
+		if err != nil {
+			return errors.Wrap(err, "exec")
 		}
 		return exec.Command(args[0].(*ast.String).Lit, cmdArgs...).Run()
 	},
