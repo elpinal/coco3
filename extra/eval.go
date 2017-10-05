@@ -102,65 +102,37 @@ var exitCommand = typed.Command{
 	},
 }
 
-var gitCommand = typed.Command{
-	Params: []types.Type{types.Ident, types.StringList},
-	Fn: func(args []ast.Expr) error {
+func commandsInCommand(name string) func([]ast.Expr) error {
+	return func(args []ast.Expr) error {
 		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
-			return errors.Wrap(err, "git")
+			return errors.Wrap(err, name)
 		}
 		var cmd *exec.Cmd
-		switch name := args[0].(*ast.Ident); name.Lit {
+		switch lit := args[0].(*ast.Ident).Lit; lit {
 		case "command":
-			cmd = exec.Command("git", cmdArgs...)
+			cmd = exec.Command(name, cmdArgs...)
 		default:
-			cmd = exec.Command("git", append([]string{name.Lit}, cmdArgs...)...)
+			cmd = exec.Command(name, append([]string{lit}, cmdArgs...)...)
 		}
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Stdin = os.Stdin
 		return cmd.Run()
-	},
+	}
+}
+
+var gitCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("git"),
 }
 
 var cargoCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
-	Fn: func(args []ast.Expr) error {
-		cmdArgs, err := toSlice(args[1].(ast.List))
-		if err != nil {
-			return errors.Wrap(err, "cargo")
-		}
-		var cmd *exec.Cmd
-		switch name := args[0].(*ast.Ident); name.Lit {
-		case "command":
-			cmd = exec.Command("cargo", cmdArgs...)
-		default:
-			cmd = exec.Command("cargo", append([]string{name.Lit}, cmdArgs...)...)
-		}
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
-		return cmd.Run()
-	},
+	Fn:     commandsInCommand("cargo"),
 }
 
 var goCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
-	Fn: func(args []ast.Expr) error {
-		cmdArgs, err := toSlice(args[1].(ast.List))
-		if err != nil {
-			return errors.Wrap(err, "go")
-		}
-		var cmd *exec.Cmd
-		switch name := args[0].(*ast.Ident); name.Lit {
-		case "command":
-			cmd = exec.Command("go", cmdArgs...)
-		default:
-			cmd = exec.Command("go", append([]string{name.Lit}, cmdArgs...)...)
-		}
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
-		return cmd.Run()
-	},
+	Fn:     commandsInCommand("go"),
 }
