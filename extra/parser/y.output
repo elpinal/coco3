@@ -23,9 +23,9 @@ state 2
 
 state 3
 	command:  IDENT.exprs 
-	exprs: .    (6)
+	exprs: .    (7)
 
-	.  reduce 6 (src line 60)
+	.  reduce 7 (src line 64)
 
 	exprs  goto 4
 
@@ -33,25 +33,26 @@ state 4
 	command:  IDENT exprs.    (2)
 	exprs:  exprs.expr 
 
+	IDENT  shift 8
 	STRING  shift 6
-	LBRACK  shift 9
+	LBRACK  shift 10
 	NUM  shift 7
 	.  reduce 2 (src line 40)
 
 	expr  goto 5
-	string_list  goto 8
+	string_list  goto 9
 
 state 5
-	exprs:  exprs expr.    (7)
+	exprs:  exprs expr.    (8)
 
-	.  reduce 7 (src line 64)
+	.  reduce 8 (src line 68)
 
 
 state 6
 	expr:  STRING.    (3)
 	string_list:  STRING.COLON string_list 
 
-	COLON  shift 10
+	COLON  shift 11
 	.  reduce 3 (src line 46)
 
 
@@ -62,93 +63,99 @@ state 7
 
 
 state 8
-	expr:  string_list.    (5)
+	expr:  IDENT.    (5)
 
 	.  reduce 5 (src line 55)
 
 
 state 9
+	expr:  string_list.    (6)
+
+	.  reduce 6 (src line 59)
+
+
+state 10
 	string_list:  LBRACK.RBRACK 
 	string_list:  LBRACK.sep_by_commas RBRACK 
 
-	STRING  shift 13
-	RBRACK  shift 11
+	STRING  shift 14
+	RBRACK  shift 12
 	.  error
 
-	sep_by_commas  goto 12
-
-state 10
-	string_list:  STRING COLON.string_list 
-
-	STRING  shift 15
-	LBRACK  shift 9
-	.  error
-
-	string_list  goto 14
+	sep_by_commas  goto 13
 
 state 11
-	string_list:  LBRACK RBRACK.    (8)
+	string_list:  STRING COLON.string_list 
 
-	.  reduce 8 (src line 69)
+	STRING  shift 16
+	LBRACK  shift 10
+	.  error
 
+	string_list  goto 15
 
 state 12
-	string_list:  LBRACK sep_by_commas.RBRACK 
+	string_list:  LBRACK RBRACK.    (9)
 
-	RBRACK  shift 16
-	.  error
+	.  reduce 9 (src line 73)
 
 
 state 13
-	sep_by_commas:  STRING.    (11)
-	sep_by_commas:  STRING.COMMA sep_by_commas 
+	string_list:  LBRACK sep_by_commas.RBRACK 
 
-	COMMA  shift 17
-	.  reduce 11 (src line 83)
-
-
-state 14
-	string_list:  STRING COLON string_list.    (9)
-
-	.  reduce 9 (src line 74)
-
-
-state 15
-	string_list:  STRING.COLON string_list 
-
-	COLON  shift 10
+	RBRACK  shift 17
 	.  error
 
 
-state 16
-	string_list:  LBRACK sep_by_commas RBRACK.    (10)
+state 14
+	sep_by_commas:  STRING.    (12)
+	sep_by_commas:  STRING.COMMA sep_by_commas 
+
+	COMMA  shift 18
+	.  reduce 12 (src line 87)
+
+
+state 15
+	string_list:  STRING COLON string_list.    (10)
 
 	.  reduce 10 (src line 78)
 
 
-state 17
-	sep_by_commas:  STRING COMMA.sep_by_commas 
+state 16
+	string_list:  STRING.COLON string_list 
 
-	STRING  shift 13
+	COLON  shift 11
 	.  error
 
-	sep_by_commas  goto 18
+
+state 17
+	string_list:  LBRACK sep_by_commas RBRACK.    (11)
+
+	.  reduce 11 (src line 82)
+
 
 state 18
-	sep_by_commas:  STRING COMMA sep_by_commas.    (12)
+	sep_by_commas:  STRING COMMA.sep_by_commas 
 
-	.  reduce 12 (src line 88)
+	STRING  shift 14
+	.  error
+
+	sep_by_commas  goto 19
+
+state 19
+	sep_by_commas:  STRING COMMA sep_by_commas.    (13)
+
+	.  reduce 13 (src line 92)
 
 
 11 terminals, 7 nonterminals
-13 grammar rules, 19/8000 states
+14 grammar rules, 20/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 56 working sets used
 memory: parser 7/120000
 0 extra closures
-13 shift entries, 1 exceptions
+14 shift entries, 1 exceptions
 8 goto entries
 0 entries saved by goto default
-Optimizer space used: output 20/120000
-20 table entries, 0 zero
-maximum spread: 11, maximum offset: 17
+Optimizer space used: output 21/120000
+21 table entries, 0 zero
+maximum spread: 11, maximum offset: 18

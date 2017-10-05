@@ -100,14 +100,14 @@ var exitCommand = typed.Command{
 }
 
 var gitCommand = typed.Command{
-	Params: []types.Type{types.String, types.StringList},
+	Params: []types.Type{types.Ident, types.StringList},
 	Fn: func(args []ast.Expr) error {
 		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, "git")
 		}
 		var cmd *exec.Cmd
-		switch name := args[0].(*ast.String); name.Lit {
+		switch name := args[0].(*ast.Ident); name.Lit {
 		case "command":
 			cmd = exec.Command("git", cmdArgs...)
 		default:

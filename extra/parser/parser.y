@@ -52,6 +52,10 @@ expr:
         {
                 $$ = &ast.Int{$1.Lit}
         }
+        | IDENT
+        {
+                $$ = &ast.Ident{$1.Lit}
+        }
         | string_list
         {
                 $$ = $1
