@@ -78,7 +78,7 @@ func (c *CLI) Run(args []string) int {
 		}
 	}
 
-	if *flagE {
+	if *flagE || c.Config.Extra {
 		c.execute1 = c.executeExtra
 	} else {
 		c.execute1 = c.execute
