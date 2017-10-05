@@ -26,6 +26,7 @@ func New() Env {
 		"git":   gitCommand,
 		"cargo": cargoCommand,
 		"go":    goCommand,
+		"stack": stackCommand,
 	}}
 }
 
@@ -135,4 +136,9 @@ var cargoCommand = typed.Command{
 var goCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("go"),
+}
+
+var stackCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("stack"),
 }
