@@ -39,7 +39,7 @@ state 4
 	.  reduce 2 (src line 40)
 
 	expr  goto 5
-	empty  goto 8
+	string_list  goto 8
 
 state 5
 	exprs:  exprs expr.    (7)
@@ -49,7 +49,9 @@ state 5
 
 state 6
 	expr:  STRING.    (3)
+	string_list:  STRING.COLON string_list 
 
+	COLON  shift 10
 	.  reduce 3 (src line 46)
 
 
@@ -60,33 +62,55 @@ state 7
 
 
 state 8
-	expr:  empty.    (5)
+	expr:  string_list.    (5)
 
 	.  reduce 5 (src line 55)
 
 
 state 9
-	empty:  LBRACK.RBRACK 
+	string_list:  LBRACK.RBRACK 
 
-	RBRACK  shift 10
+	RBRACK  shift 11
 	.  error
 
 
 state 10
-	empty:  LBRACK RBRACK.    (8)
+	string_list:  STRING COLON.string_list 
+
+	STRING  shift 13
+	LBRACK  shift 9
+	.  error
+
+	string_list  goto 12
+
+state 11
+	string_list:  LBRACK RBRACK.    (8)
 
 	.  reduce 8 (src line 69)
 
 
-9 terminals, 6 nonterminals
-9 grammar rules, 11/8000 states
+state 12
+	string_list:  STRING COLON string_list.    (9)
+
+	.  reduce 9 (src line 74)
+
+
+state 13
+	string_list:  STRING.COLON string_list 
+
+	COLON  shift 10
+	.  error
+
+
+10 terminals, 6 nonterminals
+10 grammar rules, 14/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 55 working sets used
-memory: parser 4/120000
+memory: parser 5/120000
 0 extra closures
-5 shift entries, 1 exceptions
-5 goto entries
+9 shift entries, 1 exceptions
+6 goto entries
 0 entries saved by goto default
-Optimizer space used: output 10/120000
-10 table entries, 0 zero
-maximum spread: 9, maximum offset: 8
+Optimizer space used: output 14/120000
+14 table entries, 0 zero
+maximum spread: 10, maximum offset: 10

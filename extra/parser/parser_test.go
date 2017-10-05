@@ -17,10 +17,15 @@ func TestParse(t *testing.T) {
 			want: ast.Command{Name: "aa", Args: []ast.Expr{&ast.String{Lit: "b"}}},
 		},
 		{
-			src: "a [] []",
+			src: "a 'u' : 'v' : []",
 			want: ast.Command{Name: "a", Args: []ast.Expr{
-				&ast.Empty{},
-				&ast.Empty{},
+				&ast.Cons{
+					Head: "u",
+					Tail: &ast.Cons{
+						Head: "v",
+						Tail: &ast.Empty{},
+					},
+				},
 			}},
 		},
 	}

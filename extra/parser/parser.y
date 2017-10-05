@@ -20,11 +20,11 @@ import (
 %type <command> top command
 %type <exprs> exprs
 %type <expr> expr
-%type <list> empty
+%type <list> string_list
 
 %token <token> ILLEGAL
 
-%token <token> IDENT STRING LBRACK RBRACK NUM
+%token <token> IDENT STRING LBRACK RBRACK NUM COLON
 
 %%
 
@@ -52,7 +52,7 @@ expr:
         {
                 $$ = &ast.Int{$1.Lit}
         }
-        | empty
+        | string_list
         {
                 $$ = $1
         }
@@ -66,10 +66,14 @@ exprs:
                 $$ = append($1, $2)
         }
 
-empty:
+string_list:
         LBRACK RBRACK
         {
                 $$ = &ast.Empty{}
+        }
+        | STRING COLON string_list
+        {
+                $$ = &ast.Cons{Head: $1.Lit, Tail: $3}
         }
 
 %%
