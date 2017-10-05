@@ -71,7 +71,11 @@ var execCommand = typed.Command{
 		if err != nil {
 			return errors.Wrap(err, "exec")
 		}
-		return exec.Command(args[0].(*ast.String).Lit, cmdArgs...).Run()
+		cmd := exec.Command(args[0].(*ast.String).Lit, cmdArgs...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		return cmd.Run()
 	},
 }
 
