@@ -59,6 +59,8 @@ var execCommand = typed.Command{
 				break loop
 			case *ast.Cons:
 				cons = x
+			default:
+				panic(fmt.Sprintf("exec: unexpected list type: %T", x))
 			}
 		}
 		return exec.Command(args[0].(*ast.String).Lit, cmdArgs...).Run()
