@@ -50,7 +50,7 @@ func (e *Env) Eval(command *ast.Command) error {
 	return tc.Fn(command.Args)
 }
 
-func toSilce(list ast.List) ([]string, error) {
+func toSlice(list ast.List) ([]string, error) {
 	var ret []string
 	for {
 		switch x := list.(type) {
@@ -68,7 +68,7 @@ func toSilce(list ast.List) ([]string, error) {
 var execCommand = typed.Command{
 	Params: []types.Type{types.String, types.StringList},
 	Fn: func(args []ast.Expr) error {
-		cmdArgs, err := toSilce(args[1].(ast.List))
+		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, "exec")
 		}
@@ -102,7 +102,7 @@ var exitCommand = typed.Command{
 var gitCommand = typed.Command{
 	Params: []types.Type{types.String, types.StringList},
 	Fn: func(args []ast.Expr) error {
-		cmdArgs, err := toSilce(args[1].(ast.List))
+		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, "git")
 		}
