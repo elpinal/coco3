@@ -15,6 +15,9 @@ import (
 	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/parser"
 
+	"github.com/elpinal/coco3/extra"
+	eparser "github.com/elpinal/coco3/extra/parser"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -30,6 +33,8 @@ type CLI struct {
 
 	exitCh chan int
 	doneCh chan struct{} // to ensure exiting just after exitCh received
+
+	execute1 func([]byte) error
 }
 
 func (c *CLI) Run(args []string) int {
@@ -48,6 +53,7 @@ func (c *CLI) Run(args []string) int {
 	}
 
 	flagC := f.String("c", "", "take first argument as a command to execute")
+	flagE := f.Bool("extra", false, "switch to extra mode")
 	if err := f.Parse(args); err != nil {
 		return 2
 	}
@@ -72,9 +78,15 @@ func (c *CLI) Run(args []string) int {
 		}
 	}
 
+	if *flagE {
+		c.execute1 = c.executeExtra
+	} else {
+		c.execute1 = c.execute
+	}
+
 	if *flagC != "" {
 		go func() {
-			if err := c.execute([]byte(*flagC)); err != nil {
+			if err := c.execute1([]byte(*flagC)); err != nil {
 				fmt.Fprintln(c.Err, err)
 				c.exitCh <- 1
 				return
@@ -143,7 +155,7 @@ func (c *CLI) interact(g gate.Gate) error {
 		return nil
 	}
 	go c.writeHistory(r)
-	if err := c.execute([]byte(string(r))); err != nil {
+	if err := c.execute1([]byte(string(r))); err != nil {
 		return err
 	}
 	g.Clear()
@@ -199,6 +211,15 @@ func (c *CLI) execute(b []byte) error {
 	return err
 }
 
+func (c *CLI) executeExtra(b []byte) error {
+	cmd, err := eparser.Parse(b)
+	if err != nil {
+		return err
+	}
+	e := extra.New()
+	return e.Eval(cmd)
+}
+
 func (c *CLI) runFiles(ctx context.Context, files []string) {
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
@@ -207,7 +228,7 @@ func (c *CLI) runFiles(ctx context.Context, files []string) {
 			c.exitCh <- 1
 			return
 		}
-		if err := c.execute(b); err != nil {
+		if err := c.execute1(b); err != nil {
 			fmt.Fprintln(c.Err, err)
 			c.exitCh <- 1
 			return
