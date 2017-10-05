@@ -29,8 +29,8 @@ func TestParse(t *testing.T) {
 			}},
 		},
 		{
-			src: "a ['u', 'v']",
-			want: ast.Command{Name: "a", Args: []ast.Expr{
+			src: "a-b ['u', 'v']",
+			want: ast.Command{Name: "a-b", Args: []ast.Expr{
 				&ast.Cons{
 					Head: "u",
 					Tail: &ast.Cons{

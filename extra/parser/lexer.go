@@ -47,6 +47,10 @@ func isAlphabet(c rune) bool {
 	return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z'
 }
 
+func isIdent(c rune) bool {
+	return isAlphabet(c) || c == '-'
+}
+
 func isNumber(c rune) bool {
 	return '0' <= c && c <= '9'
 }
@@ -94,7 +98,7 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 }
 
 func (x *exprLexer) ident(yylval *yySymType) int {
-	x.takeWhile(types.Ident, isAlphabet, yylval)
+	x.takeWhile(types.Ident, isIdent, yylval)
 	return IDENT
 }
 
