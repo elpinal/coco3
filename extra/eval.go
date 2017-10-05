@@ -48,9 +48,20 @@ func (e *Env) Eval(command *ast.Command) error {
 }
 
 var execCommand = typed.Command{
-	Params: []types.Type{types.String},
+	Params: []types.Type{types.String, types.StringList},
 	Fn: func(args []ast.Expr) error {
-		return exec.Command(args[0].(*ast.String).Lit).Run()
+		var cmdArgs []string
+	loop:
+		for cons := args[1].(*ast.Cons); ; {
+			cmdArgs = append(cmdArgs, cons.Head)
+			switch x := cons.Tail.(type) {
+			case *ast.Empty:
+				break loop
+			case *ast.Cons:
+				cons = x
+			}
+		}
+		return exec.Command(args[0].(*ast.String).Lit, cmdArgs...).Run()
 	},
 }
 
