@@ -7,8 +7,8 @@ import (
 )
 
 func File(buf []rune, pos int) ([]string, error) {
-	words := strings.Split(string(buf[:pos]), " ")
-	prefix := words[len(words)-1]
+	i := strings.LastIndexAny(string(buf[:pos]), " '") + 1
+	prefix := string(buf[i:pos])
 	p, pend := filepath.Split(prefix)
 	if p == "" {
 		p = "."
