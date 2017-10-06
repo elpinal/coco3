@@ -40,6 +40,18 @@ func TestParse(t *testing.T) {
 				},
 			}},
 		},
+		{
+			src: "a-b1-2190 [''] 8",
+			want: ast.Command{Name: "a-b1-2190", Args: []ast.Expr{
+				&ast.Cons{
+					Head: "",
+					Tail: &ast.Empty{},
+				},
+				&ast.Int{
+					Lit: "8",
+				},
+			}},
+		},
 	}
 	for _, test := range tests {
 		x, err := Parse([]byte(test.src))
