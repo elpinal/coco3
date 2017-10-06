@@ -87,7 +87,11 @@ func (c *CLI) Run(args []string) int {
 	if *flagC != "" {
 		go func() {
 			if err := c.execute1([]byte(*flagC)); err != nil {
-				fmt.Fprintln(c.Err, err)
+				if pe, ok := err.(*eparser.ParseError); ok {
+					fmt.Fprintln(c.Err, pe.Verbose())
+				} else {
+					fmt.Fprintln(c.Err, err)
+				}
 				c.exitCh <- 1
 				return
 			}
@@ -131,7 +135,11 @@ func (c *CLI) Run(args []string) int {
 	go func(ctx context.Context) {
 		for {
 			if err := c.interact(g); err != nil {
-				fmt.Fprintln(c.Err, err)
+				if pe, ok := err.(*eparser.ParseError); ok {
+					fmt.Fprintln(c.Err, pe.Verbose())
+				} else {
+					fmt.Fprintln(c.Err, err)
+				}
 				g.Clear()
 			}
 			select {
