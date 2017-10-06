@@ -132,6 +132,13 @@ func (x *exprLexer) str(yylval *yySymType) int {
 			case '\'', '\\':
 				add(&b, x.ch)
 				x.next()
+			case eof:
+				x.err = &ParseError{
+					Line:   line,
+					Column: column,
+					Msg:    "string literal not terminated: unexpected EOF",
+				}
+				return STRING
 			default:
 				x.err = &ParseError{
 					Line:   line,
