@@ -54,8 +54,8 @@ func isNumber(c rune) bool {
 	return '0' <= c && c <= '9'
 }
 
-func isNotQuote(c rune) bool {
-	return c != '\''
+func isQuote(c rune) bool {
+	return c == '\''
 }
 
 func (x *exprLexer) Lex(yylval *yySymType) int {
@@ -102,7 +102,32 @@ func (x *exprLexer) ident(yylval *yySymType) int {
 }
 
 func (x *exprLexer) str(yylval *yySymType) int {
-	x.takeWhile(types.String, isNotQuote, yylval)
+	add := func(b *bytes.Buffer, c rune) {
+		if _, err := b.WriteRune(c); err != nil {
+			x.err = &ParseError{
+				Line:   x.line,
+				Column: x.column,
+				Msg:    fmt.Sprintf("WriteRune: %s", err),
+			}
+		}
+	}
+	var b bytes.Buffer
+	for !isQuote(x.ch) {
+		if x.ch == eof {
+			x.err = &ParseError{
+				Line:   x.line,
+				Column: x.column,
+				Msg:    "string literal not terminated: unexpected EOF",
+			}
+			return STRING
+		}
+		add(&b, x.ch)
+		x.next()
+	}
+	yylval.token = token.Token{
+		Kind: types.String,
+		Lit:  b.String(),
+	}
 	x.next()
 	return STRING
 }

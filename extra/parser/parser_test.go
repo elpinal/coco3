@@ -63,3 +63,20 @@ func TestParse(t *testing.T) {
 		}
 	}
 }
+
+func TestParseFail(t *testing.T) {
+	tests := []struct {
+		src string
+	}{
+		{
+			src: "aa '",
+		},
+	}
+	for _, test := range tests {
+		got, err := Parse([]byte(test.src))
+		if err == nil {
+			t.Errorf("Parse(%q): unexpectedly succeeded", test.src)
+			t.Fatalf("got: %v", got)
+		}
+	}
+}
