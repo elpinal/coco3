@@ -1,8 +1,11 @@
 package parser
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+
+	"github.com/elpinal/color"
 )
 
 type ParseError struct {
@@ -20,8 +23,16 @@ func (p *ParseError) Error() string {
 }
 
 func (p *ParseError) Verbose() string {
+	var buf bytes.Buffer
+	buf.WriteString(p.Error())
+	buf.WriteString("\n\n")
+
 	l := fmt.Sprintf("%d: ", p.Line)
-	return p.Error() + "\n\n" +
-		"\033[36m" + l + "\033[0m" + strings.Split(p.Src, "\n")[p.Line-1] + "\n" +
-		strings.Repeat(" ", int(p.Column-1)+len(l)) + "\033[1m" + "^ error occurs" + "\033[0m"
+	buf.WriteString(color.Wrap(l, color.Cyan))
+	buf.WriteString(strings.Split(p.Src, "\n")[p.Line-1])
+	buf.WriteByte('\n')
+
+	buf.WriteString(strings.Repeat(" ", int(p.Column-1)+len(l)))
+	buf.WriteString("\033[1m^ error occurs\033[0m")
+	return buf.String()
 }
