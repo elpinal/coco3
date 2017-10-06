@@ -44,7 +44,7 @@ command:
         |
         IDENT exprs
         {
-                $$ = &ast.Command{$1.Lit, $2}
+                $$ = &ast.Command{$1, $2}
         }
 
 expr:

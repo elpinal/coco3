@@ -10,15 +10,18 @@ import (
 func TestParse(t *testing.T) {
 	tests := []struct {
 		src  string
-		want ast.Command
+		name string
+		args []ast.Expr
 	}{
 		{
 			src:  "aa 'b'",
-			want: ast.Command{Name: "aa", Args: []ast.Expr{&ast.String{Lit: "b"}}},
+			name: "aa",
+			args: []ast.Expr{&ast.String{Lit: "b"}},
 		},
 		{
-			src: "a 'u' : 'v' : []",
-			want: ast.Command{Name: "a", Args: []ast.Expr{
+			src:  "a 'u' : 'v' : []",
+			name: "a",
+			args: []ast.Expr{
 				&ast.Cons{
 					Head: "u",
 					Tail: &ast.Cons{
@@ -26,11 +29,12 @@ func TestParse(t *testing.T) {
 						Tail: &ast.Empty{},
 					},
 				},
-			}},
+			},
 		},
 		{
-			src: "a-b ['u', 'v']",
-			want: ast.Command{Name: "a-b", Args: []ast.Expr{
+			src:  "a-b ['u', 'v']",
+			name: "a-b",
+			args: []ast.Expr{
 				&ast.Cons{
 					Head: "u",
 					Tail: &ast.Cons{
@@ -38,11 +42,12 @@ func TestParse(t *testing.T) {
 						Tail: &ast.Empty{},
 					},
 				},
-			}},
+			},
 		},
 		{
-			src: "a-b1-2190 [''] 8",
-			want: ast.Command{Name: "a-b1-2190", Args: []ast.Expr{
+			src:  "a-b1-2190 [''] 8",
+			name: "a-b1-2190",
+			args: []ast.Expr{
 				&ast.Cons{
 					Head: "",
 					Tail: &ast.Empty{},
@@ -50,7 +55,7 @@ func TestParse(t *testing.T) {
 				&ast.Int{
 					Lit: "8",
 				},
-			}},
+			},
 		},
 	}
 	for _, test := range tests {
@@ -58,8 +63,11 @@ func TestParse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Parse(%q): %v", test.src, err)
 		}
-		if !reflect.DeepEqual(*x, test.want) {
-			t.Errorf("Parse(%q) != %v; got %v", test.src, test.want, x)
+		if x.Name.Lit != test.name {
+			t.Fatalf("Parse(%q).Lit != %s; got %s", test.src, test.name, x.Name.Lit)
+		}
+		if !reflect.DeepEqual(x.Args, test.args) {
+			t.Errorf("Parse(%q).Args != %v; got %v", test.src, test.args, x.Args)
 		}
 	}
 }

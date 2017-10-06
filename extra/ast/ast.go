@@ -3,11 +3,12 @@ package ast
 import (
 	"fmt"
 
+	"github.com/elpinal/coco3/extra/token"
 	"github.com/elpinal/coco3/extra/types"
 )
 
 type Command struct {
-	Name string
+	Name token.Token
 	Args []Expr
 }
 

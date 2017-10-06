@@ -127,6 +127,8 @@ func (x *exprLexer) str(yylval *yySymType) int {
 	yylval.token = token.Token{
 		Kind: types.String,
 		Lit:  b.String(),
+		Line: x.tokLine,
+		Column: x.tokColumn,
 	}
 	x.next()
 	return STRING
@@ -155,6 +157,8 @@ func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymT
 	yylval.token = token.Token{
 		Kind: kind,
 		Lit:  b.String(),
+		Line: x.tokLine,
+		Column: x.tokColumn,
 	}
 }
 

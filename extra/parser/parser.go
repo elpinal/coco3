@@ -463,7 +463,7 @@ yydefault:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		//line parser.y:46
 		{
-			yyVAL.command = &ast.Command{yyDollar[1].token.Lit, yyDollar[2].exprs}
+			yyVAL.command = &ast.Command{yyDollar[1].token, yyDollar[2].exprs}
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]

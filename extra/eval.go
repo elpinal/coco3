@@ -43,9 +43,9 @@ func (e *Env) Eval(command *ast.Command) error {
 	if command == nil {
 		return nil
 	}
-	tc, found := e.cmds[command.Name]
+	tc, found := e.cmds[command.Name.Lit]
 	if !found {
-		return fmt.Errorf("no such typed command: %q", command.Name)
+		return fmt.Errorf("no such typed command: %q", command.Name.Lit)
 	}
 	if len(command.Args) != len(tc.Params) {
 		return fmt.Errorf("the length of args (%d) != the one of params (%d)", len(command.Args), len(tc.Params))
