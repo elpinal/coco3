@@ -33,6 +33,10 @@ func (p *ParseError) Verbose() string {
 	buf.WriteByte('\n')
 
 	buf.WriteString(strings.Repeat(" ", int(p.Column-1)+len(l)))
-	buf.WriteString("\033[1m^ error occurs\033[0m")
+	buf.Write(highlight([]byte("^ error occurs")))
 	return buf.String()
+}
+
+func highlight(s []byte) []byte {
+	return append(append([]byte("\033[1m"), s...), "\033[0m"...)
 }
