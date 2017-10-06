@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/elpinal/coco3/extra/ast"
+	"github.com/elpinal/coco3/extra/parser" // Only for ParseError.
 	"github.com/elpinal/coco3/extra/typed"
 	"github.com/elpinal/coco3/extra/types"
 )
@@ -45,14 +46,26 @@ func (e *Env) Eval(command *ast.Command) error {
 	}
 	tc, found := e.cmds[command.Name.Lit]
 	if !found {
-		return fmt.Errorf("no such typed command: %q", command.Name.Lit)
+		return &parser.ParseError{
+			Msg:    fmt.Sprintf("no such typed command: %q", command.Name.Lit),
+			Line:   command.Name.Line,
+			Column: command.Name.Column,
+		}
 	}
 	if len(command.Args) != len(tc.Params) {
-		return fmt.Errorf("the length of args (%d) != the one of params (%d)", len(command.Args), len(tc.Params))
+		return &parser.ParseError{
+			Msg:    fmt.Sprintf("the length of args (%d) != the one of params (%d)", len(command.Args), len(tc.Params)),
+			Line:   command.Name.Line,
+			Column: command.Name.Column,
+		}
 	}
 	for i, arg := range command.Args {
 		if arg.Type() != tc.Params[i] {
-			return fmt.Errorf("type mismatch: (%v) (type of %v) does not match with (%v) (expected type)", arg.Type(), arg, tc.Params[i])
+			return &parser.ParseError{
+				Msg:    fmt.Sprintf("type mismatch: (%v) (type of %v) does not match with (%v) (expected type)", arg.Type(), arg, tc.Params[i]),
+				Line:   command.Name.Line,
+				Column: command.Name.Column,
+			}
 		}
 	}
 	return tc.Fn(command.Args)

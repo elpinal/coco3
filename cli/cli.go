@@ -225,7 +225,14 @@ func (c *CLI) executeExtra(b []byte) error {
 		return err
 	}
 	e := extra.New()
-	return e.Eval(cmd)
+	err = e.Eval(cmd)
+	if err == nil {
+		return nil
+	}
+	if pe, ok := err.(*eparser.ParseError); ok {
+		pe.Src = string(b)
+	}
+	return err
 }
 
 func (c *CLI) runFiles(ctx context.Context, files []string) {
