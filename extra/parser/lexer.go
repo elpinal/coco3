@@ -120,7 +120,7 @@ func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymT
 		}
 	}
 	var b bytes.Buffer
-	for f(x.ch) {
+	for f(x.ch) && x.ch != eof {
 		add(&b, x.ch)
 		x.next()
 	}
