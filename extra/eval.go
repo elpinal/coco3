@@ -111,7 +111,8 @@ var freeCommand = typed.Command{
 		if err != nil {
 			return errors.Wrap(err, "free")
 		}
-		cmd := exec.Cmd{Path: args[0].(*ast.String).Lit, Args: cmdArgs}
+		name := args[0].(*ast.String).Lit
+		cmd := exec.Cmd{Path: name, Args: append([]string{name}, cmdArgs...)}
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Stdin = os.Stdin
