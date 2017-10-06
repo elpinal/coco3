@@ -48,7 +48,7 @@ func isAlphabet(c rune) bool {
 }
 
 func isIdent(c rune) bool {
-	return isAlphabet(c) || c == '-'
+	return isAlphabet(c) || isNumber(c) || c == '-'
 }
 
 func isNumber(c rune) bool {
