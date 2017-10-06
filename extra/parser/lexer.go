@@ -59,6 +59,9 @@ func isQuote(c rune) bool {
 }
 
 func (x *exprLexer) Lex(yylval *yySymType) int {
+	if x.err != nil {
+		return eof
+	}
 	for {
 		x.tokLine = x.line
 		x.tokColumn = x.column
@@ -120,6 +123,25 @@ func (x *exprLexer) str(yylval *yySymType) int {
 				Msg:    "string literal not terminated: unexpected EOF",
 			}
 			return STRING
+		}
+		if x.ch == '\\' {
+			line := x.line
+			column := x.column
+			x.next()
+			switch x.ch {
+			case '\'', '\\':
+				add(&b, x.ch)
+				x.next()
+			default:
+				x.err = &ParseError{
+					Line:   line,
+					Column: column,
+					Msg:    fmt.Sprintf("unknown escape sequence: \\%c", x.ch),
+				}
+				x.next()
+				return STRING
+			}
+			continue
 		}
 		add(&b, x.ch)
 		x.next()
