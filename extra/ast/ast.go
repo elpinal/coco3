@@ -11,6 +11,8 @@ type Command struct {
 	Args []Expr
 }
 
+// Expressions
+
 type Expr interface {
 	Expr()
 	Type() types.Type
@@ -22,56 +24,72 @@ func (_ *Ident) Expr()  {}
 func (_ *Empty) Expr()  {}
 func (_ *Cons) Expr()   {}
 
-type String struct {
-	Lit string
-}
+// Simple types
 
-func (s *String) Type() types.Type {
+type (
+	String struct {
+		Lit string
+	}
+
+	Int struct {
+		Lit string
+	}
+
+	Ident struct {
+		Lit string
+	}
+)
+
+func (_ *String) Type() types.Type {
 	return types.String
 }
 
-type Int struct {
-	Lit string
-}
-
-func (s *Int) Type() types.Type {
+func (_ *Int) Type() types.Type {
 	return types.Int
-}
-
-type Ident struct {
-	Lit string
 }
 
 func (_ *Ident) Type() types.Type {
 	return types.Ident
 }
 
+func (s *String) String() string {
+	return fmt.Sprintf("%q", s.Lit)
+}
+
+func (i *Int) String() string {
+	return i.Lit
+}
+
 func (id *Ident) String() string {
 	return fmt.Sprintf("%q", id.Lit)
 }
+
+// Lists
 
 type List interface {
 	Length() int
 	Expr
 }
 
-type Empty struct{}
+type (
+	Cons struct {
+		Head string
+		Tail List
+	}
+
+	Empty struct{}
+)
 
 func (e *Empty) Type() types.Type {
 	return types.StringList
 }
 
-func (e *Empty) Length() int {
-	return 0
-}
-
-type Cons struct {
-	Head string
-	Tail List
-}
-
 func (c *Cons) Type() types.Type {
 	return types.StringList
+}
+
+func (e *Empty) Length() int {
+	return 0
 }
 
 func (c *Cons) Length() int {
