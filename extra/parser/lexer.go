@@ -90,7 +90,7 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 			if isNumber(c) {
 				return x.num(yylval)
 			}
-			fmt.Fprintf(os.Stderr, "[%d:%d]: invalid character: %[3]U %[3]q\n", x.line, x.column, c)
+			fmt.Fprintf(os.Stderr, "%d:%d: invalid character: %[3]U %[3]q\n", x.line, x.column, c)
 			return ILLEGAL
 		}
 	}
