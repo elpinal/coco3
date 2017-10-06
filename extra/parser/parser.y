@@ -38,6 +38,10 @@ top:
         }
 
 command:
+        {
+                $$ = nil
+        }
+        |
         IDENT exprs
         {
                 $$ = &ast.Command{$1.Lit, $2}

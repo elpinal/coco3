@@ -40,6 +40,9 @@ func (e *Env) Bind(name string, c typed.Command) {
 }
 
 func (e *Env) Eval(command *ast.Command) error {
+	if command == nil {
+		return nil
+	}
 	tc, found := e.cmds[command.Name]
 	if !found {
 		return fmt.Errorf("no such typed command: %q", command.Name)

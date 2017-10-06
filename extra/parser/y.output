@@ -1,9 +1,10 @@
 
 state 0
 	$accept: .top $end 
+	command: .    (2)
 
 	IDENT  shift 3
-	.  error
+	.  reduce 2 (src line 40)
 
 	top  goto 1
 	command  goto 2
@@ -23,55 +24,55 @@ state 2
 
 state 3
 	command:  IDENT.exprs 
-	exprs: .    (7)
+	exprs: .    (8)
 
-	.  reduce 7 (src line 64)
+	.  reduce 8 (src line 68)
 
 	exprs  goto 4
 
 state 4
-	command:  IDENT exprs.    (2)
+	command:  IDENT exprs.    (3)
 	exprs:  exprs.expr 
 
 	IDENT  shift 8
 	STRING  shift 6
 	LBRACK  shift 10
 	NUM  shift 7
-	.  reduce 2 (src line 40)
+	.  reduce 3 (src line 44)
 
 	expr  goto 5
 	string_list  goto 9
 
 state 5
-	exprs:  exprs expr.    (8)
+	exprs:  exprs expr.    (9)
 
-	.  reduce 8 (src line 68)
+	.  reduce 9 (src line 72)
 
 
 state 6
-	expr:  STRING.    (3)
+	expr:  STRING.    (4)
 	string_list:  STRING.COLON string_list 
 
 	COLON  shift 11
-	.  reduce 3 (src line 46)
+	.  reduce 4 (src line 50)
 
 
 state 7
-	expr:  NUM.    (4)
-
-	.  reduce 4 (src line 51)
-
-
-state 8
-	expr:  IDENT.    (5)
+	expr:  NUM.    (5)
 
 	.  reduce 5 (src line 55)
 
 
-state 9
-	expr:  string_list.    (6)
+state 8
+	expr:  IDENT.    (6)
 
 	.  reduce 6 (src line 59)
+
+
+state 9
+	expr:  string_list.    (7)
+
+	.  reduce 7 (src line 63)
 
 
 state 10
@@ -94,9 +95,9 @@ state 11
 	string_list  goto 15
 
 state 12
-	string_list:  LBRACK RBRACK.    (9)
+	string_list:  LBRACK RBRACK.    (10)
 
-	.  reduce 9 (src line 73)
+	.  reduce 10 (src line 77)
 
 
 state 13
@@ -107,17 +108,17 @@ state 13
 
 
 state 14
-	sep_by_commas:  STRING.    (12)
+	sep_by_commas:  STRING.    (13)
 	sep_by_commas:  STRING.COMMA sep_by_commas 
 
 	COMMA  shift 18
-	.  reduce 12 (src line 87)
+	.  reduce 13 (src line 91)
 
 
 state 15
-	string_list:  STRING COLON string_list.    (10)
+	string_list:  STRING COLON string_list.    (11)
 
-	.  reduce 10 (src line 78)
+	.  reduce 11 (src line 82)
 
 
 state 16
@@ -128,9 +129,9 @@ state 16
 
 
 state 17
-	string_list:  LBRACK sep_by_commas RBRACK.    (11)
+	string_list:  LBRACK sep_by_commas RBRACK.    (12)
 
-	.  reduce 11 (src line 82)
+	.  reduce 12 (src line 86)
 
 
 state 18
@@ -142,13 +143,13 @@ state 18
 	sep_by_commas  goto 19
 
 state 19
-	sep_by_commas:  STRING COMMA sep_by_commas.    (13)
+	sep_by_commas:  STRING COMMA sep_by_commas.    (14)
 
-	.  reduce 13 (src line 92)
+	.  reduce 14 (src line 96)
 
 
 11 terminals, 7 nonterminals
-14 grammar rules, 20/8000 states
+15 grammar rules, 20/8000 states
 0 shift/reduce, 0 reduce/reduce conflicts reported
 56 working sets used
 memory: parser 7/120000
