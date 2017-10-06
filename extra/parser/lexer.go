@@ -4,7 +4,6 @@ package parser
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"unicode/utf8"
@@ -19,7 +18,7 @@ const eof = 0
 type exprLexer struct {
 	src []byte // source
 	ch  rune   // current character
-	err error
+	err *ParseError
 
 	// result
 	expr *ast.Command
@@ -116,7 +115,11 @@ func (x *exprLexer) num(yylval *yySymType) int {
 func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymType) {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			x.err = fmt.Errorf("WriteRune: %s", err)
+			x.err = &ParseError{
+				Line:   x.line,
+				Column: x.column,
+				Msg:    fmt.Sprintf("WriteRune: %s", err),
+			}
 		}
 	}
 	var b bytes.Buffer
@@ -145,7 +148,11 @@ func (x *exprLexer) next() {
 		x.column++
 	}
 	if c == utf8.RuneError && size == 1 {
-		x.err = errors.New("next: invalid utf8")
+		x.err = &ParseError{
+			Line:   x.line,
+			Column: x.column,
+			Msg:    "next: invalid utf8",
+		}
 		x.next()
 		return
 	}
@@ -153,7 +160,11 @@ func (x *exprLexer) next() {
 }
 
 func (x *exprLexer) Error(s string) {
-	x.err = errors.New(s)
+	x.err = &ParseError{
+		Line:   x.tokLine,
+		Column: x.tokColumn,
+		Msg:    s,
+	}
 }
 
 func Parse(src []byte) (*ast.Command, error) {
@@ -161,6 +172,7 @@ func Parse(src []byte) (*ast.Command, error) {
 	yyErrorVerbose = true
 	yyParse(l)
 	if l.err != nil {
+		l.err.Src = string(src)
 		return nil, l.err
 	}
 	return l.expr, nil
