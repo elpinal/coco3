@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -68,6 +69,12 @@ func (e *Env) Eval(command *ast.Command) error {
 			}
 		}
 	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	defer close(c)
+	defer signal.Stop(c)
+
 	return tc.Fn(command.Args)
 }
 
