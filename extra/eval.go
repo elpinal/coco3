@@ -79,7 +79,7 @@ func (e *Env) Eval(command *ast.Command) error {
 }
 
 func toSlice(list ast.List) ([]string, error) {
-	var ret []string
+	ret := make([]string, 0, list.Length())
 	for {
 		switch x := list.(type) {
 		case *ast.Cons:
