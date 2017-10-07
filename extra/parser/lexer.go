@@ -118,8 +118,8 @@ func (x *exprLexer) str(yylval *yySymType) int {
 	for !isQuote(x.ch) {
 		if x.ch == eof {
 			x.err = &ParseError{
-				Line:   x.line,
-				Column: x.column,
+				Line:   x.tokLine,
+				Column: x.tokColumn,
 				Msg:    "string literal not terminated: unexpected EOF",
 			}
 			return STRING
