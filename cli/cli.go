@@ -53,7 +53,7 @@ func (c *CLI) Run(args []string) int {
 	}
 
 	flagC := f.String("c", "", "take first argument as a command to execute")
-	flagE := f.Bool("extra", false, "switch to extra mode")
+	flagE := f.Bool("extra", c.Config.Extra, "switch to extra mode")
 	if err := f.Parse(args); err != nil {
 		return 2
 	}
@@ -78,7 +78,7 @@ func (c *CLI) Run(args []string) int {
 		}
 	}
 
-	if *flagE || c.Config.Extra {
+	if *flagE {
 		c.execute1 = c.executeExtra
 	} else {
 		c.execute1 = c.execute
