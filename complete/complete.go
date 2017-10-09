@@ -1,6 +1,7 @@
 package complete
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,6 +40,29 @@ func File(buf []rune, pos int) ([]string, error) {
 			n += "/"
 		}
 		names = append(names, n)
+	}
+	return names, nil
+}
+
+func FromPath(buf []rune, pos int) ([]string, error) {
+	i := strings.LastIndexAny(string(buf[:pos]), " '") + 1
+	prefix := string(buf[i:pos])
+	path := os.Getenv("PATH")
+	names := make([]string, 0, 1)
+	for _, dir := range filepath.SplitList(path) {
+		if dir == "" {
+			dir = "."
+		}
+		files, err := ioutil.ReadDir(dir)
+		if err != nil {
+			return nil, err
+		}
+		for _, file := range files {
+			if !strings.HasPrefix(file.Name(), prefix) {
+				continue
+			}
+			names = append(names, file.Name())
+		}
 	}
 	return names, nil
 }
