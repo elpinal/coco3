@@ -123,6 +123,8 @@ func (e *insert) Highlight() *screen.Hi {
 func (e *insert) ctrlX(r rune) (rune, error) {
 	var f func([]rune, int) ([]string, error)
 	switch r {
+	case CharCtrlB:
+		f = complete.FromPath
 	case CharCtrlF:
 		f = complete.File
 	default:
