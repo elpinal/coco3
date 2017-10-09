@@ -61,7 +61,7 @@ func FromPath(buf []rune, pos int) ([]string, error) {
 			if !strings.HasPrefix(file.Name(), prefix) {
 				continue
 			}
-			names = append(names, file.Name())
+			names = append(names, file.Name()[len(prefix):])
 		}
 	}
 	return names, nil
