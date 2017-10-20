@@ -267,7 +267,10 @@ var historyCommand = typed.Command{
 				return err
 			}
 			if jsonFormat {
-				enc.Encode(data)
+				err := enc.Encode(data)
+				if err != nil {
+					return err
+				}
 			} else {
 				buf.WriteString(data.Time.Format("Mon, 02 Jan 2006 15:04:05"))
 				buf.Write([]byte("  "))
