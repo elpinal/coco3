@@ -224,7 +224,7 @@ func (c *CLI) executeExtra(b []byte) error {
 	if err != nil {
 		return err
 	}
-	e := extra.New()
+	e := extra.New(extra.Option{DB: c.db})
 	err = e.Eval(cmd)
 	if err == nil {
 		return nil

@@ -1,13 +1,17 @@
 package extra
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/parser" // Only for ParseError.
@@ -17,24 +21,33 @@ import (
 
 type Env struct {
 	cmds map[string]typed.Command
+	Option
 }
 
-func New() Env {
-	return Env{cmds: map[string]typed.Command{
-		"exec": execCommand,
-		"cd":   cdCommand,
-		"exit": exitCommand,
-		"free": freeCommand,
+type Option struct {
+	DB *sqlx.DB
+}
 
-		"git":   gitCommand,
-		"cargo": cargoCommand,
-		"go":    goCommand,
-		"stack": stackCommand,
+func New(opt Option) Env {
+	return Env{
+		Option: opt,
+		cmds: map[string]typed.Command{
+			"exec":    execCommand,
+			"cd":      cdCommand,
+			"exit":    exitCommand,
+			"free":    freeCommand,
+			"history": historyCommand,
 
-		"vim":    vimCommand,
-		"emacs":  emacsCommand,
-		"screen": screenCommand,
-	}}
+			"git":   gitCommand,
+			"cargo": cargoCommand,
+			"go":    goCommand,
+			"stack": stackCommand,
+
+			"vim":    vimCommand,
+			"emacs":  emacsCommand,
+			"screen": screenCommand,
+		},
+	}
 }
 
 func WithoutDefault() Env {
@@ -79,7 +92,7 @@ func (e *Env) Eval(command *ast.Command) error {
 	defer close(c)
 	defer signal.Stop(c)
 
-	return tc.Fn(command.Args)
+	return tc.Fn(command.Args, e.DB)
 }
 
 func toSlice(list ast.List) ([]string, error) {
@@ -99,7 +112,7 @@ func toSlice(list ast.List) ([]string, error) {
 
 var execCommand = typed.Command{
 	Params: []types.Type{types.String, types.StringList},
-	Fn: func(args []ast.Expr) error {
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
 		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, "exec")
@@ -111,14 +124,14 @@ var execCommand = typed.Command{
 
 var cdCommand = typed.Command{
 	Params: []types.Type{types.String},
-	Fn: func(args []ast.Expr) error {
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
 		return os.Chdir(args[0].(*ast.String).Lit)
 	},
 }
 
 var exitCommand = typed.Command{
 	Params: []types.Type{types.Int},
-	Fn: func(args []ast.Expr) error {
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
 		n, err := strconv.Atoi(args[0].(*ast.Int).Lit)
 		if err != nil {
 			return err
@@ -130,7 +143,7 @@ var exitCommand = typed.Command{
 
 var freeCommand = typed.Command{
 	Params: []types.Type{types.String, types.StringList},
-	Fn: func(args []ast.Expr) error {
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
 		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, "free")
@@ -144,8 +157,8 @@ var freeCommand = typed.Command{
 	},
 }
 
-func commandsInCommand(name string) func([]ast.Expr) error {
-	return func(args []ast.Expr) error {
+func commandsInCommand(name string) func([]ast.Expr, *sqlx.DB) error {
+	return func(args []ast.Expr, _ *sqlx.DB) error {
 		cmdArgs, err := toSlice(args[1].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, name)
@@ -189,8 +202,8 @@ func stdCmd(name string, args ...string) *exec.Cmd {
 	return cmd
 }
 
-func stdExec(name string) func([]ast.Expr) error {
-	return func(_ []ast.Expr) error {
+func stdExec(name string) func([]ast.Expr, *sqlx.DB) error {
+	return func(_ []ast.Expr, _ *sqlx.DB) error {
 		return stdCmd(name).Run()
 	}
 }
@@ -215,7 +228,32 @@ func withEnv(s string, cmd *exec.Cmd) *exec.Cmd {
 
 var screenCommand = typed.Command{
 	Params: []types.Type{},
-	Fn: func(_ []ast.Expr) error {
+	Fn: func(_ []ast.Expr, _ *sqlx.DB) error {
 		return withEnv("LANG=en_US.UTF-8", stdCmd("screen")).Run()
+	},
+}
+
+type execution struct {
+	Time time.Time
+	Line string
+}
+
+var historyCommand = typed.Command{
+	Params: []types.Type{},
+	Fn: func(_ []ast.Expr, db *sqlx.DB) error {
+		buf := bufio.NewWriter(os.Stdout)
+		data := execution{}
+		rows, err := db.Queryx("select * from command_info")
+		if err != nil {
+			return err
+		}
+		for rows.Next() {
+			err := rows.StructScan(&data)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(buf, "%s  %s\n", data.Time.Format("Mon, 02 Jan 2006 15:04:05"), data.Line)
+		}
+		return buf.Flush()
 	},
 }

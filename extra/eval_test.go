@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/jmoiron/sqlx"
+
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/token"
 	"github.com/elpinal/coco3/extra/typed"
@@ -14,11 +16,11 @@ import (
 func TestEval(t *testing.T) {
 	var buf bytes.Buffer
 	prefix := "print: the argument is"
-	printCommand := func(args []ast.Expr) error {
+	printCommand := func(args []ast.Expr, _ *sqlx.DB) error {
 		_, err := fmt.Fprintln(&buf, prefix, args[0].(*ast.String).Lit)
 		return err
 	}
-	e := New()
+	e := New(Option{})
 	e.Bind("print", typed.Command{Params: []types.Type{types.String}, Fn: printCommand})
 	err := e.Eval(&ast.Command{Name: token.Token{Lit: "print"}, Args: []ast.Expr{&ast.String{Lit: "aaa"}}})
 	if err != nil {
