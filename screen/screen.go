@@ -8,12 +8,14 @@ type Screen interface {
 	SetLastLine(string)
 }
 
+// Hi represents a range for highlight.
 type Hi struct {
 	Left, Right int
 }
 
-type TestScreen struct {
-}
+// TestScreen is one of the simplest implementation for Screen. It does not
+// anything. It is useful for testing.
+type TestScreen struct{}
 
 func (_ *TestScreen) Start(_ *config.Config, _ bool, _ []rune, _ int, _ *Hi) {
 }
