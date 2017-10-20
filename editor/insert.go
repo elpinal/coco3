@@ -28,11 +28,17 @@ func newInsert(ss streamSet, e *editor, s screen.Screen, conf *config.Config) *i
 }
 
 func (e *insert) init() {
-	e.editor = newEditor()
-	e.s = &screen.TestScreen{}
-	conf := config.Config{}
-	conf.Init()
-	e.conf = &conf
+	if e.editor == nil {
+		e.editor = newEditor()
+	}
+	if e.s == nil {
+		e.s = &screen.TestScreen{}
+	}
+	if e.conf == nil {
+		conf := config.Config{}
+		e.conf = &conf
+	}
+	e.conf.Init()
 }
 
 func newReplace(s streamSet, e *editor) *insert {
