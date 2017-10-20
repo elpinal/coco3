@@ -175,6 +175,22 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 
 func (e *insert) deleteChar() {
 	if !e.replaceMode {
+		if 0 < e.pos && e.pos < len(e.buf) {
+			l := e.buf[e.pos-1]
+			r := e.buf[e.pos]
+			switch l {
+			case '\'':
+				if l == r {
+					e.delete(e.pos-1, e.pos+1)
+					return
+				}
+			case '[':
+				if r == ']' {
+					e.delete(e.pos-1, e.pos+1)
+					return
+				}
+			}
+		}
 		e.delete(e.pos-1, e.pos)
 		return
 	}
