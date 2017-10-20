@@ -39,6 +39,14 @@ func TestInputMatches(t *testing.T) {
 			input:  "a 'b",
 			expect: []string{"a", "a ", "a ''", "a 'b'"},
 		},
+		{
+			input:  "a [b",
+			expect: []string{"a", "a ", "a []", "a [b]"},
+		},
+		{
+			input:  "a 'b" + string(CharBackspace) + string(CharBackspace),
+			expect: []string{"a", "a ", "a ''", "a 'b'", "a ''", "a "},
+		},
 	}
 	for n, test := range tests {
 		t.Run(fmt.Sprintf("%d", n), testInsertMode(test.input, test.expect))
