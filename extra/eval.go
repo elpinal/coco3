@@ -187,13 +187,17 @@ var stackCommand = typed.Command{
 	Fn:     commandsInCommand("stack"),
 }
 
+func stdCmd(name string) *exec.Cmd {
+	cmd := exec.Command(name)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	return cmd
+}
+
 func stdExec(name string) func([]ast.Expr) error {
 	return func(_ []ast.Expr) error {
-		cmd := exec.Command(name)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
-		return cmd.Run()
+		return stdCmd(name).Run()
 	}
 }
 
@@ -207,7 +211,17 @@ var emacsCommand = typed.Command{
 	Fn:     stdExec("emacs"),
 }
 
+func withEnv(s string, cmd *exec.Cmd) *exec.Cmd {
+	if cmd.Env == nil {
+		cmd.Env = os.Environ()
+	}
+	cmd.Env = append(cmd.Env, s)
+	return cmd
+}
+
 var screenCommand = typed.Command{
 	Params: []types.Type{},
-	Fn:     stdExec("screen"),
+	Fn: func(_ []ast.Expr) error {
+		return withEnv("LANG=en_US.UTF-8", stdCmd("screen")).Run()
+	},
 }
