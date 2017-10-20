@@ -3,6 +3,7 @@ package editor
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/elpinal/coco3/config"
@@ -108,3 +109,15 @@ const (
 	execute
 	exit
 )
+
+func (c continuity) String() string {
+	switch c {
+	case cont:
+		return "continue"
+	case execute:
+		return "execute"
+	case exit:
+		return "exit"
+	}
+	return fmt.Sprintf("continuity %v", c)
+}
