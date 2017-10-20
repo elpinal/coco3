@@ -104,10 +104,7 @@ var execCommand = typed.Command{
 		if err != nil {
 			return errors.Wrap(err, "exec")
 		}
-		cmd := exec.Command(args[0].(*ast.String).Lit, cmdArgs...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
+		cmd := stdCmd(args[0].(*ast.String).Lit, cmdArgs...)
 		return cmd.Run()
 	},
 }
@@ -156,13 +153,10 @@ func commandsInCommand(name string) func([]ast.Expr) error {
 		var cmd *exec.Cmd
 		switch lit := args[0].(*ast.Ident).Lit; lit {
 		case "command":
-			cmd = exec.Command(name, cmdArgs...)
+			cmd = stdCmd(name, cmdArgs...)
 		default:
-			cmd = exec.Command(name, append([]string{lit}, cmdArgs...)...)
+			cmd = stdCmd(name, append([]string{lit}, cmdArgs...)...)
 		}
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
 		return cmd.Run()
 	}
 }
@@ -187,8 +181,8 @@ var stackCommand = typed.Command{
 	Fn:     commandsInCommand("stack"),
 }
 
-func stdCmd(name string) *exec.Cmd {
-	cmd := exec.Command(name)
+func stdCmd(name string, args ...string) *exec.Cmd {
+	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
