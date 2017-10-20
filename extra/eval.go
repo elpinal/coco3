@@ -269,7 +269,10 @@ var historyCommand = typed.Command{
 			if jsonFormat {
 				enc.Encode(data)
 			} else {
-				fmt.Fprintf(buf, "%s  %s\n", data.Time.Format("Mon, 02 Jan 2006 15:04:05"), data.Line)
+				buf.WriteString(data.Time.Format("Mon, 02 Jan 2006 15:04:05"))
+				buf.Write([]byte("  "))
+				buf.WriteString(data.Line)
+				buf.WriteByte('\n')
 			}
 		}
 		return buf.Flush()
