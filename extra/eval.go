@@ -30,6 +30,10 @@ func New() Env {
 		"cargo": cargoCommand,
 		"go":    goCommand,
 		"stack": stackCommand,
+
+		"vim":    vimCommand,
+		"emacs":  emacsCommand,
+		"screen": screenCommand,
 	}}
 }
 
@@ -181,4 +185,29 @@ var goCommand = typed.Command{
 var stackCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("stack"),
+}
+
+func stdExec(name string) func([]ast.Expr) error {
+	return func(_ []ast.Expr) error {
+		cmd := exec.Command(name)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		return cmd.Run()
+	}
+}
+
+var vimCommand = typed.Command{
+	Params: []types.Type{},
+	Fn:     stdExec("vim"),
+}
+
+var emacsCommand = typed.Command{
+	Params: []types.Type{},
+	Fn:     stdExec("emacs"),
+}
+
+var screenCommand = typed.Command{
+	Params: []types.Type{},
+	Fn:     stdExec("screen"),
 }
