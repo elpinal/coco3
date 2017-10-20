@@ -92,7 +92,7 @@ start:
 		if r <= CharCtrlZ {
 			return
 		}
-		e.insert([]rune{r}, e.pos)
+		e.ordinaryKey(r)
 		e.needSave = true
 	}
 	return
@@ -221,4 +221,27 @@ func (e *insert) deleteToBeginning() {
 		e.delete(0, e.pos)
 		e.pos += off
 	}
+}
+
+func (e *insert) ordinaryKey(r rune) {
+	switch r {
+	case '\'':
+		e.inputMatches(r, r, r)
+	case '[':
+		e.inputMatches(r, r, ']')
+	case ']':
+		e.inputMatches(r, '[', r)
+	default:
+		e.insert([]rune{r}, e.pos)
+	}
+}
+
+func (e *insert) inputMatches(input, l, r rune) {
+	if e.pos < len(e.buf) && e.buf[e.pos] == input {
+		e.move(e.pos + 1)
+		return
+	}
+	e.insert([]rune{l}, e.pos)
+	e.insert([]rune{r}, e.pos)
+	e.move(e.pos - 1)
 }
