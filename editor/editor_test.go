@@ -10,22 +10,10 @@ import (
 	"github.com/elpinal/coco3/screen"
 )
 
-type testScreen struct {
-}
-
-func (ts *testScreen) Start(conf *config.Config, inCommandline bool, s []rune, pos int, _ *screen.Hi) {
-}
-
-func (ts *testScreen) Refresh(conf *config.Config, inCommandline bool, s []rune, pos int, _ *screen.Hi) {
-}
-
-func (ts *testScreen) SetLastLine(msg string) {
-}
-
 func TestEditor(t *testing.T) {
 	inBuf := strings.NewReader("aaa" + string(CharCtrlM))
 	var outBuf, errBuf bytes.Buffer
-	e := New(&testScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
+	e := New(&screen.TestScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
 	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)
@@ -56,7 +44,7 @@ func TestNormal(t *testing.T) {
 		CharCtrlM,
 	}))
 	var outBuf, errBuf bytes.Buffer
-	e := New(&testScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
+	e := New(&screen.TestScreen{}, &config.Config{}, inBuf, &outBuf, &errBuf)
 	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)
@@ -88,7 +76,7 @@ func TestWithVisual(t *testing.T) {
 		CharCtrlM,
 	}))
 	var outBuf, errBuf bytes.Buffer
-	e := New(&testScreen{}, &config.Config{}, input, &outBuf, &errBuf)
+	e := New(&screen.TestScreen{}, &config.Config{}, input, &outBuf, &errBuf)
 	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)
@@ -106,7 +94,7 @@ func TestWithVisual(t *testing.T) {
 }
 
 func TestYankPaste(t *testing.T) {
-	e := New(&testScreen{}, &config.Config{}, strings.NewReader("123"+string([]rune{CharEscape, 'h', 'x', 'p', 'i', CharCtrlM})), ioutil.Discard, ioutil.Discard)
+	e := New(&screen.TestScreen{}, &config.Config{}, strings.NewReader("123"+string([]rune{CharEscape, 'h', 'x', 'p', 'i', CharCtrlM})), ioutil.Discard, ioutil.Discard)
 	s, _, err := e.Read()
 	if err != nil {
 		t.Error(err)

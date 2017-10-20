@@ -11,3 +11,15 @@ type Screen interface {
 type Hi struct {
 	Left, Right int
 }
+
+type TestScreen struct {
+}
+
+func (_ *TestScreen) Start(_ *config.Config, _ bool, _ []rune, _ int, _ *Hi) {
+}
+
+func (_ *TestScreen) Refresh(_ *config.Config, _ bool, _ []rune, _ int, _ *Hi) {
+}
+
+func (_ *TestScreen) SetLastLine(_ string) {
+}
