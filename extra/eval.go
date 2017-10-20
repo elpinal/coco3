@@ -2,6 +2,7 @@ package extra
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -239,20 +240,37 @@ type execution struct {
 }
 
 var historyCommand = typed.Command{
-	Params: []types.Type{},
-	Fn: func(_ []ast.Expr, db *sqlx.DB) error {
+	Params: []types.Type{types.String},
+	Fn: func(e []ast.Expr, db *sqlx.DB) error {
+		var jsonFormat bool
+		var enc *json.Encoder
+		switch format := e[0].(*ast.String).Lit; format {
+		case "json":
+			jsonFormat = true
+		case "lines":
+		default:
+			return fmt.Errorf("history: format %q is not supported", format)
+		}
+
 		buf := bufio.NewWriter(os.Stdout)
-		data := execution{}
+		if jsonFormat {
+			enc = json.NewEncoder(buf)
+		}
 		rows, err := db.Queryx("select * from command_info")
 		if err != nil {
 			return err
 		}
+		data := execution{}
 		for rows.Next() {
 			err := rows.StructScan(&data)
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(buf, "%s  %s\n", data.Time.Format("Mon, 02 Jan 2006 15:04:05"), data.Line)
+			if jsonFormat {
+				enc.Encode(data)
+			} else {
+				fmt.Fprintf(buf, "%s  %s\n", data.Time.Format("Mon, 02 Jan 2006 15:04:05"), data.Line)
+			}
 		}
 		return buf.Flush()
 	},
