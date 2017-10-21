@@ -23,9 +23,9 @@ func (c *Command) Signature() []byte {
 	if len(c.Params) == 1 {
 		return buf.Bytes()
 	}
-	for i := 1; i < len(c.Params); i++ {
+	for _, t := range c.Params[1:] {
 		buf.Write([]byte(" -> "))
-		buf.WriteString(c.Params[i].String())
+		buf.WriteString(t.String())
 	}
 	return buf.Bytes()
 }
