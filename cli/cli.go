@@ -75,11 +75,18 @@ func (c *CLI) Run(args []string) int {
 
 	setpath(c.Config.Paths)
 
+	if *flagE {
+		// If -extra flag is on, enable extra mode on any command executions.
+		c.execute1 = c.executeExtra
+	} else {
+		c.execute1 = c.execute
+	}
+
 	if len(c.Config.StartUpCommand) > 0 {
 		done := make(chan struct{})
 		go func() {
-			if err := c.execute(c.Config.StartUpCommand); err != nil {
-				fmt.Fprintln(c.Err, err)
+			if err := c.execute1(c.Config.StartUpCommand); err != nil {
+				c.printExecError(err)
 				c.exitCh <- 1
 			}
 			close(done)
@@ -91,20 +98,10 @@ func (c *CLI) Run(args []string) int {
 		}
 	}
 
-	if *flagE {
-		c.execute1 = c.executeExtra
-	} else {
-		c.execute1 = c.execute
-	}
-
 	if *flagC != "" {
 		go func() {
 			if err := c.execute1([]byte(*flagC)); err != nil {
-				if pe, ok := err.(*eparser.ParseError); ok {
-					fmt.Fprintln(c.Err, pe.Verbose())
-				} else {
-					fmt.Fprintln(c.Err, err)
-				}
+				c.printExecError(err)
 				c.exitCh <- 1
 				return
 			}
@@ -145,11 +142,7 @@ func (c *CLI) Run(args []string) int {
 	go func(ctx context.Context) {
 		for {
 			if err := c.interact(g); err != nil {
-				if pe, ok := err.(*eparser.ParseError); ok {
-					fmt.Fprintln(c.Err, pe.Verbose())
-				} else {
-					fmt.Fprintln(c.Err, err)
-				}
+				c.printExecError(err)
 				g.Clear()
 			}
 			select {
@@ -160,6 +153,14 @@ func (c *CLI) Run(args []string) int {
 		}
 	}(ctx)
 	return <-c.exitCh
+}
+
+func (c *CLI) printExecError(err error) {
+	if pe, ok := err.(*eparser.ParseError); ok {
+		fmt.Fprintln(c.Err, pe.Verbose())
+	} else {
+		fmt.Fprintln(c.Err, err)
+	}
 }
 
 // setpath sets the PATH environment variable.
