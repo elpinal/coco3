@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -70,6 +72,8 @@ func (c *CLI) Run(args []string) int {
 			return 1
 		}
 	}
+
+	setpath(c.Config.Paths)
 
 	if len(c.Config.StartUpCommand) > 0 {
 		done := make(chan struct{})
@@ -156,6 +160,32 @@ func (c *CLI) Run(args []string) int {
 		}
 	}(ctx)
 	return <-c.exitCh
+}
+
+// setpath sets the PATH environment variable.
+func setpath(args []string) {
+	if len(args) == 0 {
+		return
+	}
+	paths := filepath.SplitList(os.Getenv("PATH"))
+	var newPaths []string
+	for _, path := range paths {
+		if contains(args, path) {
+			continue
+		}
+		newPaths = append(newPaths, path)
+	}
+	newPaths = append(args, newPaths...)
+	os.Setenv("PATH", strings.Join(newPaths, string(filepath.ListSeparator)))
+}
+
+func contains(xs []string, s string) bool {
+	for _, x := range xs {
+		if x == s {
+			return true
+		}
+	}
+	return false
 }
 
 func sanitizeHistory(history []string) [][]rune {

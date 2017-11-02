@@ -17,6 +17,7 @@ type Config struct {
 	Alias          [][2]string
 	HistFile       string
 	Env            map[string]string
+	Paths          []string
 	Extra          bool
 }
 
