@@ -126,10 +126,7 @@ func (c *CLI) Run(args []string) int {
 		fmt.Fprintf(c.Err, "restoring history: %v\n", err)
 		return 1
 	}
-	histRunes := make([][]rune, len(history))
-	for i, line := range history {
-		histRunes[i] = []rune(line)
-	}
+	histRunes := sanitizeHistory(history)
 	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err, histRunes)
 	c.db = db
 	go func(ctx context.Context) {
@@ -150,6 +147,34 @@ func (c *CLI) Run(args []string) int {
 		}
 	}(ctx)
 	return <-c.exitCh
+}
+
+func sanitizeHistory(history []string) [][]rune {
+	histRunes := make([][]rune, 0, len(history))
+	for _, line := range history {
+		if line == "" {
+			continue
+		}
+		l := len(histRunes)
+		s := []rune(line)
+		if l > 0 && compareRunes(histRunes[l-1], s) {
+			continue
+		}
+		histRunes = append(histRunes, s)
+	}
+	return histRunes
+}
+
+func compareRunes(r1, r2 []rune) bool {
+	if len(r1) != len(r2) {
+		return false
+	}
+	for i, r := range r1 {
+		if r2[i] != r {
+			return false
+		}
+	}
+	return true
 }
 
 func (c *CLI) interact(g gate.Gate) error {
