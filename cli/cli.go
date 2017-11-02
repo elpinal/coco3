@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -60,6 +61,14 @@ func (c *CLI) Run(args []string) int {
 
 	for _, alias := range c.Config.Alias {
 		eval.DefAlias(alias[0], alias[1])
+	}
+
+	for k, v := range c.Config.Env {
+		err := os.Setenv(k, v)
+		if err != nil {
+			fmt.Fprintln(c.Err, err)
+			return 1
+		}
 	}
 
 	if len(c.Config.StartUpCommand) > 0 {

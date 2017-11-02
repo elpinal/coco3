@@ -16,6 +16,7 @@ type Config struct {
 	StartUpCommand []byte
 	Alias          [][2]string
 	HistFile       string
+	Env            map[string]string
 	Extra          bool
 }
 
