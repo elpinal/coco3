@@ -39,6 +39,9 @@ func New(opt Option) Env {
 			"free":    freeCommand,
 			"history": historyCommand,
 
+			"ls":  lsCommand,
+			"man": manCommand,
+
 			"git":   gitCommand,
 			"cargo": cargoCommand,
 			"go":    goCommand,
@@ -203,9 +206,9 @@ func stdCmd(name string, args ...string) *exec.Cmd {
 	return cmd
 }
 
-func stdExec(name string) func([]ast.Expr, *sqlx.DB) error {
+func stdExec(name string, args ...string) func([]ast.Expr, *sqlx.DB) error {
 	return func(_ []ast.Expr, _ *sqlx.DB) error {
-		return stdCmd(name).Run()
+		return stdCmd(name, args...).Run()
 	}
 }
 
@@ -279,5 +282,18 @@ var historyCommand = typed.Command{
 			}
 		}
 		return buf.Flush()
+	},
+}
+
+var lsCommand = typed.Command{
+	Params: []types.Type{},
+	Fn:     stdExec("ls", "--show-control-chars", "--color=auto"),
+}
+
+var manCommand = typed.Command{
+	Params: []types.Type{types.String},
+	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
+		lit := e[0].(*ast.String).Lit
+		return stdCmd("man", lit).Run()
 	},
 }
