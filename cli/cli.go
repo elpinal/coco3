@@ -180,7 +180,7 @@ func (c *CLI) getHistory(filename string) ([][]rune, error) {
 
 func (c *CLI) printExecError(err error) {
 	if pe, ok := err.(*eparser.ParseError); ok {
-		fmt.Fprintln(c.Err, pe.Verbose())
+		c.errorln(pe.Verbose())
 	} else {
 		c.errorln(err)
 	}
@@ -266,7 +266,7 @@ func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
 	}
 	defer func() {
 		if err := terminal.Restore(0, oldState); err != nil {
-			fmt.Fprintln(c.Err, err)
+			c.errorln(err)
 		}
 	}()
 	r, end, err := g.Read()
