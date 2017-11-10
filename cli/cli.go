@@ -182,7 +182,7 @@ func (c *CLI) printExecError(err error) {
 	if pe, ok := err.(*eparser.ParseError); ok {
 		fmt.Fprintln(c.Err, pe.Verbose())
 	} else {
-		fmt.Fprintln(c.Err, err)
+		c.errorln(err)
 	}
 }
 
