@@ -44,9 +44,7 @@ func (c *CLI) Run(args []string) int {
 	c.exitCh = make(chan int)
 	c.doneCh = make(chan struct{})
 	// TODO: need to use a closure?
-	defer func() {
-		close(c.doneCh)
-	}()
+	defer close(c.doneCh)
 
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
