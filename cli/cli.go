@@ -43,7 +43,6 @@ type CLI struct {
 func (c *CLI) Run(args []string) int {
 	c.exitCh = make(chan int)
 	c.doneCh = make(chan struct{})
-	// TODO: need to use a closure?
 	defer close(c.doneCh)
 
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
