@@ -151,6 +151,10 @@ func (c *CLI) errorf(s string) {
 	fmt.Fprintf(c.Err, s)
 }
 
+func (c *CLI) errorln(s string) {
+	fmt.Fprintln(c.Err, s)
+}
+
 func (c *CLI) getHistory(filename string) ([][]rune, error) {
 	db, err := sqlx.Connect("sqlite3", filename)
 	if err != nil {
