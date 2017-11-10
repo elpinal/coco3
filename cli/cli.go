@@ -155,8 +155,8 @@ func (c *CLI) errorln(s interface{}) {
 	fmt.Fprintln(c.Err, s)
 }
 
-func (c *CLI) errorp(s string) {
-	fmt.Fprint(c.Err, s)
+func (c *CLI) errorp(s ...interface{}) {
+	fmt.Fprint(c.Err, s...)
 }
 
 func (c *CLI) getHistory(filename string) ([][]rune, error) {
