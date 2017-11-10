@@ -32,7 +32,7 @@ type CLI struct {
 	Out io.Writer
 	Err io.Writer
 
-	config.Config
+	*config.Config
 
 	db *sqlx.DB
 
@@ -51,6 +51,10 @@ func (c *CLI) Run(args []string) int {
 		f.PrintDefaults()
 	}
 
+	if c.Config == nil {
+		c.Config = &config.Config{}
+	}
+	c.Config.Init()
 	flagC := f.String("c", "", "take first argument as a command to execute")
 	flagE := f.Bool("extra", c.Config.Extra, "switch to extra mode")
 	if err := f.Parse(args); err != nil {
@@ -121,14 +125,12 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		return <-c.exitCh
 	}
 
-	conf := &c.Config
-	conf.Init()
-	histRunes, err := c.getHistory(conf.HistFile)
+	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
 		fmt.Fprintln(c.Err, err)
 		return 1
 	}
-	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err, histRunes)
+	g := gate.NewContext(ctx, c.Config, c.In, c.Out, c.Err, histRunes)
 	go func(ctx context.Context) {
 		for {
 			if err := c.interact(g); err != nil {

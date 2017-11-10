@@ -71,7 +71,7 @@ func TestStartUpCommand(t *testing.T) {
 	c := CLI{
 		Out: &out,
 		Err: &err,
-		Config: config.Config{
+		Config: &config.Config{
 			StartUpCommand: []byte("echo startup..."),
 		},
 	}
@@ -93,7 +93,7 @@ func TestExitInStartUp(t *testing.T) {
 	c := CLI{
 		Out: &out,
 		Err: &err,
-		Config: config.Config{
+		Config: &config.Config{
 			StartUpCommand: []byte("exit 21"),
 		},
 	}
