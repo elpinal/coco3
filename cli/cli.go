@@ -75,7 +75,7 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	for k, v := range c.Config.Env {
 		err := os.Setenv(k, v)
 		if err != nil {
-			fmt.Fprintln(c.Err, err)
+			c.errorln(err)
 			return 1
 		}
 	}
@@ -127,7 +127,7 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 
 	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
-		fmt.Fprintln(c.Err, err)
+		c.errorln(err)
 		return 1
 	}
 	g := gate.NewContext(ctx, c.Config, c.In, c.Out, c.Err, histRunes)
@@ -327,12 +327,12 @@ func (c *CLI) runFiles(ctx context.Context, files []string) {
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
-			fmt.Fprintln(c.Err, err)
+			c.errorln(err)
 			c.exitCh <- 1
 			return
 		}
 		if err := c.execute1(b); err != nil {
-			fmt.Fprintln(c.Err, err)
+			c.errorln(err)
 			c.exitCh <- 1
 			return
 		}
