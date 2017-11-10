@@ -11,13 +11,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/elpinal/coco3/config"
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/parser"
-	"github.com/pkg/errors"
 
 	"github.com/elpinal/coco3/extra"
 	eparser "github.com/elpinal/coco3/extra/parser"
