@@ -41,10 +41,6 @@ type CLI struct {
 }
 
 func (c *CLI) Run(args []string) int {
-	c.exitCh = make(chan int)
-	c.doneCh = make(chan struct{})
-	defer close(c.doneCh)
-
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
 	f.Usage = func() {
@@ -62,6 +58,10 @@ func (c *CLI) Run(args []string) int {
 }
 
 func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
+	c.exitCh = make(chan int)
+	c.doneCh = make(chan struct{})
+	defer close(c.doneCh)
+
 	for _, alias := range c.Config.Alias {
 		eval.DefAlias(alias[0], alias[1])
 	}
