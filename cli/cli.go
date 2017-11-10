@@ -147,12 +147,12 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	return <-c.exitCh
 }
 
-func (c *CLI) errorf(s string) {
-	fmt.Fprintf(c.Err, s)
+func (c *CLI) errorf(s string, a ...interface{}) {
+	fmt.Fprintf(c.Err, s, a...)
 }
 
-func (c *CLI) errorln(s interface{}) {
-	fmt.Fprintln(c.Err, s)
+func (c *CLI) errorln(s ...interface{}) {
+	fmt.Fprintln(c.Err, s...)
 }
 
 func (c *CLI) errorp(s ...interface{}) {
