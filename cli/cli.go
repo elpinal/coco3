@@ -17,6 +17,7 @@ import (
 	"github.com/elpinal/coco3/eval"
 	"github.com/elpinal/coco3/gate"
 	"github.com/elpinal/coco3/parser"
+	"github.com/pkg/errors"
 
 	"github.com/elpinal/coco3/extra"
 	eparser "github.com/elpinal/coco3/extra/parser"
@@ -121,25 +122,12 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 
 	conf := &c.Config
 	conf.Init()
-	db, err := sqlx.Connect("sqlite3", conf.HistFile)
+	histRunes, err := c.getHistory(conf.HistFile)
 	if err != nil {
-		fmt.Fprintf(c.Err, "connecting history file: %v\n", err)
+		fmt.Fprintln(c.Err, err)
 		return 1
 	}
-	_, err = db.Exec(schema)
-	if err != nil {
-		fmt.Fprintf(c.Err, "initializing history file: %v\n", err)
-		return 1
-	}
-	var history []string
-	err = db.Select(&history, "select line from command_info")
-	if err != nil {
-		fmt.Fprintf(c.Err, "restoring history: %v\n", err)
-		return 1
-	}
-	histRunes := sanitizeHistory(history)
 	g := gate.NewContext(ctx, conf, c.In, c.Out, c.Err, histRunes)
-	c.db = db
 	go func(ctx context.Context) {
 		for {
 			if err := c.interact(g); err != nil {
@@ -154,6 +142,24 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		}
 	}(ctx)
 	return <-c.exitCh
+}
+
+func (c *CLI) getHistory(filename string) ([][]rune, error) {
+	db, err := sqlx.Connect("sqlite3", filename)
+	if err != nil {
+		return nil, errors.Wrap(err, "connecting history file")
+	}
+	_, err = db.Exec(schema)
+	if err != nil {
+		return nil, errors.Wrap(err, "initializing history file")
+	}
+	var history []string
+	err = db.Select(&history, "select line from command_info")
+	if err != nil {
+		return nil, errors.Wrap(err, "restoring history")
+	}
+	c.db = db
+	return sanitizeHistory(history), nil
 }
 
 func (c *CLI) printExecError(err error) {
