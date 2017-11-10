@@ -151,7 +151,7 @@ func (c *CLI) errorf(s string) {
 	fmt.Fprintf(c.Err, s)
 }
 
-func (c *CLI) errorln(s string) {
+func (c *CLI) errorln(s interface{}) {
 	fmt.Fprintln(c.Err, s)
 }
 
