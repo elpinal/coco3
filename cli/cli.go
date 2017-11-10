@@ -58,7 +58,10 @@ func (c *CLI) Run(args []string) int {
 	if err := f.Parse(args); err != nil {
 		return 2
 	}
+	return c.run(f.Args(), flagC, flagE)
+}
 
+func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	for _, alias := range c.Config.Alias {
 		eval.DefAlias(alias[0], alias[1])
 	}
@@ -111,8 +114,8 @@ func (c *CLI) Run(args []string) int {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if len(f.Args()) > 0 {
-		go c.runFiles(ctx, f.Args())
+	if len(args) > 0 {
+		go c.runFiles(ctx, args)
 		return <-c.exitCh
 	}
 
