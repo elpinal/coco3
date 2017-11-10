@@ -178,6 +178,30 @@ func commandsInCommand(name string) func([]ast.Expr, *sqlx.DB) error {
 	}
 }
 
+func goCommand1() func([]ast.Expr, *sqlx.DB) error {
+	return func(args []ast.Expr, _ *sqlx.DB) error {
+		name := "go"
+		cmdArgs, err := toSlice(args[1].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, name)
+		}
+		var cmd *exec.Cmd
+		switch lit := args[0].(*ast.Ident).Lit; lit {
+		case "command":
+			cmd = stdCmd(name, cmdArgs...)
+		case "testall":
+			// I can't be confident in using such
+			// a subcommand-specific way.  Another suggestion might
+			// be like `go test all`, where 'all' is a postfix
+			// operator of './...'.
+			cmd = stdCmd(name, append([]string{"test"}, append(cmdArgs, "./...")...)...)
+		default:
+			cmd = stdCmd(name, append([]string{lit}, cmdArgs...)...)
+		}
+		return cmd.Run()
+	}
+}
+
 var gitCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("git"),
@@ -190,7 +214,7 @@ var cargoCommand = typed.Command{
 
 var goCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
-	Fn:     commandsInCommand("go"),
+	Fn:     goCommand1(),
 }
 
 var stackCommand = typed.Command{
