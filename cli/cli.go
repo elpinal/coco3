@@ -147,6 +147,10 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	return <-c.exitCh
 }
 
+func (c *CLI) errorf(s string) {
+	fmt.Fprintf(c.Err, s)
+}
+
 func (c *CLI) getHistory(filename string) ([][]rune, error) {
 	db, err := sqlx.Connect("sqlite3", filename)
 	if err != nil {
