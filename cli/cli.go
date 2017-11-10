@@ -161,6 +161,7 @@ func (c *CLI) getHistory(filename string) ([][]rune, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "restoring history")
 	}
+	// TODO: Is this way proper?
 	c.db = db
 	return sanitizeHistory(history), nil
 }
