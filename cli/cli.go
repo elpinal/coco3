@@ -251,7 +251,7 @@ func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
 	defer c.Out.Write([]byte{'\n'})
 	oldState, err := terminal.MakeRaw(0)
 	if err != nil {
-		panic(err)
+		return nil, false, err
 	}
 	defer func() {
 		if err := terminal.Restore(0, oldState); err != nil {
