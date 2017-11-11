@@ -66,6 +66,7 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		eval.DefAlias(alias[0], alias[1])
 	}
 
+	// Prepare environment.
 	for k, v := range c.Config.Env {
 		err := os.Setenv(k, v)
 		if err != nil {
