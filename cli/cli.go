@@ -36,10 +36,7 @@ type CLI struct {
 
 	db *sqlx.DB
 
-	exitCh chan int
-	doneCh chan struct{} // to ensure exiting just after exitCh received
-
-	execute1 func([]byte) error
+	execute1 func([]byte) (action, error)
 }
 
 func (c *CLI) Run(args []string) int {
@@ -64,10 +61,6 @@ func (c *CLI) Run(args []string) int {
 }
 
 func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
-	c.exitCh = make(chan int)
-	c.doneCh = make(chan struct{})
-	defer close(c.doneCh)
-
 	for _, alias := range c.Config.Alias {
 		eval.DefAlias(alias[0], alias[1])
 	}
@@ -90,38 +83,36 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	}
 
 	if len(c.Config.StartUpCommand) > 0 {
-		done := make(chan struct{})
-		go func() {
-			if err := c.execute1(c.Config.StartUpCommand); err != nil {
-				c.printExecError(err)
-				c.exitCh <- 1
-			}
-			close(done)
-		}()
-		select {
-		case code := <-c.exitCh:
-			return code
-		case <-done:
+		a, err := c.execute1(c.Config.StartUpCommand)
+		if err != nil {
+			c.printExecError(err)
+			return 1
+		}
+		if e, ok := a.(exit); ok {
+			return e.code
 		}
 	}
 
 	if *flagC != "" {
-		go func() {
-			if err := c.execute1([]byte(*flagC)); err != nil {
-				c.printExecError(err)
-				c.exitCh <- 1
-				return
-			}
-			c.exitCh <- 0
-		}()
-		return <-c.exitCh
-	}
-
-	if len(args) > 0 {
-		err := c.runFiles(args)
+		a, err := c.execute1([]byte(*flagC))
 		if err != nil {
 			c.printExecError(err)
 			return 1
+		}
+		if e, ok := a.(exit); ok {
+			return e.code
+		}
+		return 0
+	}
+
+	if len(args) > 0 {
+		a, err := c.runFiles(args)
+		if err != nil {
+			c.printExecError(err)
+			return 1
+		}
+		if e, ok := a.(exit); ok {
+			return e.code
 		}
 		return 0
 	}
@@ -135,20 +126,17 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		return 1
 	}
 	g := gate.NewContext(ctx, c.Config, c.In, c.Out, c.Err, histRunes)
-	go func(ctx context.Context) {
-		for {
-			if err := c.interact(g); err != nil {
-				c.printExecError(err)
-				g.Clear()
-			}
-			select {
-			case <-ctx.Done():
-				return
-			default:
-			}
+	for {
+		a, err := c.interact(g)
+		if err != nil {
+			c.printExecError(err)
+			g.Clear()
 		}
-	}(ctx)
-	return <-c.exitCh
+		if e, ok := a.(exit); ok {
+			return e.code
+		}
+	}
+	return 0
 }
 
 func (c *CLI) errorf(s string, a ...interface{}) {
@@ -244,22 +232,21 @@ func compareRunes(r1, r2 []rune) bool {
 	return true
 }
 
-func (c *CLI) interact(g gate.Gate) error {
+func (c *CLI) interact(g gate.Gate) (action, error) {
 	r, end, err := c.read(g)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if end {
-		c.exitCh <- 0
-		<-c.doneCh
-		return nil
+		return exit{code: 0}, nil
 	}
-	go c.writeHistory(r)
-	if err := c.execute1([]byte(string(r))); err != nil {
-		return err
+	ch := c.writeHistory(r)
+	a, err := c.execute1([]byte(string(r)))
+	if err != nil {
+		return a, err
 	}
 	g.Clear()
-	return nil
+	return a, <-ch
 }
 
 func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
@@ -280,13 +267,18 @@ func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
 	return r, end, nil
 }
 
-func (c *CLI) writeHistory(r []rune) {
+func (c *CLI) writeHistory(r []rune) <-chan error {
 	startTime := time.Now()
-	_, err := c.db.Exec("insert into command_info (time, line) values ($1, $2)", startTime, string(r))
-	if err != nil {
-		c.errorf("saving history: %v\n", err)
-		c.exitCh <- 1
-	}
+	ch := make(chan error)
+	go func() {
+		_, err := c.db.Exec("insert into command_info (time, line) values ($1, $2)", startTime, string(r))
+		if err != nil {
+			ch <- errors.Wrap(err, "saving history")
+			return
+		}
+		ch <- nil
+	}()
+	return ch
 }
 
 const schema = `
@@ -295,47 +287,60 @@ create table if not exists command_info (
     line text
 )`
 
-func (c *CLI) execute(b []byte) error {
+func (c *CLI) execute(b []byte) (action, error) {
 	f, err := parser.ParseSrc(b)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	e := eval.New(c.In, c.Out, c.Err, c.db)
 	err = e.Eval(f.Lines)
 	select {
 	case code := <-e.ExitCh:
-		c.exitCh <- code
-		<-c.doneCh
+		return exit{code: code}, nil
 	default:
 	}
-	return err
+	return nil, err
 }
 
-func (c *CLI) executeExtra(b []byte) error {
+func (c *CLI) executeExtra(b []byte) (action, error) {
 	cmd, err := eparser.Parse(b)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	e := extra.New(extra.Option{DB: c.db})
 	err = e.Eval(cmd)
 	if err == nil {
-		return nil
+		return nil, nil
 	}
 	if pe, ok := err.(*eparser.ParseError); ok {
 		pe.Src = string(b)
 	}
-	return err
+	return nil, err
 }
 
-func (c *CLI) runFiles(files []string) error {
+func (c *CLI) runFiles(files []string) (action, error) {
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		if err := c.execute1(b); err != nil {
-			return err
+		a, err := c.execute1(b)
+		if err != nil {
+			return nil, err
+		}
+		if a != nil {
+			return a, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
+
+type action interface {
+	act()
+}
+
+type exit struct {
+	code int
+}
+
+func (e exit) act() {}
