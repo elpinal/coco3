@@ -130,7 +130,6 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		a, err := c.interact(g)
 		if err != nil {
 			c.printExecError(err)
-			g.Clear()
 		}
 		if e, ok := a.(exit); ok {
 			return e.code
@@ -245,7 +244,6 @@ func (c *CLI) interact(g gate.Gate) (action, error) {
 	if err != nil {
 		return a, err
 	}
-	g.Clear()
 	return a, <-ch
 }
 
