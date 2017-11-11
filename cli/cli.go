@@ -123,6 +123,10 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 
 	// Interactive mode.
 
+	return c.runInteractiveMode()
+}
+
+func (c *CLI) runInteractiveMode() int {
 	// Inherit history.
 	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
