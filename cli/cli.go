@@ -295,7 +295,7 @@ func (c *CLI) execute(b []byte) (action, error) {
 	err = e.Eval(f.Lines)
 	select {
 	case code := <-e.ExitCh:
-		return exit{code: code}, nil
+		return exit{code}, nil
 	default:
 	}
 	return nil, err
