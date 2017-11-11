@@ -61,6 +61,7 @@ func (c *CLI) Run(args []string) int {
 }
 
 func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
+	// Aliases, only available for non-extra mode.
 	for _, alias := range c.Config.Alias {
 		eval.DefAlias(alias[0], alias[1])
 	}
