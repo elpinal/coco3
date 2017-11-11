@@ -238,7 +238,7 @@ func (c *CLI) interact(g gate.Gate) (action, error) {
 		return nil, err
 	}
 	if end {
-		return exit{0}, nil
+		return exitSuccess, nil
 	}
 	ch := c.writeHistory(r)
 	a, err := c.execute1([]byte(string(r)))
@@ -343,3 +343,5 @@ type exit struct {
 }
 
 func (e exit) act() {}
+
+var exitSuccess = exit{0}
