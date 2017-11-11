@@ -20,7 +20,7 @@ type gate struct {
 }
 
 func (g *gate) Read() ([]rune, bool, error) {
-	defer g.Clear()
+	defer g.clear()
 	g.e.SetHistory(g.history)
 	b, end, err := g.e.Read()
 	if err != nil {
@@ -35,7 +35,7 @@ func (g *gate) Read() ([]rune, bool, error) {
 	return b, false, nil
 }
 
-func (g *gate) Clear() {
+func (g *gate) clear() {
 	g.e.Clear()
 }
 
