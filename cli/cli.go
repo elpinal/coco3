@@ -117,14 +117,15 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		return 0
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
 		c.errorln(err)
 		return 1
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	g := gate.NewContext(ctx, c.Config, c.In, c.Out, c.Err, histRunes)
 	for {
 		a, err := c.interact(g)
