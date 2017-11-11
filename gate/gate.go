@@ -11,7 +11,6 @@ import (
 
 type Gate interface {
 	Read() ([]rune, bool, error)
-	Clear()
 }
 
 type gate struct {
