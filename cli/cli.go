@@ -95,6 +95,7 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		}
 	}
 
+	// The -c flag.
 	if *flagC != "" {
 		a, err := c.execute1([]byte(*flagC))
 		if err != nil {
@@ -107,6 +108,7 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		return 0
 	}
 
+	// Execute files.
 	if len(args) > 0 {
 		a, err := c.runFiles(args)
 		if err != nil {
@@ -119,6 +121,9 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		return 0
 	}
 
+	// Interactive mode.
+
+	// Inherit history.
 	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
 		c.errorln(err)
