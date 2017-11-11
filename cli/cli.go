@@ -280,7 +280,7 @@ func (c *CLI) writeHistory(r []rune) {
 	startTime := time.Now()
 	_, err := c.db.Exec("insert into command_info (time, line) values ($1, $2)", startTime, string(r))
 	if err != nil {
-		fmt.Fprintf(c.Err, "saving history: %v\n", err)
+		c.errorf("saving history: %v\n", err)
 		c.exitCh <- 1
 	}
 }
