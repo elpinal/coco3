@@ -117,13 +117,13 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		return <-c.exitCh
 	}
 
+	if len(args) > 0 {
+		n := c.runFiles(args)
+		return n
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
-	if len(args) > 0 {
-		go c.runFiles(ctx, args)
-		return <-c.exitCh
-	}
 
 	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
@@ -323,24 +323,17 @@ func (c *CLI) executeExtra(b []byte) error {
 	return err
 }
 
-func (c *CLI) runFiles(ctx context.Context, files []string) {
+func (c *CLI) runFiles(files []string) int {
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
 			c.errorln(err)
-			c.exitCh <- 1
-			return
+			return 1
 		}
 		if err := c.execute1(b); err != nil {
 			c.errorln(err)
-			c.exitCh <- 1
-			return
-		}
-		select {
-		case <-ctx.Done():
-			return
-		default:
+			return 1
 		}
 	}
-	c.exitCh <- 0
+	return 0
 }
