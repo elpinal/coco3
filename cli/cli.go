@@ -331,7 +331,7 @@ func (c *CLI) runFiles(files []string) int {
 			return 1
 		}
 		if err := c.execute1(b); err != nil {
-			c.errorln(err)
+			c.printExecError(err)
 			return 1
 		}
 	}
