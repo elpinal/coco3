@@ -118,8 +118,12 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	}
 
 	if len(args) > 0 {
-		n := c.runFiles(args)
-		return n
+		err := c.runFiles(args)
+		if err != nil {
+			c.printExecError(err)
+			return 1
+		}
+		return 0
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -323,17 +327,15 @@ func (c *CLI) executeExtra(b []byte) error {
 	return err
 }
 
-func (c *CLI) runFiles(files []string) int {
+func (c *CLI) runFiles(files []string) error {
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
-			c.errorln(err)
-			return 1
+			return err
 		}
 		if err := c.execute1(b); err != nil {
-			c.printExecError(err)
-			return 1
+			return err
 		}
 	}
-	return 0
+	return nil
 }
