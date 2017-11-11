@@ -238,7 +238,7 @@ func (c *CLI) interact(g gate.Gate) (action, error) {
 		return nil, err
 	}
 	if end {
-		return exit{code: 0}, nil
+		return exit{0}, nil
 	}
 	ch := c.writeHistory(r)
 	a, err := c.execute1([]byte(string(r)))
