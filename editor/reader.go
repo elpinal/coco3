@@ -38,7 +38,6 @@ func (rd *RecordableRuneReader) readRune() chan runeRead {
 
 func (rd *RecordableRuneReader) ReadRune() (r rune, size int, err error) {
 	ch := rd.readRune()
-	defer func() { close(ch) }()
 	select {
 	case rr := <-ch:
 		if rd.record {
