@@ -110,20 +110,24 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 
 	// Execute files.
 	if len(args) > 0 {
-		a, err := c.runFiles(args)
-		if err != nil {
-			c.printExecError(err)
-			return 1
-		}
-		if e, ok := a.(exit); ok {
-			return e.code
-		}
-		return 0
+		return c.executeFiles(args)
 	}
 
 	// Interactive mode.
 
 	return c.runInteractiveMode()
+}
+
+func (c *CLI) executeFiles(args []string) int {
+	a, err := c.runFiles(args)
+	if err != nil {
+		c.printExecError(err)
+		return 1
+	}
+	if e, ok := a.(exit); ok {
+		return e.code
+	}
+	return 0
 }
 
 func (c *CLI) runInteractiveMode() int {
