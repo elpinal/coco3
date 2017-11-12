@@ -106,7 +106,6 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	}
 
 	// Interactive mode.
-
 	return c.runInteractiveMode()
 }
 
