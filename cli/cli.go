@@ -95,18 +95,17 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 		}
 	}
 
-	// The -c flag.
-	if *flagC != "" {
+	switch {
+	case *flagC != "":
+		// The -c flag.
 		return c.fromArg(*flagC)
-	}
-
-	// Execute files.
-	if len(args) > 0 {
+	case len(args) > 0:
+		// Execute files.
 		return c.executeFiles(args)
+	default:
+		// Interactive mode.
+		return c.runInteractiveMode()
 	}
-
-	// Interactive mode.
-	return c.runInteractiveMode()
 }
 
 func (c *CLI) fromArg(program string) int {
