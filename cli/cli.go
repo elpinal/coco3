@@ -97,15 +97,7 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 
 	// The -c flag.
 	if *flagC != "" {
-		a, err := c.execute1([]byte(*flagC))
-		if err != nil {
-			c.printExecError(err)
-			return 1
-		}
-		if e, ok := a.(exit); ok {
-			return e.code
-		}
-		return 0
+		return c.fromArg(*flagC)
 	}
 
 	// Execute files.
@@ -116,6 +108,18 @@ func (c *CLI) run(args []string, flagC *string, flagE *bool) int {
 	// Interactive mode.
 
 	return c.runInteractiveMode()
+}
+
+func (c *CLI) fromArg(program string) int {
+	a, err := c.execute1([]byte(program))
+	if err != nil {
+		c.printExecError(err)
+		return 1
+	}
+	if e, ok := a.(exit); ok {
+		return e.code
+	}
+	return 0
 }
 
 func (c *CLI) executeFiles(args []string) int {
