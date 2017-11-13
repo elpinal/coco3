@@ -335,7 +335,7 @@ var removeCommand = typed.Command{
 }
 
 var cnpCommand = typed.Command{
-	Params: []types.Type{},
+	Params: []types.Type{types.String},
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
 		lit := e[0].(*ast.String).Lit
 		return stdCmd("create-new-project", lit).Run()
