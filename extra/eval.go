@@ -53,7 +53,7 @@ func New(opt Option) Env {
 			"emacs":  emacsCommand,
 			"screen": screenCommand,
 
-			"create-new-project": cnpCommand,
+			"cnp": cnpCommand,
 		},
 	}
 }
