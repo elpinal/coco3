@@ -66,7 +66,7 @@ func (e *Env) Bind(name string, c typed.Command) {
 	e.cmds[name] = c
 }
 
-func (e *Env) Eval(command *ast.Command) error {
+func (e *Env) Eval(command *ast.Command) (err error) {
 	if command == nil {
 		return nil
 	}
@@ -99,6 +99,19 @@ func (e *Env) Eval(command *ast.Command) error {
 	signal.Notify(c, os.Interrupt)
 	defer close(c)
 	defer signal.Stop(c)
+
+	defer func() {
+		r := recover()
+		if r == nil {
+			return
+		}
+		var ok bool
+		// may overwrite error of tc.Fn.
+		err, ok = r.(error)
+		if !ok {
+			panic(r)
+		}
+	}()
 
 	return tc.Fn(command.Args, e.DB)
 }
