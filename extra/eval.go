@@ -52,6 +52,8 @@ func New(opt Option) Env {
 			"vim":    vimCommand,
 			"emacs":  emacsCommand,
 			"screen": screenCommand,
+
+			"create-new-project": cnpCommand,
 		},
 	}
 }
@@ -329,5 +331,13 @@ var removeCommand = typed.Command{
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
 		lit := e[0].(*ast.String).Lit
 		return stdCmd("rm", "-i", lit).Run()
+	},
+}
+
+var cnpCommand = typed.Command{
+	Params: []types.Type{},
+	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
+		lit := e[0].(*ast.String).Lit
+		return stdCmd("create-new-project", lit).Run()
 	},
 }
