@@ -101,12 +101,13 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	}
 	args := strings.Split(s, " ")
 	s = args[0]
+	args = args[1:]
 	for _, cmd := range exCommands {
 		if !strings.HasPrefix(cmd.name, s) {
 			continue
 		}
 		if cmd.name == s {
-			end = cmd.fn(e, nil)
+			end = cmd.fn(e, args)
 			return
 		}
 		if candidate.name == "" {
@@ -114,7 +115,7 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 		}
 	}
 	if candidate.name != "" {
-		end = candidate.fn(e, nil)
+		end = candidate.fn(e, args)
 		return
 	}
 	err = fmt.Errorf("not a command: %q", s)
