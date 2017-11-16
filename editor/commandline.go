@@ -132,10 +132,19 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 
 func (e *commandline) historyBack() {
 	l := len(e.history)
+	if l-e.age == 0 {
+		return
+	}
+	e.age++
+	e.basic.buf = e.history[l-e.age]
+}
+
+func (e *commandline) historyForward() {
+	l := len(e.history)
 	if l == 0 {
 		return
 	}
-	e.basic.buf = e.history[l-1]
+	//e.basic.buf = e.history[l-1]
 }
 
 func (e *commandline) quit(args []string) continuity {
