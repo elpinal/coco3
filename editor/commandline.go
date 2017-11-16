@@ -135,5 +135,8 @@ func (e *commandline) help(args []string) continuity {
 }
 
 func (e *commandline) substitute(args []string) (_ continuity) {
+	if len(args) != 2 {
+		return
+	}
 	return
 }
