@@ -99,6 +99,8 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	if s == "" {
 		return
 	}
+	args := strings.Split(s, " ")
+	s = args[0]
 	for _, cmd := range exCommands {
 		if !strings.HasPrefix(cmd.name, s) {
 			continue
