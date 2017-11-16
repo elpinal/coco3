@@ -79,6 +79,8 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 		e.basic.move(0)
 	case CharCtrlE:
 		e.basic.move(len(e.basic.buf))
+	case CharCtrlN:
+		e.historyForward()
 	case CharCtrlP:
 		e.historyBack()
 	case CharCtrlU:
