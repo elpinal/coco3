@@ -128,9 +128,11 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 }
 
 func (e *commandline) historyBack() {
-	if len(e.history) == 0 {
+	l := len(e.history)
+	if l == 0 {
 		return
 	}
+	e.basic.buf = e.history[l-1]
 }
 
 func (e *commandline) quit(args []string) continuity {
