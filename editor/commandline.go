@@ -26,6 +26,8 @@ type commandline struct {
 	*editor
 
 	basic *basic
+
+	history [][]rune
 }
 
 func newCommandline(s streamSet, e *editor) *commandline {
