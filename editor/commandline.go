@@ -127,6 +127,12 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	return
 }
 
+func (e *commandline) historyBack() {
+	if len(e.history) == 0 {
+		return
+	}
+}
+
 func (e *commandline) quit(args []string) continuity {
 	return exit
 }
