@@ -28,6 +28,27 @@ func TestCommandline(t *testing.T) {
 	}
 }
 
+func TestSubstituteNoArgs(t *testing.T) {
+	command := append([]byte("substitute"), CharCtrlM)
+	ed := commandline{
+		streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
+		editor:    newEditor(),
+		basic:     &basic{},
+	}
+	ed.buf = []rune("a")
+	for range command {
+		_, _, err := ed.Run()
+		if err != nil {
+			t.Errorf("commandline: %v", err)
+		}
+	}
+	got := string(ed.buf)
+	want := "a"
+	if got != want {
+		t.Errorf("commandline (%q): want %v, but got %v", command, got, want)
+	}
+}
+
 func TestSubstitute(t *testing.T) {
 	command := append([]byte("substitute a b"), CharCtrlM)
 	ed := commandline{
