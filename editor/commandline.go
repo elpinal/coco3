@@ -18,6 +18,7 @@ var exCommands = []exCommand{
 	{"help", (*commandline).help},
 	{"delete", (*commandline).delete},
 	{"quit", (*commandline).quit},
+	{"substitute", (*commandline).substitute},
 }
 
 type commandline struct {
