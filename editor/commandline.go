@@ -141,7 +141,7 @@ func (e *commandline) historyBack() {
 
 func (e *commandline) historyForward() {
 	l := len(e.history)
-	if l == 0 {
+	if e.age == 0 {
 		return
 	}
 	e.age--
