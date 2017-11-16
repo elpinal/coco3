@@ -36,11 +36,8 @@ func TestSubstitute(t *testing.T) {
 		basic:     &basic{},
 	}
 	ed.buf = []rune("a")
-	var (
-		err error
-	)
 	for range command {
-		_, _, err = ed.Run()
+		_, _, err := ed.Run()
 		if err != nil {
 			t.Errorf("commandline: %v", err)
 		}
