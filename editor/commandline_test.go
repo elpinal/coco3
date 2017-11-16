@@ -35,6 +35,7 @@ func TestSubstitute(t *testing.T) {
 		editor:    newEditor(),
 		basic:     &basic{},
 	}
+	ed.buf = []rune("a")
 	var (
 		err error
 	)
