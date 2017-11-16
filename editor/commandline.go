@@ -144,7 +144,8 @@ func (e *commandline) historyForward() {
 	if l == 0 {
 		return
 	}
-	//e.basic.buf = e.history[l-1]
+	e.age--
+	e.basic.buf = e.history[l-e.age]
 }
 
 func (e *commandline) quit(args []string) continuity {
