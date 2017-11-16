@@ -104,6 +104,9 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	args := strings.Split(s, " ")
 	s = args[0]
 	args = args[1:]
+	defer func() {
+		e.history = append(e.history, e.basic.buf)
+	}()
 	for _, cmd := range exCommands {
 		if !strings.HasPrefix(cmd.name, s) {
 			continue
