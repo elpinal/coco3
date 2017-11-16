@@ -132,3 +132,7 @@ func (e *commandline) help(args []string) continuity {
 	e.pos = 4
 	return execute
 }
+
+func (e *commandline) substitute(args []string) (_ continuity) {
+	return
+}
