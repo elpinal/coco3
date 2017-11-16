@@ -141,5 +141,9 @@ func (e *commandline) substitute(args []string) (_ continuity) {
 	if len(args) != 2 {
 		return
 	}
+	pat := args[0]
+	s0 := args[1]
+	s := strings.Replace(string(e.buf), pat, s0, -1)
+	e.buf = []rune(s)
 	return
 }
