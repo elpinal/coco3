@@ -60,21 +60,25 @@ func (e *commandline) Highlight() *screen.Hi {
 }
 
 func (e *commandline) Run() (end continuity, next modeChanger, err error) {
-	r, _, err := e.streamSet.in.ReadRune()
+	r, _, err := e.in.ReadRune()
 	if err != nil {
 		return end, next, err
 	}
 	switch r {
 	case CharCtrlM, CharCtrlJ:
+		end, err = e.execute()
+		next = norm()
+
 	case CharEscape, CharCtrlC:
 		next = norm()
-		return end, next, err
+
 	case CharBackspace, CharCtrlH:
 		if len(e.basic.buf) == 0 {
 			next = norm()
 			return
 		}
 		e.basic.delete(e.basic.pos-1, e.basic.pos)
+
 	case CharCtrlB:
 		e.basic.move(0)
 	case CharCtrlE:
@@ -93,14 +97,13 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 		pos := ed.pos
 		ed.wordBackward()
 		e.basic.delete(pos, ed.pos)
-		return
 	default:
 		e.basic.insert([]rune{r}, e.basic.pos)
 	}
-	if r != CharCtrlM && r != CharCtrlJ {
-		return
-	}
-	next = norm()
+	return
+}
+
+func (e *commandline) execute() (end continuity, err error) {
 	var candidate exCommand
 	s := string(e.basic.buf)
 	if s == "" {
