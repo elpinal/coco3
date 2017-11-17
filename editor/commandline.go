@@ -27,6 +27,7 @@ type commandline struct {
 
 	basic *basic
 
+	// FIXME: currently live a moment.
 	history [][]rune
 	age     int
 }
