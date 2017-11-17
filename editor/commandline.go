@@ -105,12 +105,11 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 
 func (e *commandline) execute() (end continuity, err error) {
 	var candidate exCommand
-	s := string(e.basic.buf)
+	args := strings.Split(string(e.basic.buf), " ")
+	s := args[0]
 	if s == "" {
 		return
 	}
-	args := strings.Split(s, " ")
-	s = args[0]
 	args = args[1:]
 	defer func() {
 		e.history = append(e.history, e.basic.buf)
