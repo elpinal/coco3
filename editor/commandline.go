@@ -13,7 +13,7 @@ type exCommand struct {
 }
 
 // exComands represents a table of Ex commands and corresponding functions.
-// The order is important. Precede commands have higher precedence.
+// The order is important. Preceding commands have higher precedence.
 var exCommands = []exCommand{
 	{"help", (*commandline).help},
 	{"delete", (*commandline).delete},
