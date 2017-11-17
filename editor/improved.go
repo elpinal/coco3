@@ -49,17 +49,11 @@ func (e *editor) put(r rune, at int) {
 }
 
 func isKeyword(r rune) bool {
-	if 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || '0' <= r && r <= '9' || r == '_' || 192 <= r && r <= 255 {
-		return true
-	}
-	return false
+	return 'a' <= r && r <= 'z' || 'A' <= r && r <= 'Z' || '0' <= r && r <= '9' || r == '_' || 192 <= r && r <= 255
 }
 
 func isWhitespace(r rune) bool {
-	if r == ' ' || r == '\t' {
-		return true
-	}
-	return false
+	return r == ' ' || r == '\t'
 }
 
 func isSymbol(r rune) bool {
