@@ -1,6 +1,10 @@
 package editor
 
-import "github.com/elpinal/coco3/screen"
+import (
+	"errors"
+
+	"github.com/elpinal/coco3/screen"
+)
 
 const (
 	OpNop = iota
@@ -22,7 +26,11 @@ type operatorPending struct {
 	inclusive  bool
 	motionType int
 	regName    rune
+
+	err error
 }
+
+var ErrNoTextObj = errors.New("no such text object")
 
 func newOperatorPending(s streamSet, e *editor, op, count int, regName rune) *operatorPending {
 	return &operatorPending{
@@ -89,6 +97,13 @@ func (o *operatorPending) Run() (end continuity, next modeChanger, err error) {
 	}
 	if m := cmd(o); m != nil {
 		next = m
+	}
+	if o.err != nil {
+		if o.err != ErrNoTextObj {
+			err = o.err
+		}
+		o.err = nil
+		return
 	}
 	o.count = 0
 
@@ -215,6 +230,7 @@ func (o *operatorPending) object(include bool) {
 	case '<', '>':
 		from, to = o.currentParen(include, '<', '>')
 	default:
+		o.err = ErrNoTextObj
 		return
 	}
 	if from < 0 || to < 0 {
