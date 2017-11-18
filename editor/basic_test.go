@@ -325,7 +325,7 @@ func TestWordForward(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordForward()
 		if e.pos != test.want {
 			t.Errorf("wordForward %v: got %v, want %v", i, e.pos, test.want)
@@ -376,7 +376,7 @@ func TestWordBackward(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordBackward()
 		if e.pos != test.want {
 			t.Errorf("wordBackward %v: got %v, want %v", i, e.pos, test.want)
@@ -423,7 +423,7 @@ func TestWordForwardNonBlank(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordForwardNonBlank()
 		if e.pos != test.want {
 			t.Errorf("wordForwardNonBlank %v: got %v, want %v", i, e.pos, test.want)
@@ -466,7 +466,7 @@ func TestWordBackwardNonBlank(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordBackwardNonBlank()
 		if e.pos != test.want {
 			t.Errorf("wordBackwardNonBlank %v: got %v, want %v", i, e.pos, test.want)
@@ -521,7 +521,7 @@ func TestWordEnd(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordEnd()
 		if e.pos != test.want {
 			t.Errorf("wordEnd %v: got %v, want %v", i, e.pos, test.want)
@@ -576,7 +576,7 @@ func TestWordEndNonBlank(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordEndNonBlank()
 		if e.pos != test.want {
 			t.Errorf("wordEndNonBlank %v: got %v, want %v", i, e.pos, test.want)
@@ -643,7 +643,7 @@ func TestWordEndBackward(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordEndBackward()
 		if e.pos != test.want {
 			t.Errorf("wordEndBackward %v: got %v, want %v", i, e.pos, test.want)
@@ -698,7 +698,7 @@ func TestWordEndBackwardNonBlank(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		e := &editor{basic: test.initial}
+		e := test.initial
 		e.wordEndBackwardNonBlank()
 		if e.pos != test.want {
 			t.Errorf("wordEndBackwardNonBlank %v: got %v, want %v", i, e.pos, test.want)
