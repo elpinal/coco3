@@ -22,7 +22,8 @@ type scanner struct {
 	src []byte
 }
 
-func (s scanner) scan() {
+func (s scanner) scan() *token {
+	return nil
 }
 
 type tokenType int
