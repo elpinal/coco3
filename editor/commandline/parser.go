@@ -30,3 +30,7 @@ type tokenType int
 type token struct {
 	tt tokenType
 }
+
+const (
+	ident tokenType = iota
+)
