@@ -103,21 +103,19 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 
 func (e *commandline) execute() (end continuity, err error) {
 	var candidate exCommand
-	args := parser.Parse(string(e.basic.buf))
-	s := args[0]
-	if s == "" {
+	command := parser.Parse(string(e.basic.buf))
+	if command == nil {
 		return
 	}
-	args = args[1:]
 	defer func() {
 		e.history = append(e.history, e.basic.buf)
 	}()
 	for _, cmd := range exCommands {
-		if !strings.HasPrefix(cmd.name, s) {
+		if !strings.HasPrefix(cmd.name, command.Name) {
 			continue
 		}
-		if cmd.name == s {
-			end = cmd.fn(e, args)
+		if cmd.name == command.Name {
+			end = cmd.fn(e, command.Args)
 			return
 		}
 		if candidate.name == "" {
@@ -125,10 +123,10 @@ func (e *commandline) execute() (end continuity, err error) {
 		}
 	}
 	if candidate.name != "" {
-		end = candidate.fn(e, args)
+		end = candidate.fn(e, command.Args)
 		return
 	}
-	err = fmt.Errorf("not a command: %q", s)
+	err = fmt.Errorf("not a command: %q", command.Name)
 	return
 }
 
