@@ -193,3 +193,239 @@ func (e *basic) siege(from int, to int, r rune) {
 		e.insert([]rune{'<'}, from)
 	}
 }
+
+func (e *editor) wordForward() {
+	switch n := len(e.buf) - e.pos; {
+	case n < 1:
+		return
+	case n == 1:
+		e.pos = len(e.buf)
+		return
+	}
+	switch r := e.buf[e.pos]; {
+	case isWhitespace(r):
+		if i := e.indexFunc(isWhitespace, e.pos+1, false); i > 0 {
+			e.pos = i
+			return
+		}
+	case isKeyword(r):
+		if i := e.indexFunc(isKeyword, e.pos+1, false); i > 0 {
+			if !isWhitespace(e.buf[i]) {
+				e.pos = i
+				return
+			}
+			if i := e.indexFunc(isWhitespace, i+1, false); i > 0 {
+				e.pos = i
+				return
+			}
+		}
+	default:
+		if i := e.indexFunc(isSymbol, e.pos+1, false); i > 0 {
+			if isKeyword(e.buf[i]) {
+				e.pos = i
+				return
+			}
+			if i := e.indexFunc(isWhitespace, i+1, false); i > 0 {
+				e.pos = i
+				return
+			}
+		}
+	}
+	e.pos = len(e.buf)
+}
+
+func (e *editor) wordBackward() {
+	switch e.pos {
+	case 0:
+		return
+	case 1:
+		e.pos = 0
+		return
+	}
+
+	n := e.pos - 1
+	switch r := e.buf[n]; {
+	case isWhitespace(r):
+		n = e.lastIndexFunc(isWhitespace, n, false)
+		if n < 0 {
+			e.pos = 0
+			return
+		}
+	}
+
+	switch r := e.buf[n]; {
+	case isKeyword(r):
+		if i := e.lastIndexFunc(isKeyword, n, false); i >= 0 {
+			e.pos = i + 1
+			return
+		}
+	default:
+		if i := e.lastIndexFunc(isSymbol, n, false); i >= 0 {
+			e.pos = i + 1
+			return
+		}
+	}
+	e.pos = 0
+}
+
+func (e *editor) wordForwardNonBlank() {
+	i := e.indexFunc(isWhitespace, e.pos, true)
+	if i < 0 {
+		e.pos = len(e.buf)
+		return
+	}
+	i = e.indexFunc(isWhitespace, i+1, false)
+	if i < 0 {
+		e.pos = len(e.buf)
+		return
+	}
+	e.pos = i
+}
+
+func (e *editor) wordBackwardNonBlank() {
+	i := e.lastIndexFunc(isWhitespace, e.pos, false)
+	if i < 0 {
+		e.pos = 0
+		return
+	}
+	i = e.lastIndexFunc(isWhitespace, i, true)
+	if i < 0 {
+		e.pos = 0
+		return
+	}
+	e.pos = i + 1
+}
+
+func (e *editor) wordEnd() {
+	switch n := len(e.buf) - e.pos; {
+	case n < 1:
+		return
+	case n == 1:
+		e.pos = len(e.buf)
+		return
+	}
+	e.pos++
+	switch r := e.buf[e.pos]; {
+	case isWhitespace(r):
+		if i := e.indexFunc(isWhitespace, e.pos+1, false); i > 0 {
+			switch r := e.buf[i]; {
+			case isKeyword(r):
+				if i := e.indexFunc(isKeyword, i+1, false); i > 0 {
+					e.pos = i - 1
+					return
+				}
+			default:
+				if i := e.indexFunc(isSymbol, i+1, false); i > 0 {
+					e.pos = i - 1
+					return
+				}
+			}
+		}
+	case isKeyword(r):
+		if i := e.indexFunc(isKeyword, e.pos+1, false); i > 0 {
+			e.pos = i - 1
+			return
+		}
+	default:
+		if i := e.indexFunc(isSymbol, e.pos+1, false); i > 0 {
+			e.pos = i - 1
+			return
+		}
+	}
+	e.pos = len(e.buf) - 1
+}
+
+func (e *editor) wordEndNonBlank() {
+	switch n := len(e.buf) - e.pos; {
+	case n < 1:
+		return
+	case n == 1:
+		e.pos = len(e.buf)
+		return
+	}
+	e.pos++
+	switch r := e.buf[e.pos]; {
+	case isWhitespace(r):
+		if i := e.indexFunc(isWhitespace, e.pos+1, false); i > 0 {
+			if i := e.indexFunc(isWhitespace, i+1, true); i > 0 {
+				e.pos = i - 1
+				return
+			}
+		}
+	default:
+		if i := e.indexFunc(isWhitespace, e.pos+1, true); i > 0 {
+			e.pos = i - 1
+			return
+		}
+	}
+	e.pos = len(e.buf) - 1
+}
+
+func (e *editor) wordEndBackward() {
+	switch n := e.pos; {
+	case n < 1:
+		return
+	case n == 1:
+		e.pos = 0
+		return
+	}
+	switch r := e.buf[e.pos]; {
+	case isWhitespace(r):
+		if i := e.lastIndexFunc(isWhitespace, e.pos, false); i > 0 {
+			e.pos = i
+			return
+		}
+	case isKeyword(r):
+		if i := e.lastIndexFunc(isKeyword, e.pos, false); i > 0 {
+			switch {
+			case isWhitespace(e.buf[i]):
+				if i := e.lastIndexFunc(isWhitespace, i, false); i > 0 {
+					e.pos = i
+					return
+				}
+			default:
+				e.pos = i
+				return
+			}
+		}
+	default:
+		if i := e.lastIndexFunc(isSymbol, e.pos, false); i > 0 {
+			switch {
+			case isWhitespace(e.buf[i]):
+				if i := e.lastIndexFunc(isWhitespace, i, false); i > 0 {
+					e.pos = i
+					return
+				}
+			default:
+				e.pos = i
+				return
+			}
+		}
+	}
+	e.pos = 0
+}
+
+func (e *editor) wordEndBackwardNonBlank() {
+	switch n := e.pos; {
+	case n < 1:
+		return
+	case n == 1:
+		e.pos = 0
+		return
+	}
+	switch r := e.buf[e.pos]; {
+	case isWhitespace(r):
+		if i := e.lastIndexFunc(isWhitespace, e.pos, false); i > 0 {
+			e.pos = i
+			return
+		}
+	default:
+		if i := e.lastIndexFunc(isWhitespace, e.pos, true); i > 0 {
+			if i := e.lastIndexFunc(isWhitespace, i, false); i > 0 {
+				e.pos = i
+				return
+			}
+		}
+	}
+	e.pos = 0
+}
