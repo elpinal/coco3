@@ -69,3 +69,18 @@ func TestSubstitute(t *testing.T) {
 		t.Errorf("commandline (%q): want %v, but got %v", command, got, want)
 	}
 }
+
+func TestEmpty(t *testing.T) {
+	command := append([]byte(""), CharCtrlM)
+	ed := commandline{
+		streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
+		editor:    newEditor(),
+		basic:     &basic{},
+	}
+	for range command {
+		_, _, err := ed.Run()
+		if err != nil {
+			t.Errorf("commandline: %v", err)
+		}
+	}
+}
