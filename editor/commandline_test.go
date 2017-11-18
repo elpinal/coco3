@@ -8,11 +8,10 @@ import (
 
 func TestCommandline(t *testing.T) {
 	command := append([]byte("quit"), CharCtrlM)
-	ed := commandline{
-		streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
-		editor:    newEditor(),
-		basic:     &basic{},
-	}
+	ed := newCommandline(
+		streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
+		newEditor(),
+	)
 	var (
 		end continuity
 		err error
@@ -30,11 +29,10 @@ func TestCommandline(t *testing.T) {
 
 func TestSubstituteNoArgs(t *testing.T) {
 	command := append([]byte("substitute"), CharCtrlM)
-	ed := commandline{
-		streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
-		editor:    newEditor(),
-		basic:     &basic{},
-	}
+	ed := newCommandline(
+		streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
+		newEditor(),
+	)
 	ed.buf = []rune("a")
 	for range command {
 		_, _, err := ed.Run()
@@ -51,11 +49,10 @@ func TestSubstituteNoArgs(t *testing.T) {
 
 func TestSubstitute(t *testing.T) {
 	command := append([]byte("substitute a b"), CharCtrlM)
-	ed := commandline{
-		streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
-		editor:    newEditor(),
-		basic:     &basic{},
-	}
+	ed := newCommandline(
+		streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
+		newEditor(),
+	)
 	ed.buf = []rune("a")
 	for range command {
 		_, _, err := ed.Run()
@@ -79,11 +76,10 @@ func TestEmpty(t *testing.T) {
 		{command: append([]byte("  "), CharCtrlM)},
 	}
 	for _, test := range tests {
-		ed := commandline{
-			streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(test.command))},
-			editor:    newEditor(),
-			basic:     &basic{},
-		}
+		ed := newCommandline(
+			streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(test.command))},
+			newEditor(),
+		)
 		for range test.command {
 			_, _, err := ed.Run()
 			if err != nil {
