@@ -91,13 +91,9 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	case CharCtrlU:
 		e.basic.delete(0, e.basic.pos)
 	case CharCtrlW:
-		// FIXME: It's redundant.
-		ed := newEditor()
-		ed.pos = e.basic.pos
-		ed.buf = e.basic.buf
-		pos := ed.pos
-		ed.wordBackward()
-		e.basic.delete(pos, ed.pos)
+		pos := e.basic.pos
+		e.basic.wordBackward()
+		e.basic.delete(pos, e.basic.pos)
 	default:
 		e.basic.insert([]rune{r}, e.basic.pos)
 	}
