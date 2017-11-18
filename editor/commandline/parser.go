@@ -19,16 +19,26 @@ type Command struct {
 }
 
 type scanner struct {
-	src []byte
+	src  []byte
+	size int
+	off  int
 }
 
 func newScanner(src []byte) *scanner {
 	return &scanner{
-		src: src,
+		src:  src,
+		size: len(src),
 	}
 }
 
 func (s scanner) scan() *token {
+	if s.off >= s.size {
+		return nil
+	}
+
+	// deal with s.src[s.off]...
+
+	s.off++
 	return nil
 }
 
