@@ -194,7 +194,7 @@ func (e *basic) siege(from int, to int, r rune) {
 	}
 }
 
-func (e *editor) wordForward() {
+func (e *basic) wordForward() {
 	switch n := len(e.buf) - e.pos; {
 	case n < 1:
 		return
@@ -234,7 +234,7 @@ func (e *editor) wordForward() {
 	e.pos = len(e.buf)
 }
 
-func (e *editor) wordBackward() {
+func (e *basic) wordBackward() {
 	switch e.pos {
 	case 0:
 		return
@@ -268,7 +268,7 @@ func (e *editor) wordBackward() {
 	e.pos = 0
 }
 
-func (e *editor) wordForwardNonBlank() {
+func (e *basic) wordForwardNonBlank() {
 	i := e.indexFunc(isWhitespace, e.pos, true)
 	if i < 0 {
 		e.pos = len(e.buf)
@@ -282,7 +282,7 @@ func (e *editor) wordForwardNonBlank() {
 	e.pos = i
 }
 
-func (e *editor) wordBackwardNonBlank() {
+func (e *basic) wordBackwardNonBlank() {
 	i := e.lastIndexFunc(isWhitespace, e.pos, false)
 	if i < 0 {
 		e.pos = 0
@@ -296,7 +296,7 @@ func (e *editor) wordBackwardNonBlank() {
 	e.pos = i + 1
 }
 
-func (e *editor) wordEnd() {
+func (e *basic) wordEnd() {
 	switch n := len(e.buf) - e.pos; {
 	case n < 1:
 		return
@@ -335,7 +335,7 @@ func (e *editor) wordEnd() {
 	e.pos = len(e.buf) - 1
 }
 
-func (e *editor) wordEndNonBlank() {
+func (e *basic) wordEndNonBlank() {
 	switch n := len(e.buf) - e.pos; {
 	case n < 1:
 		return
@@ -361,7 +361,7 @@ func (e *editor) wordEndNonBlank() {
 	e.pos = len(e.buf) - 1
 }
 
-func (e *editor) wordEndBackward() {
+func (e *basic) wordEndBackward() {
 	switch n := e.pos; {
 	case n < 1:
 		return
@@ -405,7 +405,7 @@ func (e *editor) wordEndBackward() {
 	e.pos = 0
 }
 
-func (e *editor) wordEndBackwardNonBlank() {
+func (e *basic) wordEndBackwardNonBlank() {
 	switch n := e.pos; {
 	case n < 1:
 		return
