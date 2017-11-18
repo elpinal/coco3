@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	parser "github.com/elpinal/coco3/editor/commandline"
 	"github.com/elpinal/coco3/screen"
 )
 
@@ -102,7 +103,7 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 
 func (e *commandline) execute() (end continuity, err error) {
 	var candidate exCommand
-	args := strings.Split(string(e.basic.buf), " ")
+	args := parser.Parse(string(e.basic.buf))
 	s := args[0]
 	if s == "" {
 		return
