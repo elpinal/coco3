@@ -21,3 +21,6 @@ type Command struct {
 type scanner struct {
 	src []byte
 }
+
+func (s scanner) scan() {
+}
