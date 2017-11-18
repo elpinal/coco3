@@ -33,4 +33,5 @@ type token struct {
 
 const (
 	ident tokenType = iota
+	str
 )
