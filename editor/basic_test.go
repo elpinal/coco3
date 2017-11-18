@@ -281,3 +281,427 @@ func TestReplace(t *testing.T) {
 		}
 	}
 }
+
+func TestWordForward(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("().aaa"), pos: 1},
+			want:    3,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 0},
+			want:    3,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 2},
+			want:    3,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 3},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 5},
+			want:    8,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordForward()
+		if e.pos != test.want {
+			t.Errorf("wordForward %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordBackward(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune(" aaa"), pos: 1},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("   "), pos: 2},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 3},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 4},
+			want:    3,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa x #####"), pos: 8},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#aa   #####"), pos: 5},
+			want:    1,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordBackward()
+		if e.pos != test.want {
+			t.Errorf("wordBackward %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordForwardNonBlank(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 0},
+			want:    3,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 2},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 3},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 5},
+			want:    8,
+		},
+		{
+			initial: basic{buf: []rune("     "), pos: 0},
+			want:    5,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordForwardNonBlank()
+		if e.pos != test.want {
+			t.Errorf("wordForwardNonBlank %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordBackwardNonBlank(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 3},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 4},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa x #####"), pos: 8},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#aa   #####"), pos: 5},
+			want:    0,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordBackwardNonBlank()
+		if e.pos != test.want {
+			t.Errorf("wordBackwardNonBlank %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordEnd(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("().aaa"), pos: 1},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 0},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 2},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 3},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 5},
+			want:    9,
+		},
+		{
+			initial: basic{buf: []rune("  ###aaa"), pos: 0},
+			want:    4,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordEnd()
+		if e.pos != test.want {
+			t.Errorf("wordEnd %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordEndNonBlank(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("().aaa"), pos: 1},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 0},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 2},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 3},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 3},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 5},
+			want:    10,
+		},
+		{
+			initial: basic{buf: []rune("  # "), pos: 0},
+			want:    2,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordEndNonBlank()
+		if e.pos != test.want {
+			t.Errorf("wordEndNonBlank %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordEndBackward(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa.()"), pos: 4},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 2},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 3},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 6},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 9},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 9},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("  # "), pos: 3},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("   "), pos: 1},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune(" %a "), pos: 2},
+			want:    1,
+		},
+		{
+			initial: basic{buf: []rune(" a % "), pos: 3},
+			want:    1,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordEndBackward()
+		if e.pos != test.want {
+			t.Errorf("wordEndBackward %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
+
+func TestWordEndBackwardNonBlank(t *testing.T) {
+	tests := []struct {
+		initial basic
+		want    int
+	}{
+		{
+			initial: basic{buf: []rune(""), pos: 0},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa "), pos: 3},
+			want:    2,
+		},
+		{
+			initial: basic{buf: []rune("aaa.()"), pos: 4},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa"), pos: 2},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa()"), pos: 1},
+			want:    0,
+		},
+		{
+			initial: basic{buf: []rune("aaa x bbb"), pos: 5},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("aaa () bbb"), pos: 6},
+			want:    5,
+		},
+		{
+			initial: basic{buf: []rune("##### x bbb"), pos: 9},
+			want:    6,
+		},
+		{
+			initial: basic{buf: []rune("#####   aa#"), pos: 9},
+			want:    4,
+		},
+		{
+			initial: basic{buf: []rune("  # "), pos: 3},
+			want:    2,
+		},
+	}
+	for i, test := range tests {
+		e := &editor{basic: test.initial}
+		e.wordEndBackwardNonBlank()
+		if e.pos != test.want {
+			t.Errorf("wordEndBackwardNonBlank %v: got %v, want %v", i, e.pos, test.want)
+		}
+	}
+}
