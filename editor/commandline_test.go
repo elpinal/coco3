@@ -75,6 +75,8 @@ func TestEmpty(t *testing.T) {
 		command []byte
 	}{
 		{command: append([]byte(""), CharCtrlM)},
+		{command: append([]byte(" "), CharCtrlM)},
+		{command: append([]byte("  "), CharCtrlM)},
 	}
 	for _, test := range tests {
 		ed := commandline{
