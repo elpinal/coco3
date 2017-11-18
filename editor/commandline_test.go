@@ -71,16 +71,22 @@ func TestSubstitute(t *testing.T) {
 }
 
 func TestEmpty(t *testing.T) {
-	command := append([]byte(""), CharCtrlM)
-	ed := commandline{
-		streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(command))},
-		editor:    newEditor(),
-		basic:     &basic{},
+	tests := []struct {
+		command []byte
+	}{
+		{command: append([]byte(""), CharCtrlM)},
 	}
-	for range command {
-		_, _, err := ed.Run()
-		if err != nil {
-			t.Errorf("commandline: %v", err)
+	for _, test := range tests {
+		ed := commandline{
+			streamSet: streamSet{in: NewReaderContext(context.TODO(), bytes.NewReader(test.command))},
+			editor:    newEditor(),
+			basic:     &basic{},
+		}
+		for range test.command {
+			_, _, err := ed.Run()
+			if err != nil {
+				t.Errorf("commandline: %v", err)
+			}
 		}
 	}
 }
