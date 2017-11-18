@@ -24,3 +24,5 @@ type scanner struct {
 
 func (s scanner) scan() {
 }
+
+type tokenType int
