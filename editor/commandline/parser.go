@@ -22,6 +22,12 @@ type scanner struct {
 	src []byte
 }
 
+func newScanner(src []byte) *scanner {
+	return &scanner{
+		src: src,
+	}
+}
+
 func (s scanner) scan() *token {
 	return nil
 }
