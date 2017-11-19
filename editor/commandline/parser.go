@@ -49,10 +49,6 @@ func (s *scanner) lex() *token {
 	}
 	switch {
 	case isIdent(ch):
-		ch, eof := s.next()
-		if eof {
-			return nil
-		}
 		for isIdent(ch) {
 			ch, eof = s.next()
 			if eof {
