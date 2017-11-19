@@ -2,6 +2,7 @@ package commandline
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -74,7 +75,7 @@ func (s *scanner) scan() (*token, error) {
 	case isWhitespace(ch):
 		return s.scan()
 	}
-	return nil, errors.New("unexpected character")
+	return nil, fmt.Errorf("unexpected character at offset: %d", s.off)
 }
 
 func isWhitespace(b byte) bool {
