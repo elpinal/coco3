@@ -81,7 +81,8 @@ func isIdent(r byte) bool {
 type tokenType int
 
 type token struct {
-	tt tokenType
+	tt    tokenType
+	value []byte
 }
 
 const (
