@@ -71,6 +71,8 @@ func (s *scanner) lex() (*token, error) {
 			ret = append(ret, ch)
 		}
 		return &token{tt: str, value: ret}, nil
+	case isWhitespace(ch):
+		return s.lex()
 	}
 	return nil, nil
 }
