@@ -52,13 +52,15 @@ func (s *scanner) lex() (*token, error) {
 	}
 	switch {
 	case isIdent(ch):
+		var ret []byte
 		for isIdent(ch) {
 			ch, eof = s.next()
 			if eof {
 				break
 			}
+			ret = append(ret, ch)
 		}
-		return &token{tt: ident}, nil
+		return &token{tt: ident, value: ret}, nil
 	case ch == '"':
 		var ret []byte
 		for ch != '"' {
