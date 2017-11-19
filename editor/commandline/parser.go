@@ -31,14 +31,16 @@ func newScanner(src []byte) *scanner {
 	}
 }
 
-func (s scanner) scan() *token {
+func (s scanner) scan() (byte, bool) {
 	if s.off >= s.size {
-		return nil
+		return 0, true
 	}
 
-	// deal with s.src[s.off]...
+	ret := s.src[s.off]
 
 	s.off++
+	return ret, false
+}
 	return nil
 }
 
