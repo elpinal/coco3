@@ -77,12 +77,12 @@ func (s *scanner) scan() (*token, error) {
 	return nil, errors.New("unexpected character")
 }
 
-func isWhitespace(r byte) bool {
-	return r == ' '
+func isWhitespace(b byte) bool {
+	return b == ' '
 }
 
-func isIdent(r byte) bool {
-	return 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z'
+func isIdent(b byte) bool {
+	return 'A' <= b && b <= 'Z' || 'a' <= b && b <= 'z'
 }
 
 type tokenType int
