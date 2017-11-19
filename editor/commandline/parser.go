@@ -57,6 +57,16 @@ func (s *scanner) lex() *token {
 		}
 		return &token{tt: ident}
 	case ch == '"':
+		var ret []byte
+		for ch != '"' {
+			ch, eof = s.next()
+			if eof {
+				return nil // error
+			}
+			ret = append(ret, ch)
+		}
+		_ = ret // FIXME
+		return &token{tt: str}
 	}
 	return nil
 }
