@@ -82,6 +82,10 @@ type scanError struct {
 	off int
 }
 
+func (s *scanError) Error() string {
+	return fmt.Sprintf("%s: %d", s.msg, s.off)
+}
+
 func isWhitespace(b byte) bool {
 	return b == ' '
 }
