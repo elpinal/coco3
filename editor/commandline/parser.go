@@ -42,6 +42,10 @@ func (s scanner) scan() *token {
 	return nil
 }
 
+func isIdent(r byte) bool {
+	return 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z'
+}
+
 type tokenType int
 
 type token struct {
