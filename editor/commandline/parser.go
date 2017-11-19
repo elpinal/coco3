@@ -31,7 +31,7 @@ func newScanner(src []byte) *scanner {
 	}
 }
 
-func (s scanner) scan() (byte, bool) {
+func (s *scanner) scan() (byte, bool) {
 	if s.off >= s.size {
 		return 0, true
 	}
