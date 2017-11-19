@@ -31,7 +31,7 @@ func newScanner(src []byte) *scanner {
 	}
 }
 
-func (s *scanner) scan() (byte, bool) {
+func (s *scanner) next() (byte, bool) {
 	if s.off >= s.size {
 		return 0, true
 	}
@@ -43,18 +43,18 @@ func (s *scanner) scan() (byte, bool) {
 }
 
 func (s *scanner) lex() *token {
-	ch, eof := s.scan()
+	ch, eof := s.next()
 	if eof {
 		return nil
 	}
 	switch {
 	case isIdent(ch):
-		ch, eof := s.scan()
+		ch, eof := s.next()
 		if eof {
 			return nil
 		}
 		for isIdent(ch) {
-			ch, eof = s.scan()
+			ch, eof = s.next()
 			if eof {
 				break
 			}
