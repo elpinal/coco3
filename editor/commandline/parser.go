@@ -77,6 +77,11 @@ func (s *scanner) scan() (*token, error) {
 	return nil, fmt.Errorf("unexpected character at offset: %d", s.off)
 }
 
+type scanError struct {
+	msg string
+	off int
+}
+
 func isWhitespace(b byte) bool {
 	return b == ' '
 }
