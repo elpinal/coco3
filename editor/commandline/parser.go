@@ -68,8 +68,7 @@ func (s *scanner) lex() (*token, error) {
 			}
 			ret = append(ret, ch)
 		}
-		_ = ret // FIXME
-		return &token{tt: str}, nil
+		return &token{tt: str, value: ret}, nil
 	}
 	return nil, nil
 }
