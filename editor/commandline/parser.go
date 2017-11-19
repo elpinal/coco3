@@ -45,7 +45,7 @@ func (s *scanner) next() (byte, bool) {
 	return ret, false
 }
 
-func (s *scanner) lex() (*token, error) {
+func (s *scanner) scan() (*token, error) {
 	ch, eof := s.next()
 	if eof {
 		return nil, nil
@@ -72,7 +72,7 @@ func (s *scanner) lex() (*token, error) {
 		}
 		return &token{tt: str, value: ret}, nil
 	case isWhitespace(ch):
-		return s.lex()
+		return s.scan()
 	}
 	return nil, errors.New("unexpected character")
 }
