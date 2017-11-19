@@ -74,7 +74,7 @@ func (s *scanner) lex() (*token, error) {
 	case isWhitespace(ch):
 		return s.lex()
 	}
-	return nil, nil
+	return nil, errors.New("unexpected character")
 }
 
 func isWhitespace(r byte) bool {
