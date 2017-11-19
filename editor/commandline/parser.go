@@ -1,6 +1,9 @@
 package commandline
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 func Parse(s string) *Command {
 	ss := strings.Split(s, " ")
@@ -42,10 +45,10 @@ func (s *scanner) next() (byte, bool) {
 	return ret, false
 }
 
-func (s *scanner) lex() *token {
+func (s *scanner) lex() (*token, error) {
 	ch, eof := s.next()
 	if eof {
-		return nil
+		return nil, nil
 	}
 	switch {
 	case isIdent(ch):
@@ -55,20 +58,20 @@ func (s *scanner) lex() *token {
 				break
 			}
 		}
-		return &token{tt: ident}
+		return &token{tt: ident}, nil
 	case ch == '"':
 		var ret []byte
 		for ch != '"' {
 			ch, eof = s.next()
 			if eof {
-				return nil // error
+				return nil, errors.New("unexpected eof in string literal")
 			}
 			ret = append(ret, ch)
 		}
 		_ = ret // FIXME
-		return &token{tt: str}
+		return &token{tt: str}, nil
 	}
-	return nil
+	return nil, nil
 }
 
 func isIdent(r byte) bool {
