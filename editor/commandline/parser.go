@@ -75,6 +75,10 @@ func (s *scanner) lex() (*token, error) {
 	return nil, nil
 }
 
+func isWhitespace(r byte) bool {
+	return r == ' '
+}
+
 func isIdent(r byte) bool {
 	return 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z'
 }
