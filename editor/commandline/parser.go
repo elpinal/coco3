@@ -1,7 +1,6 @@
 package commandline
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -67,7 +66,7 @@ func (s *scanner) scan() (*token, error) {
 		for ch != '"' {
 			ch, eof = s.next()
 			if eof {
-				return nil, errors.New("unexpected eof in string literal")
+				return nil, fmt.Errorf("unexpected eof in string literal at offset: %d", s.off)
 			}
 			ret = append(ret, ch)
 		}
