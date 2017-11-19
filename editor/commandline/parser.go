@@ -41,6 +41,27 @@ func (s *scanner) scan() (byte, bool) {
 	s.off++
 	return ret, false
 }
+
+func (s *scanner) lex() *token {
+	ch, eof := s.scan()
+	if eof {
+		return nil
+	}
+	switch {
+	case isIdent(ch):
+		ch, eof := s.scan()
+		if eof {
+			return nil
+		}
+		for isIdent(ch) {
+			ch, eof = s.scan()
+			if eof {
+				break
+			}
+		}
+		return &token{tt: ident}
+	case ch == '"':
+	}
 	return nil
 }
 
