@@ -22,9 +22,12 @@ type Command struct {
 }
 
 type scanner struct {
-	src  []byte
-	size int
-	off  int
+	src   []byte
+	size  int
+	start int
+	off   int
+
+	tokens chan token
 }
 
 func newScanner(src []byte) *scanner {
@@ -66,10 +69,7 @@ func (s *scanner) scan() (*token, error) {
 		for ch != '"' {
 			ch, eof = s.next()
 			if eof {
-				return nil, &scanError{
-					msg: "unexpected eof in string literal at offset",
-					off: s.off,
-				}
+				return nil, s.error("unexpected eof in string literal")
 			}
 			ret = append(ret, ch)
 		}
@@ -77,8 +77,12 @@ func (s *scanner) scan() (*token, error) {
 	case isWhitespace(ch):
 		return s.scan()
 	}
-	return nil, &scanError{
-		msg: "unexpected character at offset: %d",
+	return nil, s.error("unexpected character")
+}
+
+func (s *scanner) error(msg string) *scanError {
+	return &scanError{
+		msg: msg,
 		off: s.off,
 	}
 }
@@ -89,7 +93,7 @@ type scanError struct {
 }
 
 func (s *scanError) Error() string {
-	return fmt.Sprintf("%s: %d", s.msg, s.off)
+	return fmt.Sprintf("error at offset %d: %s", s.off, s.msg)
 }
 
 func isWhitespace(b byte) bool {
@@ -100,6 +104,93 @@ func isIdent(b byte) bool {
 	return 'A' <= b && b <= 'Z' || 'a' <= b && b <= 'z'
 }
 
+type stateFn func(*scanner) stateFn
+
+func scan(src []byte) *scanner {
+	s := &scanner{
+		src:    src,
+		size:   len(src),
+		tokens: make(chan token),
+	}
+	go s.run()
+	return s
+}
+
+func (s *scanner) run() {
+	for state := scanToken; state != nil; {
+		state = state(s)
+	}
+	close(s.tokens)
+}
+
+func scanToken(s *scanner) stateFn {
+	for {
+		b, eof := s.next()
+		if eof {
+			break
+		}
+		switch {
+		case isWhitespace(b):
+			s.start = s.off
+		case isIdent(b):
+			return scanIdent
+		case b == '"':
+			return scanString
+		default:
+			s.emit(tokenErr)
+			return nil
+		}
+	}
+	s.emit(tokenEOF)
+	return nil
+}
+
+func scanIdent(s *scanner) stateFn {
+	for {
+		b, eof := s.next()
+		if eof {
+			break
+		}
+		if !isIdent(b) {
+			s.off--
+			break
+		}
+	}
+	if s.start < s.off {
+		s.emit(ident)
+		return scanToken
+	}
+	s.emit(tokenEOF)
+	return nil
+}
+
+func scanString(s *scanner) stateFn {
+	for {
+		b, eof := s.next()
+		if eof {
+			break
+		}
+		if b == '"' {
+			s.emit(str) // including quotes
+			return scanToken
+		}
+	}
+	if s.start < s.off {
+		s.emit(tokenErr)
+		return nil
+	}
+	s.emit(tokenEOF)
+	return nil
+}
+
+func (s *scanner) emit(tt tokenType) {
+	s.tokens <- token{
+		tt:    tt,
+		value: s.src[s.start:s.off],
+	}
+	s.start = s.off
+}
+
 type tokenType int
 
 type token struct {
@@ -108,6 +199,8 @@ type token struct {
 }
 
 const (
-	ident tokenType = iota
+	tokenErr tokenType = iota
+	tokenEOF
+	ident
 	str
 )
