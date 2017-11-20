@@ -21,6 +21,19 @@ type Command struct {
 	Args []string
 }
 
+type CommandT struct {
+	args []token
+}
+
+func parse(src []byte) *CommandT {
+	s := scan(src)
+	var args []token
+	for t := range s.tokens {
+		args = append(args, t)
+	}
+	return &CommandT{args: args}
+}
+
 type scanner struct {
 	src   []byte
 	size  int
