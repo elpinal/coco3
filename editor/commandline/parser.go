@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -26,22 +27,25 @@ type CommandT struct {
 	args []token
 }
 
-func parse(src []byte) *CommandT {
+func parse(src []byte) (*CommandT, error) {
 	s := scan(src)
-	id := parseIdent(s.tokens)
+	id, err := parseIdent(s.tokens)
+	if err != nil {
+		return nil, err
+	}
 	var args []token
 	for t := range s.tokens {
 		args = append(args, t)
 	}
-	return &CommandT{name: id.value, args: args}
+	return &CommandT{name: id.value, args: args}, nil
 }
 
-func parseIdent(ch chan token) token {
+func parseIdent(ch chan token) (token, error) {
 	t := <-ch
 	if t.tt != tokenIdent {
-		panic("not identifier")
+		return t, errors.New("not identifier")
 	}
-	return t
+	return t, nil
 }
 
 type scanner struct {
