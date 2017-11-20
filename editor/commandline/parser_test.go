@@ -128,7 +128,7 @@ func TestScan(t *testing.T) {
 			src: `"a"`,
 			want: []token{
 				{
-					tt:    str,
+					tt:    tokenString,
 					value: []byte(`"a"`),
 				},
 			},
@@ -141,7 +141,7 @@ func TestScan(t *testing.T) {
 					value: []byte("a"),
 				},
 				{
-					tt:    str,
+					tt:    tokenString,
 					value: []byte(`"b"`),
 				},
 			},
@@ -154,7 +154,7 @@ func TestScan(t *testing.T) {
 					value: []byte("a"),
 				},
 				{
-					tt:    str,
+					tt:    tokenString,
 					value: []byte(`"b"`),
 				},
 			},

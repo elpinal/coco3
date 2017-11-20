@@ -132,7 +132,7 @@ func scanString(s *scanner) stateFn {
 			break
 		}
 		if b == '"' {
-			s.emit(str) // including quotes
+			s.emit(tokenString) // including quotes
 			return scanToken
 		}
 	}
@@ -163,5 +163,5 @@ const (
 	tokenErr tokenType = iota
 	tokenEOF
 	tokenIdent
-	str
+	tokenString
 )
