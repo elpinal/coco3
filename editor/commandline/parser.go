@@ -27,11 +27,20 @@ type CommandT struct {
 
 func parse(src []byte) *CommandT {
 	s := scan(src)
+	_ = parseIdent(s.tokens)
 	var args []token
 	for t := range s.tokens {
 		args = append(args, t)
 	}
 	return &CommandT{args: args}
+}
+
+func parseIdent(ch chan token) token {
+	t := <-ch
+	if t.tt != tokenIdent {
+		panic("not identifier")
+	}
+	return t
 }
 
 type scanner struct {
