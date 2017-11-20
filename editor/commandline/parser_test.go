@@ -47,6 +47,15 @@ func TestScan(t *testing.T) {
 			},
 		},
 		{
+			src: "ABc",
+			want: []token{
+				{
+					tt:    ident,
+					value: []byte("ABc"),
+				},
+			},
+		},
+		{
 			src: " abc",
 			want: []token{
 				{

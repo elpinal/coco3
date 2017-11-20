@@ -30,13 +30,6 @@ type scanner struct {
 	tokens chan token
 }
 
-func newScanner(src []byte) *scanner {
-	return &scanner{
-		src:  src,
-		size: len(src),
-	}
-}
-
 func (s *scanner) next() (byte, bool) {
 	if s.off >= s.size {
 		return 0, true
@@ -46,38 +39,6 @@ func (s *scanner) next() (byte, bool) {
 
 	s.off++
 	return ret, false
-}
-
-func (s *scanner) scan() (*token, error) {
-	ch, eof := s.next()
-	if eof {
-		return nil, nil
-	}
-	switch {
-	case isIdent(ch):
-		var ret []byte
-		for isIdent(ch) {
-			ch, eof = s.next()
-			if eof {
-				break
-			}
-			ret = append(ret, ch)
-		}
-		return &token{tt: ident, value: ret}, nil
-	case ch == '"':
-		var ret []byte
-		for ch != '"' {
-			ch, eof = s.next()
-			if eof {
-				return nil, s.error("unexpected eof in string literal")
-			}
-			ret = append(ret, ch)
-		}
-		return &token{tt: str, value: ret}, nil
-	case isWhitespace(ch):
-		return s.scan()
-	}
-	return nil, s.error("unexpected character")
 }
 
 func (s *scanner) error(msg string) *scanError {
@@ -93,7 +54,7 @@ type scanError struct {
 }
 
 func (s *scanError) Error() string {
-	return fmt.Sprintf("error at offset %d: %s", s.off, s.msg)
+	return fmt.Sprintf("byte offset %d: %s", s.off, s.msg)
 }
 
 func isWhitespace(b byte) bool {
