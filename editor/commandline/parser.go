@@ -22,17 +22,18 @@ type Command struct {
 }
 
 type CommandT struct {
+	name []byte
 	args []token
 }
 
 func parse(src []byte) *CommandT {
 	s := scan(src)
-	_ = parseIdent(s.tokens)
+	id := parseIdent(s.tokens)
 	var args []token
 	for t := range s.tokens {
 		args = append(args, t)
 	}
-	return &CommandT{args: args}
+	return &CommandT{name: id.value, args: args}
 }
 
 func parseIdent(ch chan token) token {
