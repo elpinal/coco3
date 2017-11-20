@@ -32,7 +32,7 @@ func TestScan(t *testing.T) {
 			src: "a",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 			},
@@ -41,7 +41,7 @@ func TestScan(t *testing.T) {
 			src: "abc",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("abc"),
 				},
 			},
@@ -50,7 +50,7 @@ func TestScan(t *testing.T) {
 			src: "ABc",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("ABc"),
 				},
 			},
@@ -59,7 +59,7 @@ func TestScan(t *testing.T) {
 			src: " abc",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("abc"),
 				},
 			},
@@ -68,11 +68,11 @@ func TestScan(t *testing.T) {
 			src: "a b",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("b"),
 				},
 			},
@@ -81,11 +81,11 @@ func TestScan(t *testing.T) {
 			src: " a b",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("b"),
 				},
 			},
@@ -94,23 +94,23 @@ func TestScan(t *testing.T) {
 			src: "a    b cd  e fgh",
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("b"),
 				},
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("cd"),
 				},
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("e"),
 				},
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("fgh"),
 				},
 			},
@@ -137,7 +137,7 @@ func TestScan(t *testing.T) {
 			src: `a "b"`,
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 				{
@@ -150,7 +150,7 @@ func TestScan(t *testing.T) {
 			src: `a"b"`,
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 				{
@@ -163,7 +163,7 @@ func TestScan(t *testing.T) {
 			src: `a "b`,
 			want: []token{
 				{
-					tt:    ident,
+					tt:    tokenIdent,
 					value: []byte("a"),
 				},
 				{

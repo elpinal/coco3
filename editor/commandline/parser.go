@@ -118,7 +118,7 @@ func scanIdent(s *scanner) stateFn {
 		}
 	}
 	if s.start < s.off {
-		s.emit(ident)
+		s.emit(tokenIdent)
 		return scanToken
 	}
 	s.emit(tokenEOF)
@@ -162,6 +162,6 @@ type token struct {
 const (
 	tokenErr tokenType = iota
 	tokenEOF
-	ident
+	tokenIdent
 	str
 )
