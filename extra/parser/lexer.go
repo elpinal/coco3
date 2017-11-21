@@ -224,23 +224,23 @@ func (x *exprLexer) Error(s string) {
 }
 
 func (x *exprLexer) run() <-chan struct{} {
-	ch := make(chan struct{})
+	done := make(chan struct{})
 	go func() {
 		yyParse(x)
-		ch <- struct{}{}
+		done <- struct{}{}
 	}()
-	return ch
+	return done
 }
 
 func Parse(src []byte) (*ast.Command, error) {
 	l := newLexer(src)
 	yyErrorVerbose = true
-	ch := l.run()
+	done := l.run()
 	select {
 	case err := <-l.errCh:
 		err.Src = string(src)
 		return nil, err
-	case <-ch:
+	case <-done:
 	}
 	return l.expr, nil
 }
