@@ -232,6 +232,10 @@ func Parse(src []byte) (*ast.Command, error) {
 	l := newLexer(src)
 	yyErrorVerbose = true
 	done := l.run()
+	defer func() {
+		// Avoid the leak of the goroutine.
+		close(l.errCh)
+	}()
 	select {
 	case err := <-l.errCh:
 		err.Src = string(src)
