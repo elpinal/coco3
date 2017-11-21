@@ -43,7 +43,7 @@ func parse(src []byte) (*CommandT, error) {
 func parseIdent(ch chan token) (token, error) {
 	t := <-ch
 	if t.tt != tokenIdent {
-		return t, errors.New("not identifier")
+		return token{}, errors.New("not identifier")
 	}
 	return t, nil
 }
