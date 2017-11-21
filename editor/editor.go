@@ -119,5 +119,5 @@ func (c continuity) String() string {
 	case exit:
 		return "exit"
 	}
-	return fmt.Sprintf("continuity %v", c)
+	return fmt.Sprintf("continuity %d", c)
 }

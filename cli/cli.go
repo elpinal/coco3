@@ -153,7 +153,6 @@ func (c *CLI) runInteractiveMode() int {
 			return e.code
 		}
 	}
-	return 0
 }
 
 func (c *CLI) errorf(s string, a ...interface{}) {

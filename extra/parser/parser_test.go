@@ -62,7 +62,9 @@ func TestParse(t *testing.T) {
 			src:  `a '{{range .Imports}}{{. | printf "%s\\n"}}{{end}}'`,
 			name: "a",
 			args: []ast.Expr{
-				&ast.String{`{{range .Imports}}{{. | printf "%s\n"}}{{end}}`},
+				&ast.String{
+					Lit: `{{range .Imports}}{{. | printf "%s\n"}}{{end}}`,
+				},
 			},
 		},
 	}
