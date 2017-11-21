@@ -5,7 +5,6 @@ package parser
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"unicode/utf8"
 
 	"github.com/elpinal/coco3/extra/ast"
@@ -91,7 +90,11 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 			if isNumber(c) {
 				return x.num(yylval)
 			}
-			fmt.Fprintf(os.Stderr, "%d:%d: invalid character: %[3]U %[3]q\n", x.line, x.column, c)
+			x.errCh <- &ParseError{
+				Line:   x.line,
+				Column: x.column,
+				Msg:    fmt.Sprintf("invalid character: %[1]U %[1]q", c),
+			}
 			return ILLEGAL
 		}
 	}
