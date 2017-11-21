@@ -35,6 +35,9 @@ func parse(src []byte) (*CommandT, error) {
 	}
 	var args []Token
 	for t := range s.tokens {
+		if t.Type == tokenEOF {
+			break
+		}
 		args = append(args, t)
 	}
 	return &CommandT{Name: id.Value, Args: args}, nil
@@ -42,6 +45,9 @@ func parse(src []byte) (*CommandT, error) {
 
 func parseIdent(ch chan Token) (Token, error) {
 	t := <-ch
+	if t.Type == tokenEOF {
+		return t, nil
+	}
 	if t.Type != tokenIdent {
 		return Token{}, errors.New("not identifier")
 	}
