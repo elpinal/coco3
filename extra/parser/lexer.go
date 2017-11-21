@@ -16,9 +16,9 @@ import (
 const eof = 0
 
 type exprLexer struct {
-	src []byte // source
-	ch  rune   // current character
-	err *ParseError
+	src   []byte // source
+	ch    rune   // current character
+	errCh chan *ParseError
 
 	// result
 	expr *ast.Command
@@ -35,8 +35,9 @@ type exprLexer struct {
 
 func newLexer(src []byte) *exprLexer {
 	l := &exprLexer{
-		src:  src,
-		line: 1,
+		src:   src,
+		line:  1,
+		errCh: make(chan *ParseError),
 	}
 	l.next()
 	return l
@@ -59,9 +60,6 @@ func isQuote(c rune) bool {
 }
 
 func (x *exprLexer) Lex(yylval *yySymType) int {
-	if x.err != nil {
-		return eof
-	}
 	for {
 		x.tokLine = x.line
 		x.tokColumn = x.column
@@ -107,7 +105,7 @@ func (x *exprLexer) ident(yylval *yySymType) int {
 func (x *exprLexer) str(yylval *yySymType) int {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			x.err = &ParseError{
+			x.errCh <- &ParseError{
 				Line:   x.line,
 				Column: x.column,
 				Msg:    fmt.Sprintf("WriteRune: %s", err),
@@ -117,7 +115,7 @@ func (x *exprLexer) str(yylval *yySymType) int {
 	var b bytes.Buffer
 	for !isQuote(x.ch) {
 		if x.ch == eof {
-			x.err = &ParseError{
+			x.errCh <- &ParseError{
 				Line:   x.tokLine,
 				Column: x.tokColumn,
 				Msg:    "string literal not terminated: unexpected EOF",
@@ -133,14 +131,14 @@ func (x *exprLexer) str(yylval *yySymType) int {
 				add(&b, x.ch)
 				x.next()
 			case eof:
-				x.err = &ParseError{
+				x.errCh <- &ParseError{
 					Line:   line,
 					Column: column,
 					Msg:    "string literal not terminated: unexpected EOF",
 				}
 				return STRING
 			default:
-				x.err = &ParseError{
+				x.errCh <- &ParseError{
 					Line:   line,
 					Column: column,
 					Msg:    fmt.Sprintf("unknown escape sequence: \\%c", x.ch),
@@ -154,9 +152,9 @@ func (x *exprLexer) str(yylval *yySymType) int {
 		x.next()
 	}
 	yylval.token = token.Token{
-		Kind: types.String,
-		Lit:  b.String(),
-		Line: x.tokLine,
+		Kind:   types.String,
+		Lit:    b.String(),
+		Line:   x.tokLine,
 		Column: x.tokColumn,
 	}
 	x.next()
@@ -171,7 +169,7 @@ func (x *exprLexer) num(yylval *yySymType) int {
 func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymType) {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			x.err = &ParseError{
+			x.errCh <- &ParseError{
 				Line:   x.line,
 				Column: x.column,
 				Msg:    fmt.Sprintf("WriteRune: %s", err),
@@ -184,9 +182,9 @@ func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymT
 		x.next()
 	}
 	yylval.token = token.Token{
-		Kind: kind,
-		Lit:  b.String(),
-		Line: x.tokLine,
+		Kind:   kind,
+		Lit:    b.String(),
+		Line:   x.tokLine,
 		Column: x.tokColumn,
 	}
 }
@@ -206,7 +204,7 @@ func (x *exprLexer) next() {
 		x.column++
 	}
 	if c == utf8.RuneError && size == 1 {
-		x.err = &ParseError{
+		x.errCh <- &ParseError{
 			Line:   x.line,
 			Column: x.column,
 			Msg:    "next: invalid utf8",
@@ -218,20 +216,31 @@ func (x *exprLexer) next() {
 }
 
 func (x *exprLexer) Error(s string) {
-	x.err = &ParseError{
+	x.errCh <- &ParseError{
 		Line:   x.tokLine,
 		Column: x.tokColumn,
 		Msg:    s,
 	}
 }
 
+func (x *exprLexer) run() <-chan struct{} {
+	ch := make(chan struct{})
+	go func() {
+		yyParse(x)
+		ch <- struct{}{}
+	}()
+	return ch
+}
+
 func Parse(src []byte) (*ast.Command, error) {
 	l := newLexer(src)
 	yyErrorVerbose = true
-	yyParse(l)
-	if l.err != nil {
-		l.err.Src = string(src)
-		return nil, l.err
+	ch := l.run()
+	select {
+	case err := <-l.errCh:
+		err.Src = string(src)
+		return nil, err
+	case <-ch:
 	}
 	return l.expr, nil
 }
