@@ -200,3 +200,29 @@ func TestScan(t *testing.T) {
 		}
 	}
 }
+
+func TestParseT(t *testing.T) {
+	got, err := ParseT("substitute a b")
+	if err != nil {
+		t.Fatalf("ParseT: %v", err)
+	}
+	want := &CommandT{
+		Name: []byte("substitute"),
+		Args: []Token{
+			{
+				Type:  tokenIdent,
+				Value: []byte("a"),
+			},
+			{
+				Type:  tokenIdent,
+				Value: []byte("b"),
+			},
+		},
+	}
+	if !reflect.DeepEqual(got.Name, want.Name) {
+		t.Fatalf("ParseT/Name: got %s, want %s", got.Name, want.Name)
+	}
+	if !reflect.DeepEqual(got.Args, want.Args) {
+		t.Fatalf("ParseT/Args: got %v, want %v", got.Args, want.Args)
+	}
+}

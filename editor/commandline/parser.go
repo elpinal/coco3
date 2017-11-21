@@ -22,6 +22,10 @@ type Command struct {
 	Args []string
 }
 
+func ParseT(s string) (*CommandT, error) {
+	return parse([]byte(s))
+}
+
 type CommandT struct {
 	Name []byte
 	Args []Token
