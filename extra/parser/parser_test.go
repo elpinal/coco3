@@ -57,6 +57,13 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			src:  `a '{{range .Imports}}{{. | printf "%s\\n"}}{{end}}'`,
+			name: "a",
+			args: []ast.Expr{
+				&ast.String{`{{range .Imports}}{{. | printf "%s\n"}}{{end}}`},
+			},
+		},
 	}
 	for _, test := range tests {
 		x, err := Parse([]byte(test.src))
