@@ -15,21 +15,22 @@ import (
 const eof = 0
 
 type exprLexer struct {
-	src   []byte // source
-	r     rune   // current character
-	errCh chan *ParseError
+	src []byte // source
+	r   rune   // current character
+
+	off    uint // starts from 0
+	line   uint // starts from 1
+	column uint // starts from 1
+
+	// information for the start position of current token
+	tokLine   uint
+	tokColumn uint
 
 	// result
 	expr *ast.Command
 
-	// information for error messages
-	off    uint // start at 0
-	line   uint // start at 1
-	column uint // start at 1
-
-	// information for current token
-	tokLine   uint
-	tokColumn uint
+	// channel for error
+	errCh chan *ParseError
 }
 
 func newLexer(src []byte) *exprLexer {
