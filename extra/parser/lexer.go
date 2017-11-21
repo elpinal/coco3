@@ -17,7 +17,7 @@ const eof = 0
 
 type exprLexer struct {
 	src   []byte // source
-	ch    rune   // current character
+	r     rune   // current character
 	errCh chan *ParseError
 
 	// result
@@ -63,7 +63,7 @@ func (x *exprLexer) Lex(yylval *yySymType) int {
 	for {
 		x.tokLine = x.line
 		x.tokColumn = x.column
-		c := x.ch
+		c := x.r
 		switch c {
 		case eof:
 			return eof
@@ -113,8 +113,8 @@ func (x *exprLexer) str(yylval *yySymType) int {
 		}
 	}
 	var b bytes.Buffer
-	for !isQuote(x.ch) {
-		if x.ch == eof {
+	for !isQuote(x.r) {
+		if x.r == eof {
 			x.errCh <- &ParseError{
 				Line:   x.tokLine,
 				Column: x.tokColumn,
@@ -122,13 +122,13 @@ func (x *exprLexer) str(yylval *yySymType) int {
 			}
 			return STRING
 		}
-		if x.ch == '\\' {
+		if x.r == '\\' {
 			line := x.line
 			column := x.column
 			x.next()
-			switch x.ch {
+			switch x.r {
 			case '\'', '\\':
-				add(&b, x.ch)
+				add(&b, x.r)
 				x.next()
 			case eof:
 				x.errCh <- &ParseError{
@@ -141,14 +141,14 @@ func (x *exprLexer) str(yylval *yySymType) int {
 				x.errCh <- &ParseError{
 					Line:   line,
 					Column: column,
-					Msg:    fmt.Sprintf("unknown escape sequence: \\%c", x.ch),
+					Msg:    fmt.Sprintf("unknown escape sequence: \\%c", x.r),
 				}
 				x.next()
 				return STRING
 			}
 			continue
 		}
-		add(&b, x.ch)
+		add(&b, x.r)
 		x.next()
 	}
 	yylval.token = token.Token{
@@ -177,8 +177,8 @@ func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymT
 		}
 	}
 	var b bytes.Buffer
-	for f(x.ch) && x.ch != eof {
-		add(&b, x.ch)
+	for f(x.r) && x.r != eof {
+		add(&b, x.r)
 		x.next()
 	}
 	yylval.token = token.Token{
@@ -191,7 +191,7 @@ func (x *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymT
 
 func (x *exprLexer) next() {
 	if len(x.src) == 0 {
-		x.ch = eof
+		x.r = eof
 		return
 	}
 	c, size := utf8.DecodeRune(x.src)
@@ -212,7 +212,7 @@ func (x *exprLexer) next() {
 		x.next()
 		return
 	}
-	x.ch = c
+	x.r = c
 }
 
 func (x *exprLexer) Error(s string) {
