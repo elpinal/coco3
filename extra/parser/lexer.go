@@ -59,6 +59,14 @@ func isQuote(c rune) bool {
 	return c == '\''
 }
 
+func (l *exprLexer) errorAtHere(format string, args ...interface{}) *ParseError {
+	return &ParseError{
+		Line:   l.line,
+		Column: l.column,
+		Msg:    fmt.Sprintf(format, args...),
+	}
+}
+
 func (l *exprLexer) Lex(yylval *yySymType) int {
 	for {
 		l.tokLine = l.line
@@ -91,11 +99,7 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 			if isNumber(c) {
 				return l.num(yylval)
 			}
-			l.errCh <- &ParseError{
-				Line:   l.line,
-				Column: l.column,
-				Msg:    fmt.Sprintf("invalid character: %[1]U %[1]q", c),
-			}
+			l.errCh <- l.errorAtHere("invalid character: %[1]U %[1]q", c)
 			return ILLEGAL
 		}
 	}
@@ -109,11 +113,7 @@ func (l *exprLexer) ident(yylval *yySymType) int {
 func (l *exprLexer) str(yylval *yySymType) int {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			l.errCh <- &ParseError{
-				Line:   l.line,
-				Column: l.column,
-				Msg:    fmt.Sprintf("WriteRune: %s", err),
-			}
+			l.errCh <- l.errorAtHere("WriteRune: %s", err)
 		}
 	}
 	var b bytes.Buffer
@@ -173,11 +173,7 @@ func (l *exprLexer) num(yylval *yySymType) int {
 func (l *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymType) {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			l.errCh <- &ParseError{
-				Line:   l.line,
-				Column: l.column,
-				Msg:    fmt.Sprintf("WriteRune: %s", err),
-			}
+			l.errCh <- l.errorAtHere("WriteRune: %s", err)
 		}
 	}
 	var b bytes.Buffer
@@ -208,11 +204,7 @@ func (l *exprLexer) next() {
 		l.column++
 	}
 	if c == utf8.RuneError && size == 1 {
-		l.errCh <- &ParseError{
-			Line:   l.line,
-			Column: l.column,
-			Msg:    "next: invalid utf8",
-		}
+		l.errCh <- l.errorAtHere("next: invalid utf8")
 		l.next()
 		return
 	}
