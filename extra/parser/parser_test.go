@@ -2,6 +2,7 @@ package parser
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/elpinal/coco3/extra/ast"
@@ -93,5 +94,22 @@ func TestParseFail(t *testing.T) {
 			t.Errorf("Parse(%q): unexpectedly succeeded", src)
 			t.Fatalf("got: %v", got)
 		}
+	}
+}
+
+func match(s, q string) bool {
+	return strings.Contains(s, q)
+}
+
+func TestInvalidEscapeSequence(t *testing.T) {
+	_, err := Parse([]byte(`a '\Z'`))
+	if err == nil {
+		t.Fatalf("Parse: unexpectedly succeeded")
+	}
+	p := `unknown escape sequence: \Z`
+	if !match(err.(*ParseError).Msg, p) {
+		t.Log("missing message about escape sequence in error message")
+		t.Logf("pattern %q not found", p)
+		t.FailNow()
 	}
 }
