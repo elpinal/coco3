@@ -23,8 +23,8 @@ type Command struct {
 }
 
 type CommandT struct {
-	name []byte
-	args []token
+	Name []byte
+	Args []Token
 }
 
 func parse(src []byte) (*CommandT, error) {
@@ -33,17 +33,17 @@ func parse(src []byte) (*CommandT, error) {
 	if err != nil {
 		return nil, err
 	}
-	var args []token
+	var args []Token
 	for t := range s.tokens {
 		args = append(args, t)
 	}
-	return &CommandT{name: id.value, args: args}, nil
+	return &CommandT{Name: id.Value, Args: args}, nil
 }
 
-func parseIdent(ch chan token) (token, error) {
+func parseIdent(ch chan Token) (Token, error) {
 	t := <-ch
-	if t.tt != tokenIdent {
-		return token{}, errors.New("not identifier")
+	if t.Type != tokenIdent {
+		return Token{}, errors.New("not identifier")
 	}
 	return t, nil
 }
@@ -54,7 +54,7 @@ type scanner struct {
 	start int
 	off   int
 
-	tokens chan token
+	tokens chan Token
 }
 
 func (s *scanner) next() (byte, bool) {
@@ -98,7 +98,7 @@ func scan(src []byte) *scanner {
 	s := &scanner{
 		src:    src,
 		size:   len(src),
-		tokens: make(chan token),
+		tokens: make(chan Token),
 	}
 	go s.run()
 	return s
@@ -171,19 +171,19 @@ func scanString(s *scanner) stateFn {
 	return nil
 }
 
-func (s *scanner) emit(tt tokenType) {
-	s.tokens <- token{
-		tt:    tt,
-		value: s.src[s.start:s.off],
+func (s *scanner) emit(t tokenType) {
+	s.tokens <- Token{
+		Type:  t,
+		Value: s.src[s.start:s.off],
 	}
 	s.start = s.off
 }
 
 type tokenType int
 
-type token struct {
-	tt    tokenType
-	value []byte
+type Token struct {
+	Type  tokenType
+	Value []byte
 }
 
 const (

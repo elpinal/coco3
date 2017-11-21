@@ -8,167 +8,184 @@ import (
 func TestScan(t *testing.T) {
 	tests := []struct {
 		src  string
-		want []token
+		want []Token
 	}{
 		{
 			src: "",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenEOF,
-					value: []byte(""),
+					Type:  tokenEOF,
+					Value: []byte(""),
 				},
 			},
 		},
 		{
 			src: " ",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenEOF,
-					value: []byte(""),
+					Type:  tokenEOF,
+					Value: []byte(""),
 				},
 			},
 		},
 		{
 			src: "a",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 			},
 		},
 		{
 			src: "abc",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("abc"),
+					Type:  tokenIdent,
+					Value: []byte("abc"),
 				},
 			},
 		},
 		{
 			src: "ABc",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("ABc"),
+					Type:  tokenIdent,
+					Value: []byte("ABc"),
 				},
 			},
 		},
 		{
 			src: " abc",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("abc"),
+					Type:  tokenIdent,
+					Value: []byte("abc"),
 				},
 			},
 		},
 		{
 			src: "a b",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 				{
-					tt:    tokenIdent,
-					value: []byte("b"),
+					Type:  tokenIdent,
+					Value: []byte("b"),
 				},
 			},
 		},
 		{
 			src: " a b",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 				{
-					tt:    tokenIdent,
-					value: []byte("b"),
+					Type:  tokenIdent,
+					Value: []byte("b"),
 				},
 			},
 		},
 		{
 			src: "a    b cd  e fgh",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 				{
-					tt:    tokenIdent,
-					value: []byte("b"),
+					Type:  tokenIdent,
+					Value: []byte("b"),
 				},
 				{
-					tt:    tokenIdent,
-					value: []byte("cd"),
+					Type:  tokenIdent,
+					Value: []byte("cd"),
 				},
 				{
-					tt:    tokenIdent,
-					value: []byte("e"),
+					Type:  tokenIdent,
+					Value: []byte("e"),
 				},
 				{
-					tt:    tokenIdent,
-					value: []byte("fgh"),
+					Type:  tokenIdent,
+					Value: []byte("fgh"),
 				},
 			},
 		},
 		{
 			src: "1",
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenErr,
-					value: []byte("1"),
+					Type:  tokenErr,
+					Value: []byte("1"),
 				},
 			},
 		},
 		{
 			src: `"a"`,
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenString,
-					value: []byte(`"a"`),
+					Type:  tokenString,
+					Value: []byte(`"a"`),
 				},
 			},
 		},
 		{
 			src: `a "b"`,
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 				{
-					tt:    tokenString,
-					value: []byte(`"b"`),
+					Type:  tokenString,
+					Value: []byte(`"b"`),
 				},
 			},
 		},
 		{
 			src: `a"b"`,
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 				{
-					tt:    tokenString,
-					value: []byte(`"b"`),
+					Type:  tokenString,
+					Value: []byte(`"b"`),
 				},
 			},
 		},
 		{
 			src: `a "b`,
-			want: []token{
+			want: []Token{
 				{
-					tt:    tokenIdent,
-					value: []byte("a"),
+					Type:  tokenIdent,
+					Value: []byte("a"),
 				},
 				{
-					tt:    tokenErr,
-					value: []byte(`"b`),
+					Type:  tokenErr,
+					Value: []byte(`"b`),
+				},
+			},
+		},
+		{
+			src: "substitute a b",
+			want: []Token{
+				{
+					Type:  tokenIdent,
+					Value: []byte("substitute"),
+				},
+				{
+					Type:  tokenIdent,
+					Value: []byte("a"),
+				},
+				{
+					Type:  tokenIdent,
+					Value: []byte("b"),
 				},
 			},
 		},
