@@ -10,7 +10,7 @@ import (
 
 type exCommand struct {
 	name string
-	fn   func(*commandline, []string) continuity
+	fn   func(*commandline, []parser.Token) continuity
 }
 
 // exComands represents a table of Ex commands and corresponding functions.
@@ -103,18 +103,22 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 
 func (e *commandline) execute() (end continuity, err error) {
 	var candidate exCommand
-	command := parser.Parse(string(e.basic.buf))
+	command, err := parser.ParseT(string(e.basic.buf))
+	if err != nil {
+		return cont, err
+	}
 	if command == nil {
 		return
 	}
+	name := string(command.Name)
 	defer func() {
 		e.history = append(e.history, e.basic.buf)
 	}()
 	for _, cmd := range exCommands {
-		if !strings.HasPrefix(cmd.name, command.Name) {
+		if !strings.HasPrefix(cmd.name, name) {
 			continue
 		}
-		if cmd.name == command.Name {
+		if cmd.name == name {
 			end = cmd.fn(e, command.Args)
 			return
 		}
@@ -126,7 +130,7 @@ func (e *commandline) execute() (end continuity, err error) {
 		end = candidate.fn(e, command.Args)
 		return
 	}
-	err = fmt.Errorf("not a command: %q", command.Name)
+	err = fmt.Errorf("not a command: %q", name)
 	return
 }
 
@@ -148,28 +152,28 @@ func (e *commandline) historyForward() {
 	e.basic.buf = e.history[l-e.age]
 }
 
-func (e *commandline) quit(args []string) continuity {
+func (e *commandline) quit(_ []parser.Token) continuity {
 	return exit
 }
 
-func (e *commandline) delete(args []string) (_ continuity) {
+func (e *commandline) delete(_ []parser.Token) (_ continuity) {
 	e.editor.delete(0, len(e.editor.buf))
 	return
 }
 
-func (e *commandline) help(args []string) continuity {
+func (e *commandline) help(_ []parser.Token) continuity {
 	e.buf = []rune("help")
 	e.pos = 4
 	return execute
 }
 
-func (e *commandline) substitute(args []string) (_ continuity) {
+func (e *commandline) substitute(args []parser.Token) (_ continuity) {
 	if len(args) != 2 {
 		return
 	}
-	pat := args[0]
-	s0 := args[1]
-	s := strings.Replace(string(e.buf), pat, s0, -1)
+	pat := args[0].Value
+	s0 := args[1].Value
+	s := strings.Replace(string(e.buf), string(pat), string(s0), -1)
 	e.buf = []rune(s)
 	return
 }
