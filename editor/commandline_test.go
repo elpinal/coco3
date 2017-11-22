@@ -42,7 +42,7 @@ func TestSubstituteNoArgs(t *testing.T) {
 	got := string(ed.buf)
 	want := "a"
 	if got != want {
-		t.Errorf("commandline (%q): want %v, but got %v", command, got, want)
+		t.Errorf("commandline (%q): got %v, want %v", command, got, want)
 	}
 }
 
@@ -62,7 +62,7 @@ func TestSubstitute(t *testing.T) {
 	got := string(ed.buf)
 	want := "b"
 	if got != want {
-		t.Errorf("commandline (%q): want %v, but got %v", command, got, want)
+		t.Errorf("commandline (%q): got %v, want %v", command, got, want)
 	}
 }
 
