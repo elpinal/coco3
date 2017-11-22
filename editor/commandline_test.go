@@ -87,3 +87,23 @@ func TestEmpty(t *testing.T) {
 		}
 	}
 }
+
+func TestSubstituteSpaces(t *testing.T) {
+	command := append([]byte(`substitute " a " "_v_"`), CharCtrlM)
+	ed := newCommandline(
+		streamSet{in: NewReader(bytes.NewReader(command))},
+		newEditor(),
+	)
+	ed.buf = []rune(" a  a ")
+	for range command {
+		_, _, err := ed.Run()
+		if err != nil {
+			t.Errorf("commandline: %v", err)
+		}
+	}
+	got := string(ed.buf)
+	want := "_v__v_"
+	if got != want {
+		t.Errorf("commandline (%q): got %v, want %v", command, got, want)
+	}
+}
