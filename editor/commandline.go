@@ -171,9 +171,22 @@ func (e *commandline) substitute(args []parser.Token) (_ continuity) {
 	if len(args) != 2 {
 		return
 	}
-	pat := args[0].Value
-	s0 := args[1].Value
+	pat := toString(args[0])
+	s0 := toString(args[1])
 	s := strings.Replace(string(e.buf), string(pat), string(s0), -1)
 	e.buf = []rune(s)
 	return
+}
+
+func toString(t parser.Token) string {
+	switch t.Type {
+	case parser.TokenIdent:
+	case parser.TokenString:
+		return unquote(string(t.Value))
+	}
+	return string(t.Value)
+}
+
+func unquote(s string) string {
+	return s[1 : len(s)-1]
 }
