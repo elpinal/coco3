@@ -14,7 +14,7 @@ func TestScan(t *testing.T) {
 			src: "",
 			want: []Token{
 				{
-					Type:  tokenEOF,
+					Type:  TokenEOF,
 					Value: []byte(""),
 				},
 			},
@@ -23,7 +23,7 @@ func TestScan(t *testing.T) {
 			src: " ",
 			want: []Token{
 				{
-					Type:  tokenEOF,
+					Type:  TokenEOF,
 					Value: []byte(""),
 				},
 			},
@@ -32,7 +32,7 @@ func TestScan(t *testing.T) {
 			src: "a",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 			},
@@ -41,7 +41,7 @@ func TestScan(t *testing.T) {
 			src: "abc",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("abc"),
 				},
 			},
@@ -50,7 +50,7 @@ func TestScan(t *testing.T) {
 			src: "ABc",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("ABc"),
 				},
 			},
@@ -59,7 +59,7 @@ func TestScan(t *testing.T) {
 			src: " abc",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("abc"),
 				},
 			},
@@ -68,11 +68,11 @@ func TestScan(t *testing.T) {
 			src: "a b",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("b"),
 				},
 			},
@@ -81,11 +81,11 @@ func TestScan(t *testing.T) {
 			src: " a b",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("b"),
 				},
 			},
@@ -94,23 +94,23 @@ func TestScan(t *testing.T) {
 			src: "a    b cd  e fgh",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("b"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("cd"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("e"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("fgh"),
 				},
 			},
@@ -119,7 +119,7 @@ func TestScan(t *testing.T) {
 			src: "1",
 			want: []Token{
 				{
-					Type:  tokenErr,
+					Type:  TokenErr,
 					Value: []byte("1"),
 				},
 			},
@@ -128,7 +128,7 @@ func TestScan(t *testing.T) {
 			src: `"a"`,
 			want: []Token{
 				{
-					Type:  tokenString,
+					Type:  TokenString,
 					Value: []byte(`"a"`),
 				},
 			},
@@ -137,11 +137,11 @@ func TestScan(t *testing.T) {
 			src: `a "b"`,
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenString,
+					Type:  TokenString,
 					Value: []byte(`"b"`),
 				},
 			},
@@ -150,11 +150,11 @@ func TestScan(t *testing.T) {
 			src: `a"b"`,
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenString,
+					Type:  TokenString,
 					Value: []byte(`"b"`),
 				},
 			},
@@ -163,11 +163,11 @@ func TestScan(t *testing.T) {
 			src: `a "b`,
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenErr,
+					Type:  TokenErr,
 					Value: []byte(`"b`),
 				},
 			},
@@ -176,15 +176,15 @@ func TestScan(t *testing.T) {
 			src: "substitute a b",
 			want: []Token{
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("substitute"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("a"),
 				},
 				{
-					Type:  tokenIdent,
+					Type:  TokenIdent,
 					Value: []byte("b"),
 				},
 			},
@@ -210,11 +210,11 @@ func TestParseT(t *testing.T) {
 		Name: []byte("substitute"),
 		Args: []Token{
 			{
-				Type:  tokenIdent,
+				Type:  TokenIdent,
 				Value: []byte("a"),
 			},
 			{
-				Type:  tokenIdent,
+				Type:  TokenIdent,
 				Value: []byte("b"),
 			},
 		},

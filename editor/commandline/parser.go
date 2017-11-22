@@ -39,7 +39,7 @@ func parse(src []byte) (*CommandT, error) {
 	}
 	var args []Token
 	for t := range s.tokens {
-		if t.Type == tokenEOF {
+		if t.Type == TokenEOF {
 			break
 		}
 		args = append(args, t)
@@ -49,10 +49,10 @@ func parse(src []byte) (*CommandT, error) {
 
 func parseIdent(ch chan Token) (Token, error) {
 	t := <-ch
-	if t.Type == tokenEOF {
+	if t.Type == TokenEOF {
 		return t, nil
 	}
-	if t.Type != tokenIdent {
+	if t.Type != TokenIdent {
 		return Token{}, errors.New("not identifier")
 	}
 	return t, nil
@@ -135,11 +135,11 @@ func scanToken(s *scanner) stateFn {
 		case b == '"':
 			return scanString
 		default:
-			s.emit(tokenErr)
+			s.emit(TokenErr)
 			return nil
 		}
 	}
-	s.emit(tokenEOF)
+	s.emit(TokenEOF)
 	return nil
 }
 
@@ -155,10 +155,10 @@ func scanIdent(s *scanner) stateFn {
 		}
 	}
 	if s.start < s.off {
-		s.emit(tokenIdent)
+		s.emit(TokenIdent)
 		return scanToken
 	}
-	s.emit(tokenEOF)
+	s.emit(TokenEOF)
 	return nil
 }
 
@@ -169,19 +169,19 @@ func scanString(s *scanner) stateFn {
 			break
 		}
 		if b == '"' {
-			s.emit(tokenString) // including quotes
+			s.emit(TokenString) // including quotes
 			return scanToken
 		}
 	}
 	if s.start < s.off {
-		s.emit(tokenErr)
+		s.emit(TokenErr)
 		return nil
 	}
-	s.emit(tokenEOF)
+	s.emit(TokenEOF)
 	return nil
 }
 
-func (s *scanner) emit(t tokenType) {
+func (s *scanner) emit(t TokenType) {
 	s.tokens <- Token{
 		Type:  t,
 		Value: s.src[s.start:s.off],
@@ -189,16 +189,16 @@ func (s *scanner) emit(t tokenType) {
 	s.start = s.off
 }
 
-type tokenType int
+type TokenType int
 
 type Token struct {
-	Type  tokenType
+	Type  TokenType
 	Value []byte
 }
 
 const (
-	tokenErr tokenType = iota
-	tokenEOF
-	tokenIdent
-	tokenString
+	TokenErr TokenType = iota
+	TokenEOF
+	TokenIdent
+	TokenString
 )
