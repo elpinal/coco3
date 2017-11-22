@@ -136,7 +136,7 @@ func (e *commandline) execute() (end continuity, err error) {
 
 func (e *commandline) historyBack() {
 	l := len(e.history)
-	if l-e.age == 0 {
+	if e.age == l {
 		return
 	}
 	e.age++
