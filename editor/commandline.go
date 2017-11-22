@@ -188,5 +188,5 @@ func toString(t parser.Token) string {
 }
 
 func unquote(s string) string {
-	return s[1 : len(s)-1]
+	return strings.TrimSuffix(strings.TrimPrefix(s, `"`), `"`)
 }
