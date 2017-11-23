@@ -1,7 +1,6 @@
 package editor
 
 import (
-	"fmt"
 	"strings"
 
 	parser "github.com/elpinal/coco3/editor/commandline"
@@ -101,6 +100,14 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 	return
 }
 
+type ErrNoExCommand struct {
+	Name string
+}
+
+func (e *ErrNoExCommand) Error() string {
+	return "no such Ex command: " + e.Name
+}
+
 func (e *commandline) execute() (end continuity, err error) {
 	command, err := parser.ParseT(string(e.basic.buf))
 	if err != nil {
@@ -130,7 +137,7 @@ func (e *commandline) execute() (end continuity, err error) {
 		end = candidate.fn(e, command.Args)
 		return
 	}
-	err = fmt.Errorf("not a command: %q", name)
+	err = &ErrNoExCommand{Name: name}
 	return
 }
 
