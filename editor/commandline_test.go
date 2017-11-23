@@ -108,9 +108,26 @@ func TestSubstituteSpaces(t *testing.T) {
 	}
 }
 
-func TestEmpty(t *testing.T) {
+func TestExecuteEmpty(t *testing.T) {
 	c := emptyCommandline()
 	end, err := c.execute()
+	if err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	if end != cont {
+		t.Fatalf("execute = %v; want %v", end, cont)
+	}
+}
+
+func TestNoExCommand(t *testing.T) {
+	c := emptyCommandline()
+	name := "nosuchcommand"
+	c.basic.buf = []rune(name)
+	end, err := c.execute()
+	if e, ok := err.(*ErrNoExCommand); ok && e.Name == name {
+		// It failed as expected.
+		return
+	}
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
