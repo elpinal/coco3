@@ -34,6 +34,9 @@ type CommandT struct {
 func parse(src []byte) (*CommandT, error) {
 	s := scan(src)
 	id, err := parseIdent(s.tokens)
+	if err == errEOF {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -47,10 +50,12 @@ func parse(src []byte) (*CommandT, error) {
 	return &CommandT{Name: id.Value, Args: args}, nil
 }
 
+var errEOF = errors.New("EOF")
+
 func parseIdent(ch chan Token) (Token, error) {
 	t := <-ch
 	if t.Type == TokenEOF {
-		return t, nil
+		return Token{}, errEOF
 	}
 	if t.Type != TokenIdent {
 		return Token{}, errors.New("not identifier")
