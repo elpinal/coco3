@@ -102,7 +102,6 @@ func (e *commandline) Run() (end continuity, next modeChanger, err error) {
 }
 
 func (e *commandline) execute() (end continuity, err error) {
-	var candidate exCommand
 	command, err := parser.ParseT(string(e.basic.buf))
 	if err != nil {
 		return cont, err
@@ -114,6 +113,7 @@ func (e *commandline) execute() (end continuity, err error) {
 	defer func() {
 		e.history = append(e.history, e.basic.buf)
 	}()
+	var candidate exCommand
 	for _, cmd := range exCommands {
 		if !strings.HasPrefix(cmd.name, name) {
 			continue
