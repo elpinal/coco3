@@ -107,3 +107,14 @@ func TestSubstituteSpaces(t *testing.T) {
 		t.Errorf("commandline (%q): got %v, want %v", command, got, want)
 	}
 }
+
+func TestEmpty(t *testing.T) {
+	c := emptyCommandline()
+	end, err := c.execute()
+	if err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	if end != cont {
+		t.Fatalf("execute = %v; want %v", end, cont)
+	}
+}

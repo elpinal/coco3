@@ -32,6 +32,13 @@ type commandline struct {
 	age     int
 }
 
+func emptyCommandline() *commandline {
+	return &commandline{
+		editor: newEditor(),
+		basic: &basic{},
+	}
+}
+
 func newCommandline(s streamSet, e *editor) *commandline {
 	return &commandline{
 		streamSet: s,
