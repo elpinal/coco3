@@ -214,3 +214,10 @@ func TestSanitizeHistory(t *testing.T) {
 		t.Errorf("want %v, got %v", want, histRunes)
 	}
 }
+
+func BenchmarkRun(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		c := CLI{}
+		_ = c.Run([]string{"-c", "exit 0"})
+	}
+}
