@@ -55,7 +55,9 @@ func New(opt Option) Env {
 			"emacs":  emacsCommand,
 			"screen": screenCommand,
 
-			"cnp": cnpCommand,
+			"cnp":  cnpCommand,
+			"gvmn": gvmnCommand,
+			"vvmn": vvmnCommand,
 		},
 	}
 }
@@ -377,4 +379,14 @@ var cnpCommand = typed.Command{
 		lit := e[0].(*ast.String).Lit
 		return stdCmd("create-new-project", lit).Run()
 	},
+}
+
+var gvmnCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("gvmn"),
+}
+
+var vvmnCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("vvmn"),
 }
