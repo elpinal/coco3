@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -34,6 +35,7 @@ func New(opt Option) Env {
 		Option: opt,
 		cmds: map[string]typed.Command{
 			"exec":    execCommand,
+			"execenv": execenvCommand, // exec with env
 			"cd":      cdCommand,
 			"exit":    exitCommand,
 			"free":    freeCommand,
@@ -139,6 +141,28 @@ var execCommand = typed.Command{
 			return errors.Wrap(err, "exec")
 		}
 		cmd := stdCmd(args[0].(*ast.String).Lit, cmdArgs...)
+		return cmd.Run()
+	},
+}
+
+var execenvCommand = typed.Command{
+	Params: []types.Type{types.StringList, types.String, types.StringList},
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
+		cmdArgs, err := toSlice(args[2].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "execenv")
+		}
+		cmd := stdCmd(args[1].(*ast.String).Lit, cmdArgs...)
+		env, err := toSlice(args[0].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "execenv")
+		}
+		for _, e := range env {
+			if !strings.Contains(e, "=") {
+				return errors.New(`execenv: each item of the first argument must be the form "key=value"`)
+			}
+		}
+		cmd.Env = append(env, os.Environ()...)
 		return cmd.Run()
 	},
 }
