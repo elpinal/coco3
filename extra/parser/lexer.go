@@ -237,9 +237,12 @@ func (l *exprLexer) run() <-chan struct{} {
 	return done
 }
 
+func init() {
+	yyErrorVerbose = true
+}
+
 func Parse(src []byte) (*ast.Command, error) {
 	l := newLexer(src)
-	yyErrorVerbose = true
 	done := l.run()
 	select {
 	case err := <-l.errCh:
