@@ -89,6 +89,9 @@ func TestParseFail(t *testing.T) {
 		"12",
 		"a :",
 		"a [",
+		"a ?--#b",
+		`a "bc\3df"`,
+		"a ['",
 	}
 	for _, src := range tests {
 		got, err := Parse([]byte(src))

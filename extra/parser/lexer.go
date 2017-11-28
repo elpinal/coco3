@@ -59,6 +59,15 @@ func isQuote(c rune) bool {
 	return c == '\''
 }
 
+func (l *exprLexer) emitError(format string, args ...interface{}) {
+	select {
+	case l.errCh <- l.errorAtHere(format, args...):
+	default:
+		// If errCh is blocked (i.e. another error had occurred), this
+		// error message is ignored.
+	}
+}
+
 func (l *exprLexer) errorAtHere(format string, args ...interface{}) *ParseError {
 	return &ParseError{
 		Line:   l.line,
@@ -99,7 +108,7 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 			if isNumber(c) {
 				return l.num(yylval)
 			}
-			l.errCh <- l.errorAtHere("invalid character: %[1]U %[1]q", c)
+			l.emitError("invalid character: %[1]U %[1]q", c)
 			return ILLEGAL
 		}
 	}
@@ -113,7 +122,7 @@ func (l *exprLexer) ident(yylval *yySymType) int {
 func (l *exprLexer) str(yylval *yySymType) int {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			l.errCh <- l.errorAtHere("WriteRune: %s", err)
+			l.emitError("WriteRune: %s", err)
 		}
 	}
 	var b bytes.Buffer
@@ -173,7 +182,7 @@ func (l *exprLexer) num(yylval *yySymType) int {
 func (l *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymType) {
 	add := func(b *bytes.Buffer, c rune) {
 		if _, err := b.WriteRune(c); err != nil {
-			l.errCh <- l.errorAtHere("WriteRune: %s", err)
+			l.emitError("WriteRune: %s", err)
 		}
 	}
 	var b bytes.Buffer
@@ -204,7 +213,7 @@ func (l *exprLexer) next() {
 		l.column++
 	}
 	if c == utf8.RuneError && size == 1 {
-		l.errCh <- l.errorAtHere("next: invalid utf8")
+		l.emitError("next: invalid utf8")
 		l.next()
 		return
 	}
@@ -232,10 +241,6 @@ func Parse(src []byte) (*ast.Command, error) {
 	l := newLexer(src)
 	yyErrorVerbose = true
 	done := l.run()
-	defer func() {
-		// Avoid the leak of the goroutine.
-		close(l.errCh)
-	}()
 	select {
 	case err := <-l.errCh:
 		err.Src = string(src)
