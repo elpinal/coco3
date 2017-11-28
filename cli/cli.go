@@ -39,6 +39,19 @@ type CLI struct {
 	execute1 func([]byte) (action, error)
 }
 
+func (c *CLI) init() {
+	if c.Out == nil {
+		c.Out = ioutil.Discard
+	}
+	if c.Err == nil {
+		c.Err = ioutil.Discard
+	}
+	if c.Config == nil {
+		c.Config = &config.Config{}
+	}
+	c.Config.Init()
+}
+
 func (c *CLI) Run(args []string) int {
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
@@ -48,10 +61,7 @@ func (c *CLI) Run(args []string) int {
 		f.PrintDefaults()
 	}
 
-	if c.Config == nil {
-		c.Config = &config.Config{}
-	}
-	c.Config.Init()
+	c.init()
 	flagC := f.String("c", "", "take first argument as a command to execute")
 	flagE := f.Bool("extra", c.Config.Extra, "switch to extra mode")
 	if err := f.Parse(args); err != nil {
