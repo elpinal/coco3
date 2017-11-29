@@ -50,6 +50,7 @@ func New(opt Option) Env {
 			"cargo": cargoCommand,
 			"go":    goCommand,
 			"stack": stackCommand,
+			"lein":  leinCommand,
 
 			"vim":    vimCommand,
 			"emacs":  emacsCommand,
@@ -263,6 +264,11 @@ var goCommand = typed.Command{
 var stackCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("stack"),
+}
+
+var leinCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("lein"),
 }
 
 func stdCmd(name string, args ...string) *exec.Cmd {
