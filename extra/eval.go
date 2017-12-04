@@ -43,8 +43,9 @@ func New(opt Option) Env {
 
 			"remove": removeCommand,
 
-			"ls":  lsCommand,
-			"man": manCommand,
+			"ls":   lsCommand,
+			"man":  manCommand,
+			"make": makeCommand,
 
 			"git":   gitCommand,
 			"cargo": cargoCommand,
@@ -395,4 +396,15 @@ var gvmnCommand = typed.Command{
 var vvmnCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("vvmn"),
+}
+
+var makeCommand = typed.Command{
+	Params: []types.Type{types.StringList},
+	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
+		args, err := toSlice(e[0].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "make")
+		}
+		return stdCmd("make", args...).Run()
+	},
 }
