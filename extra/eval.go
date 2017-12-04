@@ -52,6 +52,7 @@ func New(opt Option) Env {
 			"go":    goCommand,
 			"stack": stackCommand,
 			"lein":  leinCommand,
+			"ocaml": ocamlCommand,
 
 			"vim":    vimCommand,
 			"emacs":  emacsCommand,
@@ -406,5 +407,16 @@ var makeCommand = typed.Command{
 			return errors.Wrap(err, "make")
 		}
 		return stdCmd("make", args...).Run()
+	},
+}
+
+var ocamlCommand = typed.Command{
+	Params: []types.Type{types.StringList},
+	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
+		args, err := toSlice(e[0].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "ocaml")
+		}
+		return stdCmd("ocaml", args...).Run()
 	},
 }
