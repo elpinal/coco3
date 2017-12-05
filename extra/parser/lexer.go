@@ -143,6 +143,9 @@ func (l *exprLexer) str(yylval *yySymType) int {
 			case '\'', '\\':
 				add(&b, l.r)
 				l.next()
+			case 'n':
+				add(&b, '\n')
+				l.next()
 			case eof:
 				l.errCh <- &ParseError{
 					Line:   line,
