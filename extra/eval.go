@@ -207,6 +207,23 @@ var freeCommand = typed.Command{
 	},
 }
 
+func commands1(name string) func([]ast.Expr, *sqlx.DB) error {
+	return func(args []ast.Expr, _ *sqlx.DB) error {
+		cmdArgs, err := toSlice(args[1].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, name)
+		}
+		var cmd *exec.Cmd
+		switch lit := args[0].(*ast.Ident).Lit; lit {
+		case "command":
+			cmd = stdCmd(name, cmdArgs...)
+		default:
+			cmd = stdCmd(name, append([]string{lit}, cmdArgs...)...)
+		}
+		return cmd.Run()
+	}
+}
+
 func commandsInCommand(name string) func([]ast.Expr, *sqlx.DB) error {
 	return func(args []ast.Expr, _ *sqlx.DB) error {
 		cmdArgs, err := toSlice(args[1].(ast.List))
