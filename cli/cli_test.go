@@ -225,3 +225,8 @@ func BenchmarkRun(b *testing.B) {
 		_ = c.Run([]string{"-c", " "})
 	}
 }
+
+type benchmarkReader struct {
+	ch chan struct{}
+	r  *strings.Reader
+}
