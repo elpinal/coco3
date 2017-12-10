@@ -81,6 +81,7 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 		l.tokLine = l.line
 		l.tokColumn = l.column
 		c := l.r
+		// TODO: set yylval.token on all cases.
 		switch c {
 		case eof:
 			return eof
