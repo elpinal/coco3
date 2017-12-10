@@ -53,6 +53,8 @@ func (c *CLI) init() {
 }
 
 func (c *CLI) Run(args []string) int {
+	c.init()
+
 	f := flag.NewFlagSet("coco3", flag.ContinueOnError)
 	f.SetOutput(c.Err)
 	f.Usage = func() {
