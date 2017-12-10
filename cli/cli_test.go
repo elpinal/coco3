@@ -232,3 +232,11 @@ type benchmarkReader struct {
 }
 
 // var errRead = errors.New("benchmarkReader: just error")
+
+func (r *benchmarkReader) Read(p []byte) (n int, err error) {
+	select {
+	case r.ch <- struct{}{}:
+	default:
+	}
+	return r.r.Read(p)
+}
