@@ -67,6 +67,11 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			src:  "!cmd",
+			name: "exec",
+			args: []ast.Expr{&ast.String{Lit: "cmd"}},
+		},
 	}
 	for _, test := range tests {
 		x, err := Parse([]byte(test.src))
