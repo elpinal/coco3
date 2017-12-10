@@ -61,7 +61,6 @@ func (c *CLI) Run(args []string) int {
 		f.PrintDefaults()
 	}
 
-	c.init()
 	flagC := f.String("c", "", "take first argument as a command to execute")
 	flagE := f.Bool("extra", c.Config.Extra, "switch to extra mode")
 	if err := f.Parse(args); err != nil {
