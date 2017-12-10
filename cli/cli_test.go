@@ -230,3 +230,5 @@ type benchmarkReader struct {
 	ch chan struct{}
 	r  *strings.Reader
 }
+
+// var errRead = errors.New("benchmarkReader: just error")
