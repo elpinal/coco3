@@ -80,7 +80,10 @@ func TestParse(t *testing.T) {
 		{
 			src:  "! cmd ['arg']",
 			name: "exec",
-			args: []ast.Expr{&ast.String{Lit: "cmd"}, &ast.Cons{Head: "arg", Tail: &ast.Empty{}}},
+			args: []ast.Expr{
+				&ast.String{Lit: "cmd"},
+				&ast.Cons{Head: "arg", Tail: &ast.Empty{}},
+			},
 		},
 	}
 	for _, test := range tests {
