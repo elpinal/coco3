@@ -40,6 +40,7 @@ var yyToknames = [...]string{
 	"NUM",
 	"COLON",
 	"COMMA",
+	"'!'",
 }
 var yyStatenames = [...]string{}
 
@@ -47,7 +48,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:101
+//line parser.y:108
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -58,46 +59,52 @@ var yyExca = [...]int{
 
 const yyPrivate = 57344
 
-const yyLast = 21
+const yyLast = 25
 
 var yyAct = [...]int{
 
-	13, 8, 6, 10, 9, 7, 18, 11, 14, 17,
-	12, 16, 10, 14, 3, 5, 15, 4, 2, 19,
-	1,
+	16, 11, 3, 10, 8, 12, 21, 9, 17, 4,
+	14, 17, 20, 15, 19, 12, 18, 5, 6, 7,
+	2, 1, 22, 0, 13,
 }
 var yyPact = [...]int{
 
-	9, -1000, -1000, -1000, -4, -1000, -3, -1000, -1000, -1000,
-	2, 5, -1000, 1, -5, -1000, -3, -1000, 7, -1000,
+	-3, -1000, -1000, -1000, 13, -2, -1000, -1000, 0, -1000,
+	-1000, -1000, 5, -2, 8, -1000, 4, -5, -1000, 0,
+	-1000, 2, -1000,
 }
 var yyPgo = [...]int{
 
-	0, 20, 18, 17, 15, 4, 0,
+	0, 21, 20, 17, 19, 1, 0,
 }
 var yyR1 = [...]int{
 
-	0, 1, 2, 2, 4, 4, 4, 4, 3, 3,
-	5, 5, 5, 6, 6,
+	0, 1, 2, 2, 2, 4, 4, 4, 4, 3,
+	3, 5, 5, 5, 6, 6,
 }
 var yyR2 = [...]int{
 
-	0, 1, 0, 2, 1, 1, 1, 1, 0, 2,
-	2, 3, 3, 1, 3,
+	0, 1, 0, 2, 3, 1, 1, 1, 1, 0,
+	2, 2, 3, 3, 1, 3,
 }
 var yyChk = [...]int{
 
-	-1000, -1, -2, 5, -3, -4, 6, 9, 5, -5,
-	7, 10, 8, -6, 6, -5, 6, 8, 11, -6,
+	-1000, -1, -2, 5, 12, -3, 5, -4, 6, 9,
+	5, -5, 7, -3, 10, 8, -6, 6, -5, 6,
+	8, 11, -6,
 }
 var yyDef = [...]int{
 
-	2, -2, 1, 8, 3, 9, 4, 5, 6, 7,
-	0, 0, 10, 0, 13, 11, 0, 12, 0, 14,
+	2, -2, 1, 9, 0, 3, 9, 10, 5, 6,
+	7, 8, 0, 4, 0, 11, 0, 14, 12, 0,
+	13, 0, 15,
 }
 var yyTok1 = [...]int{
 
-	1,
+	1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 12,
 }
 var yyTok2 = [...]int{
 
@@ -466,68 +473,77 @@ yydefault:
 			yyVAL.command = &ast.Command{yyDollar[1].token, yyDollar[2].exprs}
 		}
 	case 4:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:52
+		yyDollar = yyS[yypt-3 : yypt+1]
+		//line parser.y:50
 		{
-			yyVAL.expr = &ast.String{yyDollar[1].token.Lit}
+			yyVAL.command = &ast.Command{
+				token.Token{Lit: "exec", Line: yyDollar[1].token.Line, Column: yyDollar[1].token.Column},
+				append([]ast.Expr{&ast.String{yyDollar[2].token.Lit}}, yyDollar[3].exprs...),
+			}
 		}
 	case 5:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:56
+		//line parser.y:59
 		{
-			yyVAL.expr = &ast.Int{yyDollar[1].token.Lit}
+			yyVAL.expr = &ast.String{yyDollar[1].token.Lit}
 		}
 	case 6:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:60
+		//line parser.y:63
 		{
-			yyVAL.expr = &ast.Ident{yyDollar[1].token.Lit}
+			yyVAL.expr = &ast.Int{yyDollar[1].token.Lit}
 		}
 	case 7:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:64
+		//line parser.y:67
+		{
+			yyVAL.expr = &ast.Ident{yyDollar[1].token.Lit}
+		}
+	case 8:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line parser.y:71
 		{
 			yyVAL.expr = yyDollar[1].list
 		}
-	case 8:
+	case 9:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line parser.y:69
+		//line parser.y:76
 		{
 			yyVAL.exprs = nil
 		}
-	case 9:
+	case 10:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:73
+		//line parser.y:80
 		{
 			yyVAL.exprs = append(yyDollar[1].exprs, yyDollar[2].expr)
 		}
-	case 10:
+	case 11:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line parser.y:79
+		//line parser.y:86
 		{
 			yyVAL.list = &ast.Empty{}
 		}
-	case 11:
+	case 12:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:83
+		//line parser.y:90
 		{
 			yyVAL.list = &ast.Cons{Head: yyDollar[1].token.Lit, Tail: yyDollar[3].list}
 		}
-	case 12:
+	case 13:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:87
+		//line parser.y:94
 		{
 			yyVAL.list = yyDollar[2].list
 		}
-	case 13:
+	case 14:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.y:93
+		//line parser.y:100
 		{
 			yyVAL.list = &ast.Cons{Head: yyDollar[1].token.Lit, Tail: &ast.Empty{}}
 		}
-	case 14:
+	case 15:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.y:97
+		//line parser.y:104
 		{
 			yyVAL.list = &ast.Cons{Head: yyDollar[1].token.Lit, Tail: yyDollar[3].list}
 		}

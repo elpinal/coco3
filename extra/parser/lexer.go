@@ -101,6 +101,15 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 		case ',':
 			l.next()
 			return COMMA
+		case '!':
+			l.next()
+			yylval.token = token.Token{
+				Kind:   types.Ident,
+				Lit:    "!",
+				Line:   l.tokLine,
+				Column: l.tokColumn,
+			}
+			return int(c)
 		default:
 			if isAlphabet(c) {
 				return l.ident(yylval)

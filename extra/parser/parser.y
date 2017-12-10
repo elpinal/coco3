@@ -24,7 +24,7 @@ import (
 
 %token <token> ILLEGAL
 
-%token <token> IDENT STRING LBRACK RBRACK NUM COLON COMMA
+%token <token> IDENT STRING LBRACK RBRACK NUM COLON COMMA '!'
 
 %%
 
@@ -45,6 +45,13 @@ command:
         IDENT exprs
         {
                 $$ = &ast.Command{$1, $2}
+        }
+        | '!' IDENT exprs
+        {
+                $$ = &ast.Command{
+                        token.Token{Lit: "exec", Line: $1.Line, Column: $1.Column},
+                        append([]ast.Expr{&ast.String{$2.Lit}}, $3...),
+                }
         }
 
 expr:
