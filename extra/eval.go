@@ -207,13 +207,13 @@ var freeCommand = typed.Command{
 	},
 }
 
-func commands1(name string) func([]ast.Expr, *sqlx.DB) error {
+func commandArgs(name string) func([]ast.Expr, *sqlx.DB) error {
 	return func(args []ast.Expr, _ *sqlx.DB) error {
-		args, err := toSlice(e[0].(ast.List))
+		list, err := toSlice(args[0].(ast.List))
 		if err != nil {
 			return errors.Wrap(err, name)
 		}
-		return stdCmd(name, args...).Run()
+		return stdCmd(name, list...).Run()
 	}
 }
 
@@ -411,22 +411,10 @@ var vvmnCommand = typed.Command{
 
 var makeCommand = typed.Command{
 	Params: []types.Type{types.StringList},
-	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
-		args, err := toSlice(e[0].(ast.List))
-		if err != nil {
-			return errors.Wrap(err, "make")
-		}
-		return stdCmd("make", args...).Run()
-	},
+	Fn:     commandArgs("make"),
 }
 
 var ocamlCommand = typed.Command{
 	Params: []types.Type{types.StringList},
-	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
-		args, err := toSlice(e[0].(ast.List))
-		if err != nil {
-			return errors.Wrap(err, "ocaml")
-		}
-		return stdCmd("ocaml", args...).Run()
-	},
+	Fn:     commandArgs("ocaml"),
 }
