@@ -143,6 +143,9 @@ func (c *CLI) executeFiles(args []string) int {
 	return 0
 }
 
+// runInteractiveMode runs interactive mode.
+// It inherits the stored history first, reads the input repeatedly, and
+// finally returns an exit code.
 func (c *CLI) runInteractiveMode() int {
 	// Inherit history.
 	histRunes, err := c.getHistory(c.Config.HistFile)
