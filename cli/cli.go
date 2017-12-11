@@ -34,7 +34,7 @@ type CLI struct {
 
 	*config.Config
 
-	db *sqlx.DB
+	DB *sqlx.DB
 
 	execute1 func([]byte) (action, error)
 }
@@ -147,7 +147,6 @@ func (c *CLI) executeFiles(args []string) int {
 // It inherits the stored history first, reads the input repeatedly, and
 // finally returns an exit code.
 func (c *CLI) runInteractiveMode() int {
-	// Inherit history.
 	histRunes, err := c.getHistory(c.Config.HistFile)
 	if err != nil {
 		c.errorln(err)
@@ -181,22 +180,26 @@ func (c *CLI) errorp(s ...interface{}) {
 	fmt.Fprint(c.Err, s...)
 }
 
+// getHistory gets the stored history from the database.
+// When c.DB != nil, it reads from c.DB. Otherwise it reads from a database
+// named filename.
 func (c *CLI) getHistory(filename string) ([][]rune, error) {
-	db, err := sqlx.Connect("sqlite3", filename)
-	if err != nil {
-		return nil, errors.Wrap(err, "connecting history file")
+	if c.DB == nil {
+		db, err := sqlx.Connect("sqlite3", filename)
+		if err != nil {
+			return nil, errors.Wrap(err, "connecting history file")
+		}
+		c.DB = db
 	}
-	_, err = db.Exec(schema)
+	_, err := c.DB.Exec(schema)
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing history file")
 	}
 	var history []string
-	err = db.Select(&history, "select line from command_info")
+	err = c.DB.Select(&history, "select line from command_info")
 	if err != nil {
 		return nil, errors.Wrap(err, "restoring history")
 	}
-	// TODO: Is this way proper?
-	c.db = db
 	return sanitizeHistory(history), nil
 }
 
@@ -302,7 +305,7 @@ func (c *CLI) writeHistory(r []rune) <-chan error {
 	startTime := time.Now()
 	ch := make(chan error)
 	go func() {
-		_, err := c.db.Exec("insert into command_info (time, line) values ($1, $2)", startTime, string(r))
+		_, err := c.DB.Exec("insert into command_info (time, line) values ($1, $2)", startTime, string(r))
 		if err != nil {
 			ch <- errors.Wrap(err, "saving history")
 			return
@@ -323,7 +326,7 @@ func (c *CLI) execute(b []byte) (action, error) {
 	if err != nil {
 		return nil, err
 	}
-	e := eval.New(c.In, c.Out, c.Err, c.db)
+	e := eval.New(c.In, c.Out, c.Err, c.DB)
 	err = e.Eval(f.Lines)
 	select {
 	case code := <-e.ExitCh:
@@ -338,7 +341,7 @@ func (c *CLI) executeExtra(b []byte) (action, error) {
 	if err != nil {
 		return nil, err
 	}
-	e := extra.New(extra.Option{DB: c.db})
+	e := extra.New(extra.Option{DB: c.DB})
 	err = e.Eval(cmd)
 	if err == nil {
 		return nil, nil
