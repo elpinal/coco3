@@ -233,14 +233,36 @@ type benchmarkReader struct {
 	r  *strings.Reader
 }
 
-// var errRead = errors.New("benchmarkReader: just error")
-
 func (r *benchmarkReader) Read(p []byte) (n int, err error) {
-	select {
-	case r.ch <- struct{}{}:
-	default:
-	}
+	r.ch <- struct{}{}
 	return r.r.Read(p)
+}
+
+func BenchmarkStartup(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		ch := make(chan struct{})
+		c := CLI{
+			In: &benchmarkReader{
+				ch: ch,
+				r:  strings.NewReader(string(editor.CharEscape) + ":q" + string(editor.CharCtrlM)),
+			},
+			Config: &config.Config{
+				HistFile: ":memory:",
+			},
+		}
+		done := make(chan struct{})
+
+		go func() {
+			b.StartTimer()
+			c.Run(nil)
+			done <- struct{}{}
+		}()
+		<-ch
+		b.StopTimer()
+		<-done
+		b.StartTimer()
+	}
 }
 
 func TestStartup(t *testing.T) {
