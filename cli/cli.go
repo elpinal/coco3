@@ -277,15 +277,17 @@ func (c *CLI) interact(g gate.Gate) (action, error) {
 
 func (c *CLI) read(g gate.Gate) ([]rune, bool, error) {
 	defer c.Out.Write([]byte{'\n'})
-	oldState, err := terminal.MakeRaw(0)
-	if err != nil {
-		return nil, false, err
-	}
-	defer func() {
-		if err := terminal.Restore(0, oldState); err != nil {
-			c.errorln(err)
+	if terminal.IsTerminal(0) {
+		oldState, err := terminal.MakeRaw(0)
+		if err != nil {
+			return nil, false, err
 		}
-	}()
+		defer func() {
+			if err := terminal.Restore(0, oldState); err != nil {
+				c.errorln(err)
+			}
+		}()
+	}
 	r, end, err := g.Read()
 	if err != nil {
 		return nil, false, err

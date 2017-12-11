@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"io/ioutil"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/elpinal/coco3/config"
+	"github.com/elpinal/coco3/editor"
 )
 
 func TestFlagC(t *testing.T) {
@@ -239,4 +241,17 @@ func (r *benchmarkReader) Read(p []byte) (n int, err error) {
 	default:
 	}
 	return r.r.Read(p)
+}
+
+func TestStartup(t *testing.T) {
+	c := CLI{
+		In: strings.NewReader(string(editor.CharEscape) + ":q" + string(editor.CharCtrlM)),
+		Config: &config.Config{
+			HistFile: ":memory:",
+		},
+	}
+	n := c.Run(nil)
+	if want := 0; n != want {
+		t.Errorf("Run = %d, want %d", n, want)
+	}
 }
