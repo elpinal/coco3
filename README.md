@@ -22,6 +22,16 @@ To get help, type ":help" or execute "help" built-in command.
 Most shells have too complicated syntax. Some shells have an insufficient
 editing facility. These facts lead to developing Coco3 shell.
 
+## Note
+
+If you are curious, try the <b>extra mode</b>!
+
+```
+$ coco3 -extra
+```
+
+The behavior of the <b>extra mode</b> is not documented, so read the source code in `extra` directory.
+
 ## Contribution
 
 1. Fork ([https://github.com/elpinal/coco3/fork](https://github.com/elpinal/coco3/fork))
