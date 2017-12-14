@@ -46,26 +46,43 @@ func File(buf []rune, pos int) ([]string, error) {
 	return names, nil
 }
 
+func ioReadDir(dir string) ([]string, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, len(files))
+	for i := range files {
+		names[i] = files[i].Name()
+	}
+	return names, nil
+}
+
 func FromPath(buf []rune, pos int) ([]string, error) {
+	return fromPath(buf, pos, os.Getenv("PATH"), ioReadDir)
+}
+
+type dirReader func(string) ([]string, error)
+
+func fromPath(buf []rune, pos int, path string, readDir dirReader) ([]string, error) {
 	// TODO: Parsing buf will make it more convenient to complete.
 	// Currently implemented as simple and fast, but not solid.
 	i := strings.LastIndexAny(string(buf[:pos]), " '!") + 1
 	prefix := string(buf[i:pos])
-	path := os.Getenv("PATH")
 	names := make([]string, 0, 1)
 	for _, dir := range filepath.SplitList(path) {
 		if dir == "" {
 			dir = "."
 		}
-		files, err := ioutil.ReadDir(dir)
+		files, err := readDir(dir)
 		if err != nil {
 			return nil, err
 		}
-		for _, file := range files {
-			if !strings.HasPrefix(file.Name(), prefix) {
+		for _, name := range files {
+			if !strings.HasPrefix(name, prefix) {
 				continue
 			}
-			names = append(names, file.Name()[len(prefix):])
+			names = append(names, name[len(prefix):])
 		}
 	}
 	return names, nil
