@@ -47,7 +47,9 @@ func File(buf []rune, pos int) ([]string, error) {
 }
 
 func FromPath(buf []rune, pos int) ([]string, error) {
-	i := strings.LastIndexAny(string(buf[:pos]), " '") + 1
+	// TODO: Parsing buf will make it more convenient to complete.
+	// Currently implemented as simple and fast, but not solid.
+	i := strings.LastIndexAny(string(buf[:pos]), " '!") + 1
 	prefix := string(buf[i:pos])
 	path := os.Getenv("PATH")
 	names := make([]string, 0, 1)
