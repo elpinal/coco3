@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -27,6 +28,7 @@ func File(buf []rune, pos int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	sort.Strings(dirnames)
 	for _, name := range dirnames {
 		if !strings.HasPrefix(name, pend) {
 			continue
