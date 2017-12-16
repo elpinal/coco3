@@ -108,4 +108,8 @@ sep_by_commas:
                 $$ = &ast.Cons{Head: $1.Lit, Tail: $3}
         }
 
+def:
+        DEF IDENT '=' expr
+        {}
+
 %%
