@@ -110,6 +110,8 @@ sep_by_commas:
 
 def:
         DEF IDENT '=' expr
-        {}
+        {
+                $$ = &ast.Def{Name: $2, Expr: $4}
+        }
 
 %%
