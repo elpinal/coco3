@@ -15,12 +15,14 @@ import (
         exprs   []ast.Expr
         expr    ast.Expr
         list    ast.List
+        def     ast.Def
 }
 
 %type <command> top command
 %type <exprs> exprs
 %type <expr> expr
 %type <list> string_list sep_by_commas
+%type <def> def
 
 %token <token> ILLEGAL
 
