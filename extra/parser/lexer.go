@@ -129,6 +129,8 @@ func (l *exprLexer) ident(yylval *yySymType) int {
 	switch yylval.token.Lit {
 	case "def":
 		return DEF
+	case "fn":
+		return FN
 	}
 	return IDENT
 }
