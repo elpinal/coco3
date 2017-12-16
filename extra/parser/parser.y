@@ -26,6 +26,7 @@ import (
 
 %token <token> IDENT STRING LBRACK RBRACK NUM COLON COMMA '!'
 %token <token> DEF
+%token <token> '='
 
 %%
 
