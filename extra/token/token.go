@@ -1,8 +1,7 @@
 package token
 
 type Token struct {
-	Lit string
-
+	Lit    string
 	Line   uint
 	Column uint
 }
