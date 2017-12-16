@@ -102,11 +102,11 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 		case ',':
 			l.next()
 			return COMMA
-		case '!':
+		case '!', '(', ')':
 			l.next()
 			yylval.token = token.Token{
 				Kind:   types.Ident,
-				Lit:    "!",
+				Lit:    string(c),
 				Line:   l.tokLine,
 				Column: l.tokColumn,
 			}
