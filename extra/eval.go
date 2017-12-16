@@ -167,7 +167,7 @@ var execenvCommand = typed.Command{
 				return errors.New(`execenv: each item of the first argument must be the form "key=value"`)
 			}
 		}
-		cmd.Env = append(env, os.Environ()...)
+		cmd.Env = append(os.Environ(), env...)
 		return cmd.Run()
 	},
 }
