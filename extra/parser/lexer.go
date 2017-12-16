@@ -126,6 +126,10 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 
 func (l *exprLexer) ident(yylval *yySymType) int {
 	l.takeWhile(types.Ident, isIdent, yylval)
+	switch yylval.token.Lit {
+	case "def":
+		return DEF
+	}
 	return IDENT
 }
 
