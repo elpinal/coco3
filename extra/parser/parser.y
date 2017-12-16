@@ -15,7 +15,7 @@ import (
         exprs   []ast.Expr
         expr    ast.Expr
         list    ast.List
-        def     ast.Def
+        def     *ast.Def
 }
 
 %type <command> top command

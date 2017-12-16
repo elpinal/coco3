@@ -17,7 +17,7 @@ type yySymType struct {
 	exprs   []ast.Expr
 	expr    ast.Expr
 	list    ast.List
-	def     ast.Def
+	def     *ast.Def
 }
 
 const ILLEGAL = 57346
