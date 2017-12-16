@@ -96,3 +96,8 @@ func (e *Empty) Length() int {
 func (c *Cons) Length() int {
 	return 1 + c.Tail.Length()
 }
+
+type Def struct {
+	Name token.Token
+	Expr Expr
+}
