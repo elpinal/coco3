@@ -105,7 +105,7 @@ func (l *exprLexer) Lex(yylval *yySymType) int {
 		case '!', '(', ')':
 			l.next()
 			yylval.token = token.Token{
-				Kind:   types.Ident,
+				Kind:   token.KindOf(types.Ident),
 				Lit:    string(c),
 				Line:   l.tokLine,
 				Column: l.tokColumn,
@@ -178,7 +178,7 @@ func (l *exprLexer) str(yylval *yySymType) int {
 		l.next()
 	}
 	yylval.token = token.Token{
-		Kind:   types.String,
+		Kind:   token.KindOf(types.String),
 		Lit:    b.String(),
 		Line:   l.tokLine,
 		Column: l.tokColumn,
@@ -204,7 +204,7 @@ func (l *exprLexer) takeWhile(kind types.Type, f func(rune) bool, yylval *yySymT
 		l.next()
 	}
 	yylval.token = token.Token{
-		Kind:   kind,
+		Kind:   token.KindOf(kind),
 		Lit:    b.String(),
 		Line:   l.tokLine,
 		Column: l.tokColumn,
