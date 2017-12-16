@@ -25,6 +25,7 @@ import (
 %token <token> ILLEGAL
 
 %token <token> IDENT STRING LBRACK RBRACK NUM COLON COMMA '!'
+%token <token> DEF
 
 %%
 
