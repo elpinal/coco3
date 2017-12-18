@@ -401,7 +401,7 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 			if err != nil {
 				return err
 			}
-			fmt.Println("size:", fi.Size())
+			fmt.Printf("size: %d bytes\n", fi.Size())
 			fmt.Println("is directory?:", fi.IsDir())
 		case "y":
 			return os.Remove(s)
