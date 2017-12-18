@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -403,6 +404,16 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 			}
 			fmt.Printf("size: %d bytes\n", fi.Size())
 			fmt.Println("is directory?:", fi.IsDir())
+		case "s":
+			f, err := os.Open(s)
+			if err != nil {
+				return err
+			}
+			_, err = io.Copy(os.Stdout, f)
+			f.Close()
+			if err != nil {
+				return err
+			}
 		case "y":
 			return os.Remove(s)
 		default:
