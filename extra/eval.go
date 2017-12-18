@@ -401,7 +401,7 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 			if err != nil {
 				return err
 			}
-			fmt.Println(fi)
+			fmt.Println("size", fi.Size())
 		case "y":
 			return os.Remove(s)
 		default:
