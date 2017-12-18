@@ -390,7 +390,7 @@ var removeCommand = typed.Command{
 
 func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	s := exprs[0].(*ast.String).Lit
-	fmt.Printf("remove %s\n", s)
+	fmt.Printf("remove %s?\n", s)
 	var ans string
 	fmt.Scanf("%s", &ans)
 	if ans != "y" {
