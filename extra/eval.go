@@ -391,6 +391,9 @@ var removeCommand = typed.Command{
 	},
 }
 
+func remove(exprs []ast.Expr, _ *sqlx.DB) error {
+}
+
 var cnpCommand = typed.Command{
 	Params: []types.Type{types.String},
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
