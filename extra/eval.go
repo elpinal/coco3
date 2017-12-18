@@ -385,10 +385,7 @@ var manCommand = typed.Command{
 
 var removeCommand = typed.Command{
 	Params: []types.Type{types.String},
-	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
-		lit := e[0].(*ast.String).Lit
-		return stdCmd("rm", "-i", lit).Run()
-	},
+	Fn:     remove,
 }
 
 func remove(exprs []ast.Expr, _ *sqlx.DB) error {
