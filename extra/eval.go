@@ -392,6 +392,9 @@ var removeCommand = typed.Command{
 }
 
 func remove(exprs []ast.Expr, _ *sqlx.DB) error {
+	s := e[0].(*ast.String).Lit
+	fmt.Println("remove ", s)
+	return os.Remove(s)
 }
 
 var cnpCommand = typed.Command{
