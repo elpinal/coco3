@@ -394,10 +394,12 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	fmt.Println("type y to continue")
 	var ans string
 	fmt.Scanf("%s", &ans)
-	if ans != "y" {
+	switch ans {
+	case "y":
+		return os.Remove(s)
+	default:
 		return nil
 	}
-	return os.Remove(s)
 }
 
 var cnpCommand = typed.Command{
