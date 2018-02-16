@@ -540,6 +540,9 @@ func (e *normal) searchHistory() (_ modeChanger) {
 }
 
 func (e *normal) indexNumber() int {
+	if len(e.buf) == 0 {
+		return -1
+	}
 	i0 := e.pos
 	for ; 0 <= i0; i0-- {
 		r := e.buf[i0]

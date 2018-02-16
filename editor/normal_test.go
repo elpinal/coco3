@@ -1,7 +1,6 @@
 package editor
 
 import (
-	"context"
 	"strings"
 	"testing"
 )
@@ -9,9 +8,12 @@ import (
 func BenchmarkNormal(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		command := strings.Repeat("hjkl", 100)
-		ed := newNormal(streamSet{
-			in: NewReaderContext(context.TODO(), strings.NewReader(command)),
-		}, newEditor())
+		ed := newNormal(
+			streamSet{
+				in: NewReader(strings.NewReader(command)),
+			},
+			newEditor(),
+		)
 		for range command {
 			_, _, err := ed.Run()
 			if err != nil {
@@ -19,4 +21,16 @@ func BenchmarkNormal(b *testing.B) {
 			}
 		}
 	}
+}
+
+func TestUpdateNumber(t *testing.T) {
+	norm := newNormal(
+		streamSet{
+			in: NewReader(nil),
+		},
+		newEditor(),
+	)
+	norm.updateNumber(func(n int) int {
+		return n
+	})
 }
