@@ -23,6 +23,25 @@ func BenchmarkNormal(b *testing.B) {
 	}
 }
 
+func TestIndexNumber(t *testing.T) {
+	norm := newNormal(streamSet{in: NewReader(nil)}, newEditor())
+	if got := norm.indexNumber(); got >= 0 {
+		t.Errorf("got %d, but want -1", got)
+	}
+
+	norm = newNormal(streamSet{in: NewReader(nil)}, newEditor())
+	norm.buf = []rune("4") // TODO: this way of creating "normal" is not sophisticated.
+	if got := norm.indexNumber(); got != 0 {
+		t.Errorf("got %d, but want 0", got)
+	}
+
+	norm = newNormal(streamSet{in: NewReader(nil)}, newEditor())
+	norm.buf = []rune("-a4")
+	if got, want := norm.indexNumber(), 2; got != want {
+		t.Errorf("got %d, but want %d", got, want)
+	}
+}
+
 func TestUpdateNumber(t *testing.T) {
 	norm := newNormal(streamSet{in: NewReader(nil)}, newEditor())
 	norm.updateNumber(func(n int) int {
@@ -35,6 +54,21 @@ func TestUpdateNumber(t *testing.T) {
 		if n != 4 {
 			t.Fatalf("got %d, but want 4", n)
 		}
-		return n
+		return n + 1
 	})
+	if got := string(norm.buf); got != "5" {
+		t.Errorf("got %q, but want %q", got, "5")
+	}
+
+	norm = newNormal(streamSet{in: NewReader(nil)}, newEditor())
+	norm.buf = []rune("-a4")
+	norm.updateNumber(func(n int) int {
+		if n != 4 {
+			t.Fatalf("got %d, but want 4", n)
+		}
+		return n + 1
+	})
+	if got := string(norm.buf); got != "-a5" {
+		t.Errorf("got %q, but want %q", got, "-a5")
+	}
 }

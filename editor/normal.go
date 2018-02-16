@@ -560,6 +560,9 @@ func (e *normal) indexNumber() int {
 		}
 		if !negative && r == '-' {
 			negative = true
+		} else if negative {
+			// a digit does not follow '-', so the '-' is not a minus sign.
+			negative = false
 		}
 	}
 	return -1
