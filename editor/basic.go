@@ -12,7 +12,7 @@ type basic struct {
 }
 
 // move moves the position to the given position.
-// Given a invalid position, move sets the position at the end of the buffer.
+// Given an invalid position, move sets the position at the end of the buffer.
 func (e *basic) move(to int) {
 	switch {
 	case to >= len(e.buf):
@@ -25,7 +25,7 @@ func (e *basic) move(to int) {
 }
 
 // insert inserts s into the buffer at the given position.
-// Given a invalid position, insert considers the position to be at the end of the buffer.
+// Given an invalid position, insert considers the position to be at the end of the buffer.
 func (e *basic) insert(s []rune, at int) {
 	switch {
 	case at < 0:
@@ -72,7 +72,7 @@ func constrain(n, low, high int) int {
 }
 
 // delete deletes runes from the buffer [from, to].
-// Given a invalid position, delete considers the position to be at the end of the buffer.
+// Given an invalid position, delete considers the position to be at the end of the buffer.
 func (e *basic) delete(from, to int) {
 	left := constrain(min(from, to), 0, len(e.buf))
 	right := constrain(max(from, to), 0, len(e.buf))
@@ -94,7 +94,7 @@ func (e *basic) delete(from, to int) {
 }
 
 // slice slices the buffer [from, to].
-// Given a invalid position, slice considers the position to be at the end of the buffer.
+// Given an invalid position, slice considers the position to be at the end of the buffer.
 func (e *basic) slice(from, to int) []rune {
 	left := constrain(min(from, to), 0, len(e.buf))
 	right := constrain(max(from, to), 0, len(e.buf))
