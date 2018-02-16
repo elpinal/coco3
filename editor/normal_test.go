@@ -24,13 +24,17 @@ func BenchmarkNormal(b *testing.B) {
 }
 
 func TestUpdateNumber(t *testing.T) {
-	norm := newNormal(
-		streamSet{
-			in: NewReader(nil),
-		},
-		newEditor(),
-	)
+	norm := newNormal(streamSet{in: NewReader(nil)}, newEditor())
 	norm.updateNumber(func(n int) int {
+		return n
+	})
+
+	norm = newNormal(streamSet{in: NewReader(nil)}, newEditor())
+	norm.buf = []rune("4") // TODO: this way of creating "normal" is not sophisticated.
+	norm.updateNumber(func(n int) int {
+		if n != 4 {
+			t.Fatalf("got %d, but want 4", n)
+		}
 		return n
 	})
 }

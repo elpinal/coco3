@@ -544,7 +544,7 @@ func (e *normal) indexNumber() int {
 		return -1
 	}
 	i0 := e.pos
-	for ; 0 <= i0; i0-- {
+	for ; 0 < i0; i0-- {
 		r := e.buf[i0]
 		if !('0' <= r && r <= '9') {
 			break
