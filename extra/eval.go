@@ -48,12 +48,13 @@ func New(opt Option) Env {
 			"man":  manCommand,
 			"make": makeCommand,
 
-			"git":   gitCommand,
-			"cargo": cargoCommand,
-			"go":    goCommand,
-			"stack": stackCommand,
-			"lein":  leinCommand,
-			"ocaml": ocamlCommand,
+			"git":    gitCommand,
+			"rustup": rustupCommand,
+			"cargo":  cargoCommand,
+			"go":     goCommand,
+			"stack":  stackCommand,
+			"lein":   leinCommand,
+			"ocaml":  ocamlCommand,
 
 			"vim":    vimCommand,
 			"emacs":  emacsCommand,
@@ -448,4 +449,9 @@ var makeCommand = typed.Command{
 var ocamlCommand = typed.Command{
 	Params: []types.Type{types.StringList},
 	Fn:     commandArgs("ocaml"),
+}
+
+var rustupCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("rustup"),
 }
