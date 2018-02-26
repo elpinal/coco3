@@ -472,7 +472,6 @@ func removeFile(ctx context.Context, s string) error {
 			return os.Remove(s)
 		default:
 			fmt.Printf("%q is not an appropriate answer\n", ans)
-			return nil
 		}
 	}
 }
