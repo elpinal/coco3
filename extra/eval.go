@@ -418,9 +418,12 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	fmt.Printf("remove %s?\n", s)
 	for {
 		fmt.Println("type y to continue")
-		var ans string
-		fmt.Scanf("%s", &ans)
-		switch ans {
+		buf := bufio.NewReaderSize(os.Stdin, 1)
+		ans, err := buf.ReadString('\n')
+		if err != nil {
+			return err
+		}
+		switch strings.TrimSpace(ans) {
 		case "i":
 			fi, err := os.Stat(s)
 			if err != nil {
