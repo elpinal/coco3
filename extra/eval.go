@@ -260,6 +260,29 @@ func goCommand1() func([]ast.Expr, *sqlx.DB) error {
 	}
 }
 
+func stackCommand1() func([]ast.Expr, *sqlx.DB) error {
+	return func(args []ast.Expr, _ *sqlx.DB) error {
+		name := "stack"
+		cmdArgs, err := toSlice(args[1].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, name)
+		}
+		var cmd *exec.Cmd
+		switch lit := args[0].(*ast.Ident).Lit; lit {
+		case "command":
+			cmd = stdCmd(name, cmdArgs...)
+		case "run":
+			if err := stdCmd(name, "build").Run(); err != nil {
+				return err
+			}
+			cmd = stdCmd(name, append([]string{"exec"}, cmdArgs...)...)
+		default:
+			cmd = stdCmd(name, append([]string{lit}, cmdArgs...)...)
+		}
+		return cmd.Run()
+	}
+}
+
 var gitCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("git"),
