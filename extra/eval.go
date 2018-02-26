@@ -443,7 +443,7 @@ func removeFile(ctx context.Context, s string) error {
 			return nil
 		default:
 		}
-		fmt.Println("type y to continue")
+		fmt.Println("type 'y' to continue")
 		buf := bufio.NewReaderSize(os.Stdin, 1)
 		ans, err := buf.ReadString('\n')
 		if err != nil {
