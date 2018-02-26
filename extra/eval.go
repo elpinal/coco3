@@ -449,7 +449,8 @@ func removeFile(ctx context.Context, s string) error {
 		if err != nil {
 			return err
 		}
-		switch strings.TrimSpace(ans) {
+		ans = strings.TrimSpace(ans)
+		switch ans {
 		case "i":
 			fi, err := os.Stat(s)
 			if err != nil {
