@@ -416,7 +416,20 @@ var removeCommand = typed.Command{
 func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	s := exprs[0].(*ast.String).Lit
 	fmt.Printf("remove %s?\n", s)
-	return removeFile(s)
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+
+	errCh := make(chan error)
+	go func() {
+		errCh <- removeFile(s)
+	}()
+	select {
+	case err := <-errCh:
+		return err
+	case s := <-ch:
+		return fmt.Errorf("%s", s)
+	}
 }
 
 func removeFile(s string) error {
