@@ -300,7 +300,7 @@ var goCommand = typed.Command{
 
 var stackCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
-	Fn:     commandsInCommand("stack"),
+	Fn:     stackCommand1(),
 }
 
 var leinCommand = typed.Command{
