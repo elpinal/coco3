@@ -416,6 +416,10 @@ var removeCommand = typed.Command{
 func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	s := exprs[0].(*ast.String).Lit
 	fmt.Printf("remove %s?\n", s)
+	return removeFile(s)
+}
+
+func removeFile(s string) error {
 	for {
 		fmt.Println("type y to continue")
 		buf := bufio.NewReaderSize(os.Stdin, 1)
