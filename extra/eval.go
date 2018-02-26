@@ -468,7 +468,6 @@ func removeFile(ctx context.Context, s string) error {
 			if err := f.Close(); err != nil {
 				return err
 			}
-			
 			if err := buf.Flush(); err != nil {
 				return err
 			}
