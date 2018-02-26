@@ -2,6 +2,7 @@ package extra
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -420,9 +421,12 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	errCh := make(chan error)
 	go func() {
-		errCh <- removeFile(s)
+		errCh <- removeFile(ctx, s)
 	}()
 	select {
 	case err := <-errCh:
@@ -432,8 +436,12 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	}
 }
 
-func removeFile(s string) error {
+func removeFile(ctx context.Context, s string) error {
 	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		}
 		fmt.Println("type y to continue")
 		buf := bufio.NewReaderSize(os.Stdin, 1)
 		ans, err := buf.ReadString('\n')
