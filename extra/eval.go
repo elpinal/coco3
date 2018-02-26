@@ -463,6 +463,7 @@ func removeFile(ctx context.Context, s string) error {
 			if err != nil {
 				return err
 			}
+			buf := bufio.NewWriter(os.Stdout)
 			_, err = io.Copy(os.Stdout, f)
 			f.Close()
 			if err != nil {
