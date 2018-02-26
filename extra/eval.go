@@ -465,7 +465,10 @@ func removeFile(ctx context.Context, s string) error {
 			}
 			buf := bufio.NewWriter(os.Stdout)
 			_, err = io.Copy(buf, f)
-			f.Close()
+			if err := f.Close(); err != nil {
+				return err
+			}
+			
 			if err := buf.Flush(); err != nil {
 				return err
 			}
