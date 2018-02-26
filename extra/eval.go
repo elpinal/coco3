@@ -441,6 +441,7 @@ func removeFile(ctx context.Context, s string) error {
 		select {
 		case <-ctx.Done():
 			return nil
+		default:
 		}
 		fmt.Println("type y to continue")
 		buf := bufio.NewReaderSize(os.Stdin, 1)
