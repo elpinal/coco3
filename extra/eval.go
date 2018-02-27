@@ -19,6 +19,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
+	"github.com/elpinal/coco3/editor"
 	"github.com/elpinal/coco3/extra/ast"
 	"github.com/elpinal/coco3/extra/parser" // Only for ParseError.
 	"github.com/elpinal/coco3/extra/typed"
@@ -516,6 +517,9 @@ func (r *reader) readByte(ctx context.Context, src io.Reader) (byte, error) {
 	case err := <-errCh:
 		return 0, err
 	case b := <-ch:
+		if b == editor.CharCtrlC {
+			return 0, errors.New("interrupted")
+		}
 		return b, nil
 	}
 }
