@@ -538,10 +538,14 @@ func (r *reader) readByte(src io.Reader) (byte, error) {
 	if n == 0 {
 		return 0, errors.New("nothing to read")
 	}
-	if buf[0] == editor.CharCtrlC {
+	b := buf[0]
+	if b == editor.CharCtrlC {
 		return 0, errors.New("interrupted")
 	}
-	return buf[0], nil
+	if b <= editor.EndOfControlCharacters {
+		return 0, errors.New("not a printable character")
+	}
+	return b, nil
 }
 
 var cnpCommand = typed.Command{
