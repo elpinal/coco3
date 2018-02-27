@@ -492,24 +492,29 @@ func newReader() *reader {
 	return &reader{}
 }
 
-func (r *reader) readLine(ctx context.Context) (string, error) {
-	ch := make(chan string, 1)
+func (r *reader) readByte(ctx context.Context, src io.Reader) (byte, error) {
+	ch := make(chan byte, 1)
 	errCh := make(chan error, 1)
 	go func() {
-		s, err := r.r.ReadString('\n')
+		buf := make([]byte, 1)
+		n, err := src.Read(buf)
 		if err != nil {
 			errCh <- err
 			return
 		}
-		ch <- s
+		if n == 0 {
+			errCh <- errors.New("nothing to read")
+			return
+		}
+		ch <- buf[0]
 	}()
 	select {
 	case <-ctx.Done():
-		return "", errors.New("canceled")
+		return -1, errors.New("canceled")
 	case err := <-errCh:
-		return "", err
-	case s := <-ch:
-		return s, nil
+		return -1, err
+	case b := <-ch:
+		return b, nil
 	}
 }
 
