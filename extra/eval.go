@@ -485,7 +485,7 @@ func removeFile(ctx context.Context, s string) error {
 }
 
 type reader struct {
-	r *bufio.Reader
+	r byte
 }
 
 func newReader(r *bufio.Reader) *reader {
