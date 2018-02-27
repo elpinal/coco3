@@ -499,17 +499,22 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 	ch := make(chan byte, 1)
 	errCh := make(chan error, 1)
 	go func() {
-		buf := make([]byte, 1)
-		n, err := src.Read(buf)
+		b1, err := r.readByte(src)
 		if err != nil {
 			errCh <- err
 			return
 		}
-		if n == 0 {
-			errCh <- errors.New("nothing to read")
-			return
+		for {
+			b2, err := r.readByte(src)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			if b2 == editor.CharCtrlM {
+				ch <- b1
+				return
+			}
 		}
-		ch <- buf[0]
 	}()
 	select {
 	case <-ctx.Done():
