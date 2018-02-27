@@ -444,8 +444,8 @@ func removeFile(ctx context.Context, s string) error {
 		default:
 		}
 		fmt.Println("type 'y' to continue; 'i' to get information for the file; 's' to show the file")
-		r := bufio.NewReaderSize(os.Stdin, 1)
-		ans, err := r.ReadString('\n')
+		r := newReader(bufio.NewReaderSize(os.Stdin, 1))
+		ans, err := r.readLine(ctx)
 		if err != nil {
 			return err
 		}
