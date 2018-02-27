@@ -486,6 +486,10 @@ type reader struct {
 	r *bufio.Reader
 }
 
+func newReader(r *bufio.Reader) *reader {
+	return &reader{r: r}
+}
+
 var cnpCommand = typed.Command{
 	Params: []types.Type{types.String},
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
