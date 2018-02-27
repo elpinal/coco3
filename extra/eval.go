@@ -482,6 +482,10 @@ func removeFile(ctx context.Context, s string) error {
 	}
 }
 
+type reader struct {
+	r *bufio.Reader
+}
+
 var cnpCommand = typed.Command{
 	Params: []types.Type{types.String},
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
