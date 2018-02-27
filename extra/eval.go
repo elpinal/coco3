@@ -504,6 +504,7 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 			errCh <- err
 			return
 		}
+		fmt.Printf("%c", b1)
 		for {
 			b2, err := r.readByte(src)
 			if err != nil {
@@ -522,6 +523,7 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 	case err := <-errCh:
 		return 0, err
 	case b := <-ch:
+		fmt.Println()
 		if b == editor.CharCtrlC {
 			return 0, errors.New("interrupted")
 		}
@@ -539,8 +541,11 @@ func (r *reader) readByte(src io.Reader) (byte, error) {
 		return 0, errors.New("nothing to read")
 	}
 	b := buf[0]
-	if b == editor.CharCtrlC {
+	switch b {
+	case editor.CharCtrlC:
 		return 0, errors.New("interrupted")
+	case editor.CharCtrlM:
+		return b, nil
 	}
 	if b <= editor.EndOfControlCharacters {
 		return 0, errors.New("not a printable character")
