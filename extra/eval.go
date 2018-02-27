@@ -444,21 +444,20 @@ func removeFile(ctx context.Context, s string) error {
 		default:
 		}
 		fmt.Println("type 'y' to continue; 'i' to get information for the file; 's' to show the file")
-		r := newReader(bufio.NewReaderSize(os.Stdin, 1))
-		ans, err := r.readLine(ctx)
+		r := newReader()
+		ans, err := r.readByte(ctx, bufio.NewReaderSize(os.Stdin, 1))
 		if err != nil {
 			return err
 		}
-		ans = strings.TrimSpace(ans)
 		switch ans {
-		case "i":
+		case 'i':
 			fi, err := os.Stat(s)
 			if err != nil {
 				return err
 			}
 			fmt.Printf("size: %d bytes\n", fi.Size())
 			fmt.Println("is directory?:", fi.IsDir())
-		case "s":
+		case 's':
 			f, err := os.Open(s)
 			if err != nil {
 				return err
@@ -474,12 +473,12 @@ func removeFile(ctx context.Context, s string) error {
 			if err != nil {
 				return err
 			}
-		case "y":
+		case 'y':
 			return os.Remove(s)
-		case "n":
+		case 'n':
 			return nil
 		default:
-			fmt.Printf("%q is not an appropriate answer.\n", ans)
+			fmt.Printf("%c is not an appropriate answer.\n", ans)
 		}
 	}
 }
@@ -510,9 +509,9 @@ func (r *reader) readByte(ctx context.Context, src io.Reader) (byte, error) {
 	}()
 	select {
 	case <-ctx.Done():
-		return -1, errors.New("canceled")
+		return 0, errors.New("canceled")
 	case err := <-errCh:
-		return -1, err
+		return 0, err
 	case b := <-ch:
 		return b, nil
 	}
