@@ -488,8 +488,8 @@ type reader struct {
 	r byte
 }
 
-func newReader(r *bufio.Reader) *reader {
-	return &reader{r: r}
+func newReader() *reader {
+	return &reader{}
 }
 
 func (r *reader) readLine(ctx context.Context) (string, error) {
