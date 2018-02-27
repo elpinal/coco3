@@ -477,7 +477,7 @@ func removeFile(ctx context.Context, s string) error {
 		case "y":
 			return os.Remove(s)
 		default:
-			fmt.Printf("%q is not an appropriate answer\n", ans)
+			fmt.Printf("%q is not an appropriate answer.\n", ans)
 		}
 	}
 }
