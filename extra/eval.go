@@ -490,6 +490,27 @@ func newReader(r *bufio.Reader) *reader {
 	return &reader{r: r}
 }
 
+func (r *reader) readLine(ctx context.Context) (string, error) {
+	ch := make(chan string, 1)
+	errCh := make(chan error, 1)
+	go func() {
+		s, err := r.r.ReadString('\n')
+		if err != nil {
+			errCh <- err
+			return
+		}
+		ch <- s
+	}()
+	select {
+	case <-ctx.Done():
+		return "", errors.New("canceled")
+	case err := <-errCh:
+		return "", err
+	case s := <-ch:
+		return s, nil
+	}
+}
+
 var cnpCommand = typed.Command{
 	Params: []types.Type{types.String},
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
