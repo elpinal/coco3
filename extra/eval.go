@@ -15,6 +15,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"golang.org/x/crypto/ssh/terminal"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/elpinal/coco3/extra/ast"
@@ -418,11 +420,14 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	s := exprs[0].(*ast.String).Lit
 	fmt.Printf("remove %s?\n", s)
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	oldState, err := terminal.MakeRaw(0)
+	if err != nil {
+		return err
+	}
+	defer terminal.Restore(0, oldState)
 
 	errCh := make(chan error)
 	go func() {
@@ -431,8 +436,6 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	select {
 	case err := <-errCh:
 		return err
-	case s := <-ch:
-		return fmt.Errorf("%s", s)
 	}
 }
 
