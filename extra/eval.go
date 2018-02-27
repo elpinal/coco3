@@ -524,6 +524,21 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 	}
 }
 
+func (r *reader) readByte(src io.Reader) (byte, error) {
+	buf := make([]byte, 1)
+	n, err := src.Read(buf)
+	if err != nil {
+		return 0, err
+	}
+	if n == 0 {
+		return 0, errors.New("nothing to read")
+	}
+	if buf[0] == editor.CharCtrlC {
+		return 0, errors.New("interrupted")
+	}
+	return buf[0], nil
+}
+
 var cnpCommand = typed.Command{
 	Params: []types.Type{types.String},
 	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
