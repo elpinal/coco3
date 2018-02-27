@@ -103,7 +103,8 @@ start:
 		e.put(r1, e.pos)
 		e.needSave = true
 	default:
-		if r <= CharCtrlZ {
+		if r <= EndOfControlCharacters {
+			// TODO: should warnings be printed?
 			return
 		}
 		e.ordinaryKey(r)
