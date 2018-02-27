@@ -449,7 +449,7 @@ func removeFile(ctx context.Context, s string) error {
 		}
 		fmt.Println("type 'y' to continue; 'i' to get information for the file; 's' to show the file; 'n' to exit")
 		r := newReader()
-		ans, err := r.readByte(ctx, bufio.NewReaderSize(os.Stdin, 1))
+		ans, err := r.read(ctx, bufio.NewReaderSize(os.Stdin, 1))
 		if err != nil {
 			return err
 		}
@@ -495,7 +495,7 @@ func newReader() *reader {
 	return &reader{}
 }
 
-func (r *reader) readByte(ctx context.Context, src io.Reader) (byte, error) {
+func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 	ch := make(chan byte, 1)
 	errCh := make(chan error, 1)
 	go func() {
