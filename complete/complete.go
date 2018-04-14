@@ -49,6 +49,11 @@ func File(buf []rune, pos int) ([]string, error) {
 }
 
 func ioReadDir(dir string) ([]string, error) {
+	_, err := os.Stat(dir)
+	if err != nil {
+		// Return due to a kind of errors where a directory does not exist.
+		return nil, nil
+	}
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		return nil, err
