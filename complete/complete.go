@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func File(buf []rune, pos int) ([]string, error) {
@@ -76,7 +78,7 @@ func fromPath(buf []rune, pos int, path string, readDir dirReader) ([]string, er
 		}
 		files, err := readDir(dir)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "PATH completion failed")
 		}
 		for _, name := range files {
 			if !strings.HasPrefix(name, prefix) {
