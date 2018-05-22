@@ -35,7 +35,7 @@ type commandline struct {
 func emptyCommandline() *commandline {
 	return &commandline{
 		editor: newEditor(),
-		basic: &basic{},
+		basic:  &basic{},
 	}
 }
 
