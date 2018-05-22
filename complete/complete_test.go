@@ -8,19 +8,19 @@ import (
 func TestFile(t *testing.T) {
 	tests := []struct {
 		input string
-		want  []string
+		want  [][]rune
 	}{
 		{
 			input: "testdata/file",
-			want:  []string{"1.txt", "2.txt"},
+			want:  [][]rune{[]rune("1.txt"), []rune("2.txt")},
 		},
 		{
 			input: "testdata/",
-			want:  []string{"dir1/", "file1.txt", "file2.txt", "ó.txt"},
+			want:  [][]rune{[]rune("dir1/"), []rune("file1.txt"), []rune("file2.txt"), []rune("ó.txt")},
 		},
 		{
 			input: "testdata/ó",
-			want:  []string{".txt"},
+			want:  [][]rune{[]rune(".txt")},
 		},
 	}
 	for _, test := range tests {
@@ -35,10 +35,10 @@ func TestFile(t *testing.T) {
 	}
 }
 
-func testReadDir(dir string) ([]string, error) {
-	m := map[string][]string{
-		"a": []string{"x1", "x2", "y1"},
-		"b": []string{"x3", "x4", "y2"},
+func testReadDir(dir string) ([][]rune, error) {
+	m := map[string][][]rune{
+		"a": {[]rune("x1"), []rune("x2"), []rune("y1")},
+		"b": {[]rune("x3"), []rune("x4"), []rune("y2")},
 	}
 	return m[dir], nil
 }
@@ -46,19 +46,19 @@ func testReadDir(dir string) ([]string, error) {
 func TestFromPath(t *testing.T) {
 	tests := []struct {
 		input string
-		want  []string
+		want  [][]rune
 	}{
 		{
 			input: "x",
-			want:  []string{"1", "2", "3", "4"},
+			want:  [][]rune{[]rune("1"), []rune("2"), []rune("3"), []rune("4")},
 		},
 		{
 			input: "y",
-			want:  []string{"1", "2"},
+			want:  [][]rune{[]rune("1"), []rune("2")},
 		},
 		{
 			input: "z",
-			want:  []string{},
+			want:  [][]rune{},
 		},
 	}
 	for _, test := range tests {

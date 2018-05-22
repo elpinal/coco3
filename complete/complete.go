@@ -10,10 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func File(buf []rune, pos int) ([]string, error) {
+func File(buf []rune, pos int) ([][]rune, error) {
 	i := strings.LastIndexAny(string(buf[:pos]), " '") + 1
-	prefix := string(buf[i:pos])
-	p, pend := filepath.Split(prefix)
+	prefix := buf[i:pos]
+	p, pend := filepath.Split(string(prefix)) // TODO: introduce a []rune version of filepath.Split.
 	if p == "" {
 		p = "."
 	}
@@ -25,7 +25,7 @@ func File(buf []rune, pos int) ([]string, error) {
 		return nil, err
 	}
 	defer dir.Close()
-	names := make([]string, 0, len(pend))
+	names := make([][]rune, 0, len(pend))
 	dirnames, err := dir.Readdirnames(0)
 	if err != nil {
 		return nil, err
@@ -35,20 +35,20 @@ func File(buf []rune, pos int) ([]string, error) {
 		if !strings.HasPrefix(name, pend) {
 			continue
 		}
-		n := name[len(pend):]
+		n := []rune(name)[len([]rune(pend)):]
 		stat, err := os.Stat(filepath.Join(p, name))
 		if err != nil {
 			return nil, err
 		}
 		if stat.IsDir() {
-			n += "/"
+			n = append(n, '/')
 		}
 		names = append(names, n)
 	}
 	return names, nil
 }
 
-func ioReadDir(dir string) ([]string, error) {
+func ioReadDir(dir string) ([][]rune, error) {
 	_, err := os.Stat(dir)
 	if err != nil {
 		// Return due to a kind of errors where a directory does not exist.
@@ -58,25 +58,25 @@ func ioReadDir(dir string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	names := make([]string, len(files))
+	names := make([][]rune, len(files))
 	for i := range files {
-		names[i] = files[i].Name()
+		names[i] = []rune(files[i].Name())
 	}
 	return names, nil
 }
 
-func FromPath(buf []rune, pos int) ([]string, error) {
+func FromPath(buf []rune, pos int) ([][]rune, error) {
 	return fromPath(buf, pos, os.Getenv("PATH"), ioReadDir)
 }
 
-type dirReader func(string) ([]string, error)
+type dirReader func(string) ([][]rune, error)
 
-func fromPath(buf []rune, pos int, path string, readDir dirReader) ([]string, error) {
+func fromPath(buf []rune, pos int, path string, readDir dirReader) ([][]rune, error) {
 	// TODO: Parsing buf will make it more convenient to complete.
 	// Currently implemented as simple and fast, but not solid.
 	i := strings.LastIndexAny(string(buf[:pos]), " '!") + 1
 	prefix := string(buf[i:pos])
-	names := make([]string, 0, 1)
+	names := make([][]rune, 0, 1)
 	for _, dir := range filepath.SplitList(path) {
 		if dir == "" {
 			dir = "."
@@ -86,7 +86,7 @@ func fromPath(buf []rune, pos int, path string, readDir dirReader) ([]string, er
 			return nil, errors.Wrap(err, "PATH completion failed")
 		}
 		for _, name := range files {
-			if !strings.HasPrefix(name, prefix) {
+			if !strings.HasPrefix(string(name), prefix) {
 				continue
 			}
 			names = append(names, name[len(prefix):])

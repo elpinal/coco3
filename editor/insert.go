@@ -136,7 +136,7 @@ func (e *insert) Highlight() *screen.Hi {
 }
 
 func (e *insert) ctrlX(r rune) (rune, error) {
-	var f func([]rune, int) ([]string, error)
+	var f func([]rune, int) ([][]rune, error)
 	switch r {
 	case CharCtrlB:
 		f = complete.FromPath
@@ -150,8 +150,8 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 	if err != nil {
 		return 0, err
 	}
-	list = append(list, "")
-	e.insert([]rune(list[0]), e.pos)
+	list = append(list, nil)
+	e.insert(list[0], e.pos)
 	e.needSave = true
 	n := 0
 	for {
@@ -184,7 +184,7 @@ func (e *insert) ctrlX(r rune) (rune, error) {
 			return r1, nil
 		}
 		e.delete(e.pos, e.pos-len(list[n1]))
-		e.insert([]rune(list[n]), e.pos)
+		e.insert(list[n], e.pos)
 	}
 }
 
