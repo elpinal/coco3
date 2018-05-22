@@ -16,11 +16,16 @@ func TestFile(t *testing.T) {
 		},
 		{
 			input: "testdata/",
-			want:  []string{"dir1/", "file1.txt", "file2.txt"},
+			want:  []string{"dir1/", "file1.txt", "file2.txt", "ó.txt"},
+		},
+		{
+			input: "testdata/ó",
+			want:  []string{".txt"},
 		},
 	}
 	for _, test := range tests {
-		list, err := File([]rune(test.input), len(test.input))
+		input := []rune(test.input)
+		list, err := File([]rune(input), len(input))
 		if err != nil {
 			t.Errorf("File: %v", err)
 		}
