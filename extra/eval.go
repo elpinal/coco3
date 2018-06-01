@@ -41,6 +41,7 @@ func New(opt Option) Env {
 		cmds: map[string]typed.Command{
 			"exec":    execCommand,
 			"execenv": execenvCommand, // exec with env
+			"repeat":  repeatCommand,  // repeatedly execute a command
 			"cd":      cdCommand,
 			"exit":    exitCommand,
 			"free":    freeCommand,
@@ -175,6 +176,27 @@ var execenvCommand = typed.Command{
 		}
 		cmd.Env = append(os.Environ(), env...)
 		return cmd.Run()
+	},
+}
+
+var repeatCommand = typed.Command{
+	Params: []types.Type{types.Int, types.String, types.StringList},
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
+		n, err := strconv.Atoi(args[0].(*ast.Int).Lit)
+		if err != nil {
+			return errors.Wrap(err, "repeat")
+		}
+		cmdArgs, err := toSlice(args[2].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "repeat")
+		}
+		for i := 0; i < n; i++ {
+			cmd := stdCmd(args[1].(*ast.String).Lit, cmdArgs...)
+			if err := cmd.Run(); err != nil {
+				return err
+			}
+		}
+		return nil
 	},
 }
 
