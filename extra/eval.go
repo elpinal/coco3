@@ -50,6 +50,7 @@ func New(opt Option) Env {
 			"remove": removeCommand,
 
 			"ls":   lsCommand,
+			"mv":   moveCommand,
 			"man":  manCommand,
 			"make": makeCommand,
 
@@ -424,6 +425,15 @@ var historyCommand = typed.Command{
 var lsCommand = typed.Command{
 	Params: []types.Type{},
 	Fn:     stdExec("ls", "--show-control-chars", "--color=auto"),
+}
+
+var moveCommand = typed.Command{
+	Params: []types.Type{types.String, types.String},
+	Fn: func(e []ast.Expr, _ *sqlx.DB) error {
+		s := e[0].(*ast.String).Lit
+		d := e[1].(*ast.String).Lit
+		return stdCmd("mv", s, d).Run()
+	},
 }
 
 var manCommand = typed.Command{
