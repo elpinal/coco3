@@ -189,6 +189,7 @@ func (e *commandline) substitute(args []parser.Token) (_ continuity) {
 	s0 := toString(args[1])
 	s := strings.Replace(string(e.buf), string(pat), string(s0), -1)
 	e.buf = []rune(s)
+	// FIXME: e.pos should be changed according to the substitution.
 	return
 }
 
