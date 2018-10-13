@@ -303,6 +303,8 @@ func stackCommand1() func([]ast.Expr, *sqlx.DB) error {
 				return err
 			}
 			cmd = stdCmd(name, append([]string{"exec"}, cmdArgs...)...)
+		case "help":
+			cmd = stdCmd(name, "--help")
 		default:
 			cmd = stdCmd(name, append([]string{lit}, cmdArgs...)...)
 		}
