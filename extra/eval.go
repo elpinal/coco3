@@ -538,6 +538,7 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 	ch := make(chan byte, 1)
 	errCh := make(chan error, 1)
 	go func() {
+	F:
 		b1, err := r.readByte(src)
 		if err != nil {
 			errCh <- err
@@ -550,9 +551,13 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 				errCh <- err
 				return
 			}
-			if b2 == editor.CharCtrlM {
+			switch b2 {
+			case editor.CharCtrlM:
 				ch <- b1
 				return
+			case editor.CharBackspace:
+				fmt.Print("\033[D\033[K")
+				goto F
 			}
 		}
 	}()
