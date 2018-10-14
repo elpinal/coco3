@@ -5,11 +5,11 @@ matrix:
     - go: master
       os: osx
 
-    - go: 1.8.x
-      os: osx
-
     - go: master
       os: linux
 
+    - go: 1.11.x
+      os: linux
+
   allow_failures:
-    - os: linux
+    - os: osx
