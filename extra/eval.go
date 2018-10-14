@@ -458,12 +458,6 @@ func remove(exprs []ast.Expr, _ *sqlx.DB) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	oldState, err := terminal.MakeRaw(0)
-	if err != nil {
-		return err
-	}
-	defer terminal.Restore(0, oldState)
-
 	errCh := make(chan error)
 	go func() {
 		errCh <- removeFile(ctx, s)
@@ -481,9 +475,9 @@ func removeFile(ctx context.Context, s string) error {
 			return nil
 		default:
 		}
-		fmt.Println("type 'y' to continue; 'i' to get information for the file; 's' to show the file; 'n' to exit")
-		r := newReader()
-		ans, err := r.read(ctx, bufio.NewReaderSize(os.Stdin, 1))
+		fmt.Println("\033[36m>\033[0m type 'y' to continue; 'i' to get information for the file; 's' to show the file; 'n' to exit")
+		fmt.Print("\033[35m>\033[0m ")
+		ans, err := read(ctx, bufio.NewReaderSize(os.Stdin, 1))
 		if err != nil {
 			return err
 		}
@@ -519,6 +513,17 @@ func removeFile(ctx context.Context, s string) error {
 			fmt.Printf("%c is not an appropriate answer.\n", ans)
 		}
 	}
+}
+
+func read(ctx context.Context, src io.Reader) (byte, error) {
+	oldState, err := terminal.MakeRaw(0)
+	if err != nil {
+		return 0, err
+	}
+	defer terminal.Restore(0, oldState)
+
+	r := newReader()
+	return r.read(ctx, src)
 }
 
 type reader struct {
@@ -557,7 +562,7 @@ func (r *reader) read(ctx context.Context, src io.Reader) (byte, error) {
 	case err := <-errCh:
 		return 0, err
 	case b := <-ch:
-		fmt.Println()
+		fmt.Println("\r")
 		if b == editor.CharCtrlC {
 			return 0, errors.New("interrupted")
 		}
