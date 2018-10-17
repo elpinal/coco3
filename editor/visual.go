@@ -97,7 +97,7 @@ var visualCommands = map[rune]visualCommand{
 	'$':        (*visual).endline,
 	'0':        (*visual).beginline,
 	'A':        (*visual).appendAfter,
-	'B':        (*visual).wordBack,
+	'B':        (*visual).wordBackNonBlank,
 	'C':        (*visual).changeLine,
 	'D':        (*visual).deleteLine,
 	'E':        (*visual).wordEndNonBlank,
