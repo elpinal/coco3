@@ -49,6 +49,7 @@ func New(opt Option) Env {
 
 			"remove": removeCommand,
 
+			"cat":  catCommand,
 			"ls":   lsCommand,
 			"mv":   moveCommand,
 			"man":  manCommand,
@@ -421,6 +422,14 @@ var historyCommand = typed.Command{
 			}
 		}
 		return buf.Flush()
+	},
+}
+
+var catCommand = typed.Command{
+	Params: []types.Type{types.String},
+	Fn: func(e []ast.Expr, db *sqlx.DB) error {
+		lit := e[0].(*ast.String).Lit
+		return stdCmd("cat", lit).Run()
 	},
 }
 
