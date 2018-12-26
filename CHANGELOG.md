@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2018-12-27
+### Added
+- Add `cat` typed command.
+- Add `satysfi` typed command.
+
 ## [0.1.1] - 2018-10-18
 ### Fixed
 - Fix the behavior of `B` in visual mode.
@@ -14,3 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 The initial version of Coco3.
 
 [0.1.1]: https://github.com/elpinal/coco3/compare/v0.1.0...v0.1.1
+[0.1.2]: https://github.com/elpinal/coco3/compare/v0.1.1...v0.1.2
