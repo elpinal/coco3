@@ -67,6 +67,8 @@ func New(opt Option) Env {
 			"emacs":  emacsCommand,
 			"screen": screenCommand,
 
+			"satysfi": satysfiCommand,
+
 			"cnp":  cnpCommand,
 			"gvmn": gvmnCommand,
 			"vvmn": vvmnCommand,
@@ -637,4 +639,9 @@ var ocamlCommand = typed.Command{
 var rustupCommand = typed.Command{
 	Params: []types.Type{types.Ident, types.StringList},
 	Fn:     commandsInCommand("rustup"),
+}
+
+var satysfiCommand = typed.Command{
+	Params: []types.Type{types.StringList},
+	Fn:     commandArgs("satysfi"),
 }
