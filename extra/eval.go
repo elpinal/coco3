@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -39,13 +40,14 @@ func New(opt Option) Env {
 	return Env{
 		Option: opt,
 		cmds: map[string]typed.Command{
-			"exec":    execCommand,
-			"execenv": execenvCommand, // exec with env
-			"repeat":  repeatCommand,  // repeatedly execute a command
-			"cd":      cdCommand,
-			"exit":    exitCommand,
-			"free":    freeCommand,
-			"history": historyCommand,
+			"exec":     execCommand,
+			"execenv":  execenvCommand,  // exec with env
+			"withpath": withpathCommand, // exec with PATH extended
+			"repeat":   repeatCommand,   // repeatedly execute a command
+			"cd":       cdCommand,
+			"exit":     exitCommand,
+			"free":     freeCommand,
+			"history":  historyCommand,
 
 			"remove": removeCommand,
 
@@ -179,6 +181,29 @@ var execenvCommand = typed.Command{
 			}
 		}
 		cmd.Env = append(os.Environ(), env...)
+		return cmd.Run()
+	},
+}
+
+var withpathCommand = typed.Command{
+	Params: []types.Type{types.StringList, types.String, types.StringList},
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
+		cmdArgs, err := toSlice(args[2].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "withpath")
+		}
+		// The command is searched for in the original PATH, as opposed to the extended PATH.
+		cmd := stdCmd(args[1].(*ast.String).Lit, cmdArgs...)
+		paths, err := toSlice(args[0].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "withpath")
+		}
+		path := os.Getenv("PATH")
+		// Later paths have higer precedence.
+		for _, p := range paths {
+			path = p + string(filepath.ListSeparator) + path
+		}
+		cmd.Env = append(os.Environ(), "PATH="+path)
 		return cmd.Run()
 	},
 }
