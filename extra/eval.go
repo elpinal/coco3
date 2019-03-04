@@ -64,6 +64,7 @@ func New(opt Option) Env {
 			"stack":  stackCommand,
 			"lein":   leinCommand,
 			"ocaml":  ocamlCommand,
+			"dotnet": dotnetCommand,
 
 			"vim":    vimCommand,
 			"emacs":  emacsCommand,
@@ -659,6 +660,11 @@ var makeCommand = typed.Command{
 var ocamlCommand = typed.Command{
 	Params: []types.Type{types.StringList},
 	Fn:     commandArgs("ocaml"),
+}
+
+var dotnetCommand = typed.Command{
+	Params: []types.Type{types.Ident, types.StringList},
+	Fn:     commandsInCommand("dotnet"),
 }
 
 var rustupCommand = typed.Command{
