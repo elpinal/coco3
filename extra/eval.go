@@ -44,6 +44,7 @@ func New(opt Option) Env {
 			"execenv":  execenvCommand,  // exec with env
 			"withpath": withpathCommand, // exec with PATH extended
 			"repeat":   repeatCommand,   // repeatedly execute a command
+			"time":     timeCommand,
 			"cd":       cdCommand,
 			"exit":     exitCommand,
 			"free":     freeCommand,
@@ -226,6 +227,25 @@ var repeatCommand = typed.Command{
 				return err
 			}
 		}
+		return nil
+	},
+}
+
+var timeCommand = typed.Command{
+	Params: []types.Type{types.String, types.StringList},
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
+		cmdArgs, err := toSlice(args[1].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "time")
+		}
+		cmd := stdCmd(args[0].(*ast.String).Lit, cmdArgs...)
+		start := time.Now()
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+		end := time.Now()
+		elapsed := end.Sub(start)
+		fmt.Fprintf(os.Stdout, "elapsed time: %v\n", elapsed)
 		return nil
 	},
 }
