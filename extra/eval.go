@@ -419,9 +419,13 @@ func withEnv(s string, cmd *exec.Cmd) *exec.Cmd {
 }
 
 var screenCommand = typed.Command{
-	Params: []types.Type{},
-	Fn: func(_ []ast.Expr, _ *sqlx.DB) error {
-		return withEnv("LANG=en_US.UTF-8", stdCmd("screen")).Run()
+	Params: []types.Type{types.StringList},
+	Fn: func(args []ast.Expr, _ *sqlx.DB) error {
+		list, err := toSlice(args[0].(ast.List))
+		if err != nil {
+			return errors.Wrap(err, "screen")
+		}
+		return withEnv("LANG=en_US.UTF-8", stdCmd("screen", list...)).Run()
 	},
 }
 
